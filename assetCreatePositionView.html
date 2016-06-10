@@ -1,0 +1,158 @@
+﻿
+    
+    <style>
+    #purchaseDate, #accountType, #tickerSymbol, #inputPurchaseDate, #qty, #costBasis, #lastUpdate, #unitPrice {
+        background-color: lightgoldenrodyellow;
+    }
+    #tickerSymbol {
+        width: 60%;
+    }
+    #costBasis,  #unitPrice {
+        width: 70%;
+    }
+    #qty {
+        width: 40%;
+    }
+    .panel .panel-default {  /* adjust height as new fileds are added.*/
+        height: 325px;
+    }
+    .ng-pristine {
+        background: blue;  /*temp fix to rid of error on line 29*/
+    }
+    #accountType {
+        width: 300px;
+    }
+    #inputPurchaseDate {
+        width: 100px;
+    }
+    #calendarSpan {
+        padding: 1px;
+    }
+    #btnSave, #btnSaveAsset {
+        margin-right: 8px;
+    }
+    .ui-checkbox
+    {
+        margin: 9px 20px 10px 85px;
+    }
+    #validationMsg {
+        padding-left: 140px;
+    }
+    #dateValidationMsg {
+        padding-left: 5px;
+    }
+    [for~=accountType].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    [for~=inputPurchaseDate].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    [for~=qty].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+   
+</style>
+
+
+<div class="col-md-12" data-ng-app="incomeMgmt"> 
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong>
+            <span class="glyphicon glyphicon-th"></span> Position attributes</strong>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal ng-pristine ng-valid" role="form">
+
+                <div class="form-group"> <!--all 'col-sm-X' where the total of all X must not exceed 12 for this form-group-->
+                    <label class="col-sm-2 control-label" for="tickerSymbol">Ticker symbol:</label>
+                    <div class="col-sm-2">
+                        <strong><input class="form-control" id="tickerSymbol" data-ng-model="vm.assetTickerSymbol" readonly=""></strong>
+                    </div>
+                    <label class="col-sm-2 control-label" for="accountType">Account Type:</label>
+                    <div class="col-sm-2">
+                        <span class="ui-select">
+                            <select class="form-control" id="accountType" 
+                                    data-ng-model="vm.accountTypeSelected" 
+                                    data-ng-options="acctType.accountTypeDesc for acctType in vm.accountTypesCollection track by acctType.accountTypeDesc">
+                            </select>
+                        </span>
+                    </div>
+                    <span id="validationMsg" data-ng-show="vm.showAAssetAcctTypeValidationMsg" class="col-sm-4" style="color:orangered">Required entry; please make a selection</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="inputPurchaseDate">Purchase date:</label>
+                    <div class="col-sm-2">
+                        <div class="input-group ui-datepicker "> 
+                            <input type="text" 
+                                   readonly="readonly"
+                                   placeholder="M/dd/yyyy"
+                                   class="form-control"
+                                   data-is-open="vm.opened"
+                                   data-ng-required="true"
+                                   id="inputPurchaseDate"
+                                   data-show-weeks="false"
+                                   data-ng-model="vm.assetPurchaseDate"
+                                   data-datepicker-popup="M/dd/yyyy"/>
+                            <span class="input-group-addon" id="calendarSpan">
+                                  <button class="btn btn-default" data-ng-click="vm.calendarOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button> 
+                            </span>
+                       </div>
+                   </div>
+                    <!--Obsolete; keep for possible future use:-->
+                   <span id="dateValidationMsg" data-ng-show="vm.showPurchaseDateValidationMsg" style="color:orangered">Invalid entry; please check date</span>
+                </div>
+
+                <div class="form-group">
+                    <label id="lblQty" class="col-sm-2 control-label" for="qty">Units:</label>
+                    <div id="divQty" class="col-sm-2">
+                        <input class="col-sm-1 form-control" id="qty" data-ng-model="vm.positionQty" data-ng-blur="vm.calculateCostBasis()" > 
+                        <span class="col-sm-2" data-ng-show="vm.showQtyValidationMsg" style="color:orangered">Invalid entry</span>
+                    </div>
+                    <label id="lblUnitPrice" class="col-sm-2 control-label" for="unitPrice">Unit Cost ($):</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="unitPrice" data-ng-model="vm.positionUnitPrice" readonly="">
+                    </div>
+                    <label id="lblValuation" class="col-sm-2 control-label" for="costBasis">Cost Basis ($) :</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="costBasis" data-ng-model="vm.costBasis" maxlength="10" readonly="" >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="lastUpdate">Last update:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control col-sm-3" id="lastUpdate" data-ng-model="vm.positionLastUpdate" readonly="readonly">
+                    </div>
+                    <label class="ui-checkbox">
+                        <input id="chkboxLastOnly" type="checkbox" data-ng-model="vm.isOneOfManyPositions" data-ng-click="vm.reInitialize()">
+                        <span>&nbsp;Mark as <em>one of many</em> Positions to be added to this asset</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12 col-md-offset-2">
+                        <span>
+                            <button id="btnSave" data-ng-disabled="! vm.isMinimumPositionData()" class="btn btn-w-md btn-gap-v btn-info col-md-2" type="button" style="width: 70px; padding-right: 40px;" data-ng-click="vm.saveAssetPosition()">
+                                Save
+                            </button>
+                        </span>
+                         <span>
+                            <button id="btnNewPosition" class="btn btn-w-md btn-gap-v btn-info col-md-4" type="button" style="width: 70px;" data-ng-click="vm.clearPosition()">
+                                Clear
+                            </button>
+                         </span>
+                    </div>
+                </div>
+
+          </form>  
+        </div>
+    </section>
+</div>
+
+
