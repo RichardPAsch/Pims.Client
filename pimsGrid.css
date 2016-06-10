@@ -1,0 +1,12 @@
+﻿.mainGrid {
+    width: 1065px;
+    height: 350px;
+    margin-left: 7px;
+}
+.myGridHeaders {
+    background-color: lightgoldenrodyellow !important;
+    color: chocolate;
+}
+.ui-grid-menu-button {
+  height: 31px;
+}

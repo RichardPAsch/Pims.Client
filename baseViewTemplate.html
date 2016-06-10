@@ -1,0 +1,179 @@
+﻿<style>
+    #amtRecvd, #accountType, #tickerSymbol, #amtProjected, #inputDateRecvd {
+        background-color: lightgoldenrodyellow;
+    }
+    #tickerSymbol {
+        width: 60%;
+    }
+    #costBasis,  #unitPrice {
+        width: 70%;
+    }
+   
+    .panel .panel-default {  /* adjust height as new fileds are added.*/
+        height: 375px;
+    }
+    .ng-pristine {
+        /*background: blue; temp fix to rid of error on line 29*/
+    }
+    #accountType {
+        width: 300px;
+    }
+    
+    #calendarSpan {
+        padding: 1px;
+    }
+    #btnSave, #btnSaveAsset {
+        margin-right: 8px;
+    }
+    .ui-checkbox
+    {
+        margin: 9px 20px 10px 85px;
+    }
+    #amtRecvd, #amtProjected {
+        width: 120px;
+    }
+    #lblAcctType {
+        margin-left: 40px;
+    }
+    #lblProjected {
+        margin-left: -47px;
+    }
+    #ChkboxOneOfMany {
+        margin-left: -59px;
+    }
+    #notation {
+        padding-left: 50px;
+    }
+    #dateRecvdValidationMsg {
+        margin-top: 8px;
+    }
+    #divProjectedIncome {
+        margin-left: -18px;
+    }
+    [for~=accountType].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    #lblAmt.control-label:before{
+        content: " * ";
+        color: red;
+        font-size: 18px;
+    }
+    [for~=inputDateRecvd].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    #amtProjected
+    {
+        margin-left: 12px;
+    }
+    #inputDateRecvd {
+        width: 100px;
+    }
+    #panelSection {
+        margin-top: 70px;
+    }
+    
+</style>
+
+
+
+<div class="col-md-12" data-ng-app="incomeMgmt"> 
+    <section id="panelSection" class="panel panel-default">
+        <div class="panel-heading"><strong>
+            <span class="glyphicon glyphicon-th"></span> Income received </strong>
+            
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal ng-pristine ng-valid" role="form">
+
+                <div class="form-group">
+                    <div id="notation" class="col-md-12 col-md-offset-0">
+                        <!--location for messages here ?-->
+                        <p></p>
+                    </div>
+                </div>
+
+                <div class="form-group"> 
+                    <label class="col-sm-2 control-label" for="tickerSymbol">Ticker symbol:</label>
+                    <div class="col-sm-2">
+                        <strong><input class="form-control" id="tickerSymbol" data-ng-model="vm.assetTickerSymbol" readonly=""></strong>
+                    </div>
+
+                    <label class="col-sm-2 control-label" for="accountType" id="lblAcctType">Account Type:</label>
+                    <div class="col-sm-5">
+                        <span class="ui-select">
+                            <select class="form-control" id="accountType" 
+                                    data-ng-model="vm.selectedAccountType"
+                                    data-ng-options="positionAcctType.ReferencedAccount.AccountTypeDesc for positionAcctType in vm.accountTypesCollection track by positionAcctType.ReferencedAccount.AccountTypeDesc">
+                            </select>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="inputDateRecvd">Date received:</label>
+                    <div class="col-sm-2">
+                        <div class="input-group ui-datepicker "> 
+                            <input type="text" 
+                                   id="inputDateRecvd"
+                                   class="form-control"
+                                   placeholder="M/dd/yyyy"
+                                   data-is-open="vm.opened"
+                                   data-ng-required="true"
+                                   data-show-weeks="false"
+                                   data-ng-model="vm.incomeDateReceived"
+                                   data-datepicker-popup="M/dd/yyyy"/>
+                            <span class="input-group-addon" id="calendarSpan">
+                                <button class="btn btn-default" data-ng-click="vm.calendarOpen($event)"><i class="glyphicon glyphicon-calendar"></i></button> 
+                            </span>
+                        </div>
+                    </div>
+                    <span id="dateRecvdValidationMsg" class="col-sm-2" data-ng-show="vm.showDateRecvdValidationMsg" style="color:orangered">Invalid entry, check all dates</span>
+                </div>
+
+                <div class="form-group">
+                    <label id="lblAmt" class="col-sm-2 control-label" for="amtRecvd">Actual revenue ($):</label>
+                    <div id="divAmt" class="col-sm-3">
+                        <input class="form-control" id="amtRecvd" data-ng-model="vm.incomeAmtReceived" > <!--data-ng-blur="vm.isMinimumIncomeData()"--> 
+                    </div>
+                    <label id="lblProjected" class="col-sm-2 control-label" for="amtProjected">Projected revenue (M):</label>
+                    <div id="divProjectedIncome" class="col-sm-3">
+                        <input class="form-control" id="amtProjected" data-ng-model="vm.incomeAmtProjected" readonly=""> 
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="ui-checkbox col-sm-6 col-md-offset-1">
+                        <input id="ChkboxOneOfMany" type="checkbox" data-ng-model="vm.isOneOfManyIncomes">
+                        <span>&nbsp;Mark as <em>one of many</em> Income records to be added to this asset </span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-12 col-md-offset-2">
+                        <span>
+                            <button id="btnSave" data-ng-disabled="! vm.isMinimumIncomeData()" class="btn btn-w-md btn-gap-v btn-info col-md-2" type="button" style="width: 70px; padding-right: 40px;" data-ng-click="vm.saveAssetIncome()">
+                                Save
+                            </button>
+                        </span>
+                        <span>
+                            <button id="btnSaveAsset"  data-ng-disabled="vm.notOkToSaveAsset" class="btn btn-w-md btn-gap-v btn-info col-md-3" type="button" style="width: 125px;" data-ng-click="vm.saveAsset()">
+                                Save asset
+                            </button>
+                        </span>
+                        <span>
+                            <button id="btnClear" class="btn btn-w-md btn-gap-v btn-info col-md-4" type="button" style="width: 80px;" data-ng-click="vm.clearRevenue()">
+                                Clear
+                            </button>
+                        </span>
+                    </div>
+            </div>
+
+          </form>  
+        </div>
+    </section>
+</div>
+
