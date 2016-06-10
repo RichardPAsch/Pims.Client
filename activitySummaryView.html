@@ -1,0 +1,45 @@
+﻿<div class="page-signin">
+   <div class="signin-header" style="margin-top: 70px">
+      <div class="container text-center">
+         <section class="logo">
+             <!--<h2 style="margin-bottom: 40px">Income Activity Summary</h2>-->
+         </section>
+      </div>
+   </div>
+   <div class="main-body" data-ng-app="incomeMgmt" data-ng-controller="activitySummaryCtrl as vm">
+      <div class="container" style="width: 500px">
+         <div class="form-container">
+            <span class="line-thru"></span>
+             <form class="form-horizontal">
+                 <fieldset>
+                     <!-- <span>{{vm.getIncomeActivity()}}</span>-->
+                     <legend>Income Activity Summary for {{vm.currentYear}}</legend>
+                     <table class="table" style="width: 425px; height: 250px">
+                         <thead>
+                             <tr>
+                                 <td style="text-align: right">Month</td>
+                                 <td style="text-align: right">Amt. Recvd</td>
+                                 <td style="text-align: right">YTD Avg.</td>
+                                 <td style="text-align: right">3 mos Rolling Avg.</td>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             <!-- Sample: {"monthRecvd":6,"amountRecvd":42.98,"ytdAverage":126.75,"rolling3MonthAverage":187.80}-->
+                             <tr data-ng-repeat="incomeItem in vm.incomeActivitySummaryData">
+                                 <td style="text-align: right">{{ incomeItem.monthRecvd}}</td>
+                                 <td style="text-align: right">{{ incomeItem.amountRecvd | currency }}</td>
+                                 <td style="text-align: right">{{ incomeItem.ytdAverage | currency }}</td>
+                                 <td style="text-align: right">{{ incomeItem.rolling3MonthAverage | currency }}</td>
+                             </tr>
+                             <tr></tr>
+                             <tr>
+                                 <td><b>Total:</b></td><td style="text-align: right"> {{vm.incomeTotal | currency}}</td><td></td><td></td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </fieldset>
+             </form>
+         </div>
+      </div>
+   </div>
+</div>
