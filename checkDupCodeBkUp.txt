@@ -1,0 +1,39 @@
+ function checkRevenueDuplicate(ticker, acctType, dateRecvd, amtRecvd) {
+            // TODO: to be implemented. Check against newly added income & existing income records, if any.
+            // TODO - check acct type, date received, & amt received. WIP 4.15.16
+
+            /*  ------- Sample return data ------
+                [
+                    {"ticker":"CB","dateReceived":"12/8/2015","amountReceived":37.11,"accountType":"IRA"}, 
+                    {"ticker":"CB","dateReceived":"1/14/2016","amountReceived":38.09,"accountType":"IRA"}
+                ]
+            */
+            
+            //  desired path: http://localhost/Pims.Web.Api/api/Asset/CB/Income/IRA
+            var revenueByAcctTypeUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/" + ticker + "/Income/" + acctType;
+
+
+            // TODO: Use assetResource.js ?
+            var existingRevenue = [];
+            var resourceObj = $resource(revenueByAcctTypeUrl);
+            resourceObj.query().$promise.then(function(records) {
+                // query() success.
+                existingRevenue = records;
+                if (existingRevenue.length == 0)
+                    return false;
+
+                angular.forEach(existingRevenue, function (value, key) {
+                    // callback executed for each element in collection.  key = each object index
+                    if (value.amountReceived == amtRecvd && value.dateReceived == dateRecvd)
+                        return true;
+
+                    return false;
+                });
+            }, function(errResponse) {
+                // error executing query()
+                //alert("Unable to execute query() due to: " + errResponse.message);
+                return false;
+            });
+            
+            return false; 
+        }
