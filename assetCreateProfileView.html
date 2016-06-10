@@ -1,0 +1,118 @@
+﻿
+<style>
+    #divRate, #divYield, #tickerSymbol, #peRatio, #eps,#ExDivDate, #divPayDate, #unitPrice, #divFreq, #tickerDesc {
+        background-color: lightgoldenrodyellow;
+    }
+    #tickerSymbol {
+        width: 60%;
+    }
+    #divRate, #divYield, #peRatio, #eps, #unitPrice {
+        width: 50%;
+    }
+    #ExDivDate, #divPayDate {
+        width: 70%;
+    }
+     #divFreq {
+        width: 35%;
+    }
+    .panel .panel-default {  /* adjust height as new fileds are added.*/
+        height: 325px;
+    }
+    .ng-pristine {
+        background: blue;  /*temp fix to rid of error on line 29*/
+    }
+    #lastUpdate {
+        float: right;
+    }
+    #tickerDesc {
+        width: 465px;
+    }
+</style>
+
+
+
+<div class="col-md-12" data-ng-app="incomeMgmt"> 
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong>
+            <span class="glyphicon glyphicon-th"></span> Current profile attributes [read-only] ... </strong>
+            <span class="glyphicon glyphicon-refresh" data-ng-show={{vm.showDateTime}} id="lastUpdate"> {{vm.refreshDateTime}}</span>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal ng-pristine ng-valid" role="form">
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="tickerSymbol">Ticker symbol:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="tickerSymbol" data-ng-model="vm.assetTickerSymbol" readonly="readonly"> <!--upperCase ?-->
+                    </div>
+                    <label class="col-sm-2 control-label" for="divRate">Dividend rate ($):</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="divRate" data-ng-model="vm.assetDivRate" readonly="readonly"> 
+                    </div>
+                    <label class="col-sm-2 control-label" for="divYield">Dividend yield (%):</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="divYield" data-ng-model="vm.assetDivYield" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="tickerSymbol">Ticker description:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="tickerDesc" data-ng-model="vm.assetDescription" readonly="readonly" placeholder="NYSE description">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="divFreq">Dividend frequency:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="divFreq" data-ng-model="vm.assetDivFreq" readonly="readonly">
+                    </div>
+                    <label class="col-sm-2 control-label" for="peRatio">Price/Earnings:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="peRatio" data-ng-model="vm.assetPeRatio" readonly="readonly">
+                    </div>
+                    <label class="col-sm-2 control-label" for="eps">Earnings/Share ($):</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="eps" placeholder="5 digits" data-ng-model="vm.assetEPS" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="unitPrice">Unit Price ($):</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="unitPrice" data-ng-model="vm.assetUnitPrice" readonly="readonly">
+                    </div>
+                    <label class="col-sm-2 control-label" for="divPayDate">Dividend pay date:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="divPayDate" readonly="readonly" data-ng-model="vm.assetDivPayDate" >
+                    </div>
+                    <label class="col-sm-2 control-label" for="ExDivDate">Ex-dividend date:</label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="ExDivDate" data-ng-model="vm.assetExDivDate" readonly="readonly">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-md-4 col-md-offset-2">
+                        <span>
+                            <button class="btn btn-w-md btn-gap-v btn-info" type="button" style="width: 70px;" data-ng-click="vm.saveAssetProfile()">
+                                Save
+                            </button>
+                        </span>
+                        <span>
+                            <button class="btn btn-w-md btn-gap-v btn-info" type="button" style="width: 75px;" data-ng-click="vm.refreshProfile()">
+                                Refresh
+                            </button>
+                        </span>
+                    </div>
+                </div>
+
+          </form>  
+        </div>
+    </section>
+</div>
+
+
+
+
+
