@@ -1,0 +1,347 @@
+﻿
+
+<style>
+	* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
+	display: block;
+}
+body {
+	margin: 0;
+}
+html {
+	font-family: sans-serif;
+	-ms-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+}
+a {
+	background-color: transparent;
+}
+*::before, *::after {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+ul, ol {
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+body {
+	text-rendering: optimizeLegibility !important;
+	-webkit-font-smoothing: antialiased !important;
+	-moz-osx-font-smoothing: grayscale !important;
+}
+html {
+	font-size: 10px;
+	-webkit-tap-highlight-color: transparent;
+}
+a {
+	color: #333;
+	text-decoration: none;
+}
+::selection {
+	background: #31C0BE;
+	color: #fff;
+}
+
+.clearfix::before, .clearfix::after {
+	content: " ";
+	display: table;
+}
+.clearfix::after {
+	clear: both;
+}
+
+.panel-body {
+	padding: 15px;
+}
+.panel-body::before, .panel-body::after {
+	content: " ";
+	display: table;
+}
+.panel-body::after {
+	clear: both;
+}
+.panel {
+	margin-bottom: 20px;
+	background-color: #fff;
+	border: 1px solid transparent;
+	border-radius: 0;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	box-shadow: 0px 1px 1px rgba(0,0,0,0.05);
+}
+.panel-default {
+	border-color: #e9e9e9;
+}
+.page {
+	padding: 15px;
+}
+#content {
+	position: absolute;
+	top: 100px;
+	right: 0px;
+	bottom: 0px;
+	width: 100%;
+	left: 0px;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	-webkit-overflow-scrolling: -blackberry-touch;
+	-moz-transition: none;
+	-o-transition: none;
+	-webkit-transition: none;
+	transition: none;
+}
+/* @media all and (min-width:768px) */
+#content {
+	top: 90px;
+	width: auto;
+	left: 220px;
+}
+body {
+	font-family: "Lato","Helvetica Neue",Arial,sans-serif;
+	font-size: 14px;
+	line-height: 1.4285;
+	color: #767676;
+	background-color: #f3f3f3;
+}
+html {
+	overflow: hidden;
+}
+a {
+	text-decoration: none;
+}
+a:hover, a:focus {
+	color: #0d0d0d;
+	text-decoration: underline;
+}
+a:focus {
+	outline: thin dotted;
+	outline: 5px auto -webkit-focus-ring-color;
+	outline-offset: -2px;
+}
+a:active, a:focus, a:hover {
+	text-decoration: none;
+}
+.wizard>.steps .current a,
+.wizard>.steps .current a:hover,
+.wizard>.steps .current a:active {
+	background: #31C0BE;
+	color: #fff;
+	cursor: default
+}
+.wizard a, .tabcontrol a {
+	outline: 0;
+}
+.wizard > .steps a, .wizard > .steps a:hover, .wizard > .steps a:active {
+	display: block;
+	width: auto;
+	margin: 0 0.5em 0.5em;
+	padding: 1em 1em;
+	text-decoration: none;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+.wizard > .steps .current a, .wizard > .steps .current a:hover, .wizard > .steps .current a:active {
+	background: #31C0BE;
+	color: #fff;
+	cursor: default;
+}
+.wizard > .steps .current-info, .tabcontrol > .steps .current-info {
+	position: absolute;
+	left: -999em;
+}
+.wizard > .steps .number {
+	font-size: 1.42em;
+}
+.wizard > .content > .title, .tabcontrol > .content > .title {
+	position: absolute;
+	left: -999em;
+}
+.wizard > .content {
+	background-color: #eee;
+	display: block;
+	margin: 0.5em;
+	min-height: 31em;
+	overflow: hidden;
+	position: relative;
+	width: auto;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+.wizard > .steps {
+	position: relative;
+	display: block;
+	width: 100%;
+}
+.wizard ul > li, .tabcontrol ul > li {
+	display: block;
+	padding: 0;
+}
+.wizard > .steps > ul > li {
+	width: 25%;
+}
+/* @media all and (min-width:600px) */
+/*.wizard > .steps > ul > li {
+	width: 25%;
+}*/
+.wizard > .steps > ul > li, .wizard > .actions > ul > li {
+	float: left;
+}
+.wizard ul, .tabcontrol ul {
+	list-style: none !important;
+	padding: 0;
+	margin: 0;
+}
+.wizard, .tabcontrol {
+	display: block;
+	width: 100%;
+	overflow: hidden;
+}
+.wizard > .actions .disabled a, .wizard > .actions .disabled a:hover, .wizard > .actions .disabled a:active {
+	background: #eee;
+	color: #aaa;
+}
+.wizard > .actions > ul {
+	display: inline-block;
+	text-align: right;
+}
+.wizard > .actions a, .wizard > .actions a:hover, .wizard > .actions a:active {
+	background: #31C0BE;
+	margin-left: 10px;
+	color: #fff;
+	display: block;
+	padding: 0.5em 1em;
+	text-decoration: none;
+	-webkit-border-radius: 0;
+	-moz-border-radius: 0;
+	border-radius: 0;
+}
+.wizard > .actions {
+	position: relative;
+	display: block;
+	text-align: right;
+	width: 99.5%;
+	margin-top: 14px;
+}
+.bgc1 {
+	background: lime;
+}
+.bgc2 {
+	color: blue;
+}
+.first {
+	display: block; /* temp fix */
+}
+#uiViewBackground {
+	height: 470px; /* Increase height of ui-View allows for 'Revenue' page calendar buttons to show */
+}
+
+
+
+/*.wizard > .steps a, .wizard > .steps a:hover, .wizard > .steps a:active*/
+
+</style>
+
+
+
+
+
+
+
+
+<div class="signin-header" style="margin-top: 70px">
+	  <div class="container text-center">
+		 <section class="logo">
+			 <!--<h2 style="margin-bottom: 40px">Income Activity Summary</h2>-->
+		 </section>
+	  </div>
+   </div>
+   <div class="main-body" data-ng-app="incomeMgmt" data-ng-controller="assetCreateCtrl as vm">
+	  <div class="container">
+		 <div class="form-container">
+			<span class="line-thru"></span>
+			 <form class="form-horizontal">
+				 <fieldset>
+					 <!--<legend>Asset Create View</legend>-->
+				 </fieldset>
+				
+				  <!--Added from Envato Square template-->
+				 <section class="panel panel-default" style="height: 650px">
+					 <div class="panel-heading">
+						 <strong><span class="glyphicon glyphicon-th"></span>&nbsp;New asset creation wizard</strong>
+					 </div>
+					 
+					 <div class="panel-body">
+						 <div class="wizard clearfix" id="steps-uid-0" role="application" data-ui-wizard-form="">
+							 <div class="steps clearfix">
+								 <ul role="tablist">
+									 <li id="tickerTab" role="tab" class="current" aria-disabled="false" aria-selected="true">
+										 <a id="steps-uid-0-t-0" aria-controls="steps-uid-0-p-0" data-ui-sref=".ticker" data-ng-click="vm.displayActiveTab('ticker')">
+											 <!-- data-ui-sref-active="active" -->
+											 <span class="current-info">current step: </span><span class="number">1.</span> Asset 
+										 </a>
+									 </li>
+									 <li id="profileTab" class="done" role="tab" aria-disabled="false" aria-selected="false">
+										 <a id="steps-uid-0-t-1" aria-controls="steps-uid-0-p-1" data-ui-sref=".profileEmpty" data-ng-click="vm.displayActiveTab('profile')">
+											 <!--data-ui-sref-active="active" -->
+											 <span class="number">2.</span> Profile 
+										 </a>
+									 </li>
+									 <li id="positionTab" class="done" role="tab" aria-disabled="false" aria-selected="false">
+										 <a id="steps-uid-0-t-2" aria-controls="steps-uid-0-p-2" data-ui-sref=".position" data-ng-click="vm.displayActiveTab('position')">
+											 <!--  data-ui-sref-active="active"-->
+											 <span class="number">3.</span> Position(s)
+										 </a>
+									 </li>
+									 <li id="incomeTab" class="done" role="tab" aria-disabled="false" aria-selected="false">
+										 <a id="steps-uid-0-t-3" aria-controls="steps-uid-0-p-3" data-ui-sref=".income" data-ng-click="vm.displayActiveTab('income')">
+											 <!--   data-ui-sref-active="active"  -->
+											 <span class="number">4.</span> * Revenue
+										 </a>
+									 </li>
+								 </ul>
+							 </div>
+
+							 <div id="uiViewBackground" class="content clearfix" data-ui-view="">
+								 <!--<h1 tabindex="-1" class="title current" id="steps-uid-0-h-0">First Step</h1>
+							  <div class="body current" id="steps-uid-0-p-0" role="tabpanel" aria-hidden="false" aria-labelledby="steps-uid-0-h-0" style="display: block;">First Content</div>
+							  <h1 tabindex="-1" class="title" id="steps-uid-0-h-1">Second Step</h1>
+							  <div class="body" id="steps-uid-0-p-1" role="tabpanel" aria-hidden="true" aria-labelledby="steps-uid-0-h-1" style="display: none;">Second Content</div>
+							  <h1 tabindex="-1" class="title" id="steps-uid-0-h-2">Third Step</h1>
+							  <div class="body" id="steps-uid-0-p-2" role="tabpanel" aria-hidden="true" aria-labelledby="steps-uid-0-h-2" style="display: none;">Third Content</div>-->
+							 </div>
+
+							 <!--TODO: Handle navigation?-->
+							 <div class="actions clearfix">
+								 <!--<ul role="menu" aria-label="Pagination">
+									 <li class="disabled" aria-disabled="true">
+										 <a data-ng-click="vm.navigateTo('steps clearfix', 'previous')" role="menuitem" href="#previous">Previous</a>
+									 </li>
+									 <li aria-disabled="false" aria-hidden="false" style="display: block;">
+										 <a data-ng-click="vm.navigateTo('steps clearfix', 'next')" role="menuitem" href="#next">Next</a>
+									 </li>
+									 <li aria-hidden="true" style="display: none;">
+										 <a role="menuitem" href="#finish">Finish</a>
+									 </li>
+								 </ul>-->
+							 </div>
+
+						 </div>
+					 </div>
+
+				 </section>
+				 <!--End template-->
+		
+			 </form>
+		 </div>
+	  </div>
+   </div>
+
+
+
+
