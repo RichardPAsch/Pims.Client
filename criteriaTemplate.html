@@ -1,0 +1,22 @@
+﻿<!--can add css properties here if needed-->
+
+<div modal="showModal" close="cancel()">
+    <div class="modal-header">
+        <h4>** Selection criteria **</h4>
+    </div>
+
+    <div class="modal-body">
+        <p>Enter the following criteria for data selection.</p>
+        <div id="criteriaInputs">
+            <div id="input1">
+                <label id="lblInput1">Month:</label><input type="text" data-ng-model="entries[0]"></div>
+            <div id="input2">
+                <label id="lblInput2">Year:</label><input type="text" data-ng-model="entries[1]"></div>
+        </div>
+    </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-success" data-ng-click="ok()">Ok</button>
+    <button class="btn" data-ng-click="cancel()">Cancel</button>
+  </div>
+</div>
