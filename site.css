@@ -1,0 +1,45 @@
+.defaultMenu {
+    background-color: aquamarine;
+}
+
+.button {
+  border:0;
+  outline:none;
+  /*border-radius:0;*/
+  padding:15px 0;
+  font-size:2rem;
+  font-weight:$bold;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  background:$main;
+  color:$white;
+  transition:all.5s ease;
+ }
+
+
+.button-block {
+  display:block;
+  width:100%;
+}
+
+.panel-body {
+    padding: 25px;
+    /* background-color: aquamarine; */
+    /* height: 500px; */
+}
+
+.col-md-offset-4
+{
+    margin-left: 33.33333333%;
+    margin-top: 150px;
+}
+
+div.registrationConfirm  {
+    color: rgb(0,0,255);
+
+}
+
+div.panel-heading {
+    width: 761px;
+}
+
