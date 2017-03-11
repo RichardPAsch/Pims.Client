@@ -1,0 +1,4 @@
+
+
+ http://finance.yahoo.com/d/quotes.csv?s=<tickers>&f=sodyrr1
+ http://finance.yahoo.com/d/quotes.csv?s=PONPX&f=sodyrr1
