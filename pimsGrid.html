@@ -33,6 +33,26 @@
     #monthYear {
         background-color: lightgoldenrodyellow;
     }
+    .cell-align {
+        text-align: right;
+    }
+    #fetchProfiles, #fetchProjections, #refreshGrid {
+        height: 30px;
+        margin-top: 8px;
+        margin-bottom: 6px;
+    }
+    .links-align {
+        text-align: center;
+    }
+    #gridMsg {
+        color: chocolate;
+        background-color: lightgoldenrodyellow;
+        font-weight: 600;
+    }
+    #refreshAssetsSummary {
+        margin-left: -20px;
+    }
+   
     
 </style>
 
@@ -43,52 +63,41 @@
     <section id="panelSection" class="panel panel-default">
 
         <div class="panel-heading"><strong>
-            <span id="gridTitle" class="glyphicon glyphicon-th"></span>&nbsp;Generic grid template for all data displays. ** WIP ** </strong>
+            <span id="gridTitle" class="glyphicon glyphicon-th"></span>&nbsp;&nbsp;{{vm.gridTitle}}</strong>
         </div>
 
         <div class="panel-body"  data-ng-show="true">
-            <form id="formMain" class="form-horizontal ng-valid" role="form"> 
-              
+            <form id="formMain" class="form-horizontal ng-valid" role="form">
+                 
+                <span id="gridMsg" data-ng-show="vm.showMsg">{{vm.gridMsg}}</span>
+
                 <div id="menuDiv" class="form-group col-md-5 col-md-offset-7">
                     
                     <!-- <div data-ui-grid="{data: vm.testData}" class="mainGrid"></div>-->
-                    <button id='toggleFiltering' data-ng-click="vm.toggleFiltering()" class="btn btn-info">Toggle Filtering</button>&nbsp;
+                    <button id='toggleFiltering' data-ng-show="vm.showToggle" data-ng-click="vm.toggleFiltering()" class="btn btn-info">Toggle Filtering</button>&nbsp;
+                    <button id='fetchProfiles' data-ng-disabled="vm.disableProfilesBtn" data-ng-show="vm.showProfilesBtn" data-ng-click="vm.preAsyncInitializeProfileProjectionGrid(false, vm.gridApi)" class="btn btn-info">Profile(s)</button>&nbsp;
+                    <button id='fetchProjections' data-ng-disabled="vm.disableProjectionsBtn"  data-ng-show="vm.showProjectionsBtn" data-ng-click="vm.preAsyncInitializeProfileProjectionGrid(true, vm.gridApi)" class="btn btn-info">Projection(s)</button>&nbsp;
+                    <button id='refreshGrid' data-ng-show=vm.showRefreshGridBtn data-ng-click="vm.refreshGrid()" class="btn btn-info">New Search</button>&nbsp;
+                    <button id='refreshAssetsSummary' data-ng-show=vm.showRefreshBtn data-ng-click="vm.refreshGrid()" class="btn btn-info">Refresh</button>&nbsp;
                     
                     
                     
                     <!-- this Div needs to be a new customized directive [ex: <pims-Grid options={object literal containing all settings}>] -->
                     <div class="mainGrid"
                          data-ui-grid="vm.gridOptions" 
+                         data-ui-grid-edit="" 
+                         data-ui-grid-cellNav=""
                          data-ui-grid-resize-columns="" 
                          data-ui-grid-move-columns="" 
                          data-ui-grid-selection="" 
                          data-ui-grid-exporter="">
                     </div>
 
-                    <!--<span>Filtering enabled is: <strong>{{vm.gridOptions.enableFiltering}}</strong></span>-->
                 </div>
-               
 
             </form>  
         </div>
-        
-        <!-- experimental-->
-       <!-- <div class="panel-body" data-ng-show="false">
-
-            <form id="form1" class="form-horizontal ng-valid" role="form">
-
-                <div id="Div1" class="form-group col-md-5 col-md-offset-7">
-                    <div id="divInputParams" data-ng-show="true">
-                        Enter (month, year) criteria : &nbsp;
-                        <input id="monthYear" type="month"/>&nbsp;
-                        <input type="submit" value="Show results" />
-                    </div>
-                </div>
-            </form>
-        </div>-->
-        <!-- end experimental-->
-        
-
+    
 
     </section>
 </div>

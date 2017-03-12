@@ -1,7 +1,7 @@
 ﻿(function () {
 
     /* 
-        Application-wide generic common services.
+        PIMS generic common services.
     */
 
     "use strict";
@@ -36,10 +36,13 @@
 
 
         function isValidCurrencyFormat(currencyToCheck) {
- 
-            return currencyToCheck.match(vm.currencyPattern) == null || currencyToCheck.length > 9 
-                ? false
-                : true;
+            if (currencyToCheck > 0) {
+                return currencyToCheck.match(vm.currencyPattern) == null || currencyToCheck.length > 9
+                                                                  ? false
+                                                                  : true;
+            }
+
+            return false;
         }
                 
 
@@ -85,6 +88,20 @@
         }
 
 
+        function getAllAccountTypes(controller) {
+
+            var acctTypesUrl = appSettings.serverPath + "/Pims.Web.Api/api/AccountType/";
+            var resourceObj = $resource(acctTypesUrl);
+
+            resourceObj.query().$promise.then(function (response) {
+                var acctTypes = response;
+                controller.postAsyncAcctTypes(acctTypes);
+            }, function () {
+                controller.postAsyncAcctTypes(null);
+            });
+        }
+
+
         function checkRevenueDuplicate(ticker, acctType, dateRecvd, amtRecvd, controller) {
 
             /*  ------- Sample return data ------
@@ -106,13 +123,12 @@
                     } else {
                         // callback executed for each element in collection.
                         angular.forEach(existingRevenue, function(value) {
-                            if (value.amountReceived == amtRecvd && value.dateReceived == dateRecvd) {
+                            if (value.amountReceived == amtRecvd && Date.parse(value.dateReceived) == Date.parse(dateRecvd) && value.accountType == acctType) {
                                 controller.postCheckRevenueDuplicate(true);
-                            } else {
-                                controller.postCheckRevenueDuplicate(false);
-                            }
+                            } 
                         });
-                    }
+                        controller.postCheckRevenueDuplicate(false);
+                   }
                 }, function () {
                 // Mimic duplicate found, due to error executing query().
                 controller.postCheckRevenueDuplicate(true);
@@ -129,6 +145,51 @@
             return revenueDateFormatted.getTime() >= positionDateFormatted.getTime() && revenueDateFormatted.getTime() <= new Date();
         }
 
+
+        function isValidMonthAndYear(monthToCheck, yearToCheck) {
+
+            var today = new Date();
+            if (typeof (monthToCheck) == "string")
+                monthToCheck = parseInt(monthToCheck);
+
+            if (typeof (yearToCheck) == "string")
+                yearToCheck = parseInt(yearToCheck);
+
+            if ((monthToCheck >= 1 && monthToCheck <= 12) && (yearToCheck >= 1900 && yearToCheck <= today.getFullYear()))
+                return true;
+
+            return false;
+        }
+
+
+        function isValidCalendarDate(date1, date2) {
+
+            // Most applicable to calendar control selected date(s).
+            if (date1 == undefined || date2 == undefined || date1 > date2 )
+                return false;
+
+            return true;
+
+        }
+
+
+        function formatDate(dateToFormat) {
+            var dateObj = new Date(dateToFormat);
+            // format: M/dd/yyyy
+            //return (dateToFormat.getMonth() + 1) + "/" + (dateToFormat.getDate()) + "/" + dateToFormat.getFullYear();
+            return (dateObj.getMonth() + 1) + "/" + (dateObj.getDate()) + "/" + dateObj.getFullYear();
+        }
+
+
+        function createGuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+
+       
         
         
 
@@ -139,7 +200,13 @@
             getAllPositions: getAllPositions,
             checkRevenueDuplicate: checkRevenueDuplicate,
             isValidIncomeDateVsPositionAndTodayDate: isValidIncomeDateVsPositionAndTodayDate,
-            isValidCurrencyFormat: isValidCurrencyFormat
+            isValidCurrencyFormat: isValidCurrencyFormat,
+            isValidMonthAndYear: isValidMonthAndYear,
+            isValidCalendarDate: isValidCalendarDate,
+            formatDate: formatDate,
+            getAllAccountTypes: getAllAccountTypes,
+            createGuid: createGuid
+           
 
         }
 

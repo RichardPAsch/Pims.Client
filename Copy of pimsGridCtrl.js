@@ -9,7 +9,7 @@
     pimsGridCtrl.$inject = ['uiGridConstants', '$modal', '$location',
                             'queriesIncomeSvc', 'activitySummarySvc', 'pimsGridColumnSvc',
                             'queriesProfileProjectionSvc', '$state', 'positionCreateSvc',
-                            'queriesPositionsSvc','queriesAssetSvc', '$stateParams'];
+                            'queriesPositionsSvc','queriesAssetSvc', 'assetSummary'];
     
 
     /* Customization considerations/parameters for upcoming gridDirective, per documentation:
@@ -23,16 +23,14 @@
        TODO: Data Importing - ** a feature to consider at a later time. **
     */
 
-    function pimsGridCtrl(uiGridConstants, $modal, $location, queriesIncomeSvc, activitySummarySvc, pimsGridColumnSvc, queriesProfileProjectionSvc, $state, positionCreateSvc, queriesPositionsSvc, queriesAssetSvc, $stateParams) {
+    function pimsGridCtrl(uiGridConstants, $modal, $location, queriesIncomeSvc, activitySummarySvc, pimsGridColumnSvc, queriesProfileProjectionSvc, $state, positionCreateSvc, queriesPositionsSvc, queriesAssetSvc, assetSummary) {
         
         var vm = this;
         var currentContext = getCurrentContextFromUrl($location.$$url);
 
         vm.gridTitle = "";
-        vm.showRefreshBtn = false;
         vm.showToggle = true;
         vm.showProfilesBtn = false;
-        vm.showRefreshGridBtn = true;
         vm.showProjectionsBtn = false;
         vm.disableProfilesBtn = true;
         vm.disableProjectionsBtn = true;
@@ -102,6 +100,8 @@
                         $state.go("position_edit", { positionSelectionObj: positionSelected });
                     });
                 }
+
+
             }
         };
 
@@ -168,11 +168,10 @@
             // Asset summary results via 'Queries' menu.
             case "AA":
                 vm.gridTitle = " Portfolio asset(s) summary information ";
-                queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
+                queryResults = assetSummary;
+                buildGridColDefs();
                 break;
         }
-
-
 
 
         
@@ -252,14 +251,6 @@
             positionCreateSvc.setInvestorMatchingAccounts(queryResults);
             vm.gridTitle = vm.criteriaEntries[3].Description2.trim();
             buildGridColDefs();
-        }
-
-
-        vm.postAsyncGetAssetSummaryData = function (initializedSummary) {
-            queryResults = initializedSummary;
-            buildGridColDefs();
-            vm.showRefreshBtn = true;
-            vm.showRefreshGridBtn = false;
         }
         
 
