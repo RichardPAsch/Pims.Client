@@ -1,0 +1,111 @@
+﻿<style>
+   
+    #btnSave, #btnSaveAsset {
+        margin-right: 8px;
+    }
+   
+    #notation {
+        padding-left: 50px;
+    }
+    
+    #panelSection {  /* adjust height as new fileds/elements are added.*/
+        margin-top: 70px;
+        height: 600px;
+    }
+    #formMain {
+        height: 475px;
+        background-color: #f5f5f5;
+    }
+    #menuDiv {
+        background-color: white;
+        margin-top: 30px;
+        margin-left: 30px;
+        width: 1115px;
+        height: 420px;
+    }
+    /* Per Angular Boostrap UI:
+      Original Bootstrap's CSS depends on empty href attributes to style cursors for several components (pagination, 
+      tabs etc.). But in AngularJS adding empty href attributes to link tags will cause unwanted route changes. 
+      This is why we need to remove empty href attributes from directive templates, and as a result, styling is not applied correctly.
+    */
+    .nav, .pagination, .carousel, .panel-title a {
+         cursor: pointer;
+    }
+    #test {
+        background-color: red;
+    }
+    #menuDiv > accordion > div > div:nth-child(1n+0) > div.panel-heading {
+        background-color: lightgoldenrodyellow;
+        border: lightgrey;
+        border-bottom-style: inset;
+        border-radius: 6px;
+    }
+    #menuDiv > accordion > div > div.panel.panel-default.ng-isolate-scope.panel-open > div.panel-collapse.in > div > ul > li:nth-child(even) > a {
+        background: transparent;
+        color: #B93A32;
+    }
+    #menuDiv > accordion > div > div.panel.panel-default.ng-isolate-scope.panel-open > div.panel-collapse.in > div > ul > li:nth-child(odd) > a {
+        background: #e6e6ff;
+        color: #B93A32;
+    }
+   
+    
+</style>
+
+
+
+
+<div class="col-md-12" data-ng-app="incomeMgmt">
+     
+    <section id="panelSection" class="panel panel-default">
+
+        <div class="panel-heading"><strong>
+            <span class="glyphicon glyphicon-th"></span>&nbsp;Search portfolio data via: </strong>
+        </div>
+
+        <div class="panel-body" >
+            <form id="formMain" class="form-horizontal ng-valid" role="form"> 
+
+                <div id="menuDiv" class="form-group col-md-5 col-md-offset-7" >
+                    
+                   <accordion close-others="vm.oneAtATime">
+                        <p>&nbsp;</p>
+                       <accordion-group heading="Asset ticker">
+                          <ul class="nav nav-tabs nav-stacked navbar-default">
+                                <li><a data-ui-sref="query_assets_abridged({status:'A'})">Show Assets</a></li>
+                                <li><a data-ui-sref="query_assets_abridged({status:'I'})">Show Assets containing Position elimninations , e.g., full sales and/or conversions</a></li>
+                           </ul>
+                        </accordion-group>
+                        <accordion-group heading="Asset Profiles - Projections">
+                             <ul class="nav nav-tabs nav-stacked navbar-default">
+                                <li><a data-ui-sref="query_profile_projection">Show comparative Profiles with/without Projections</a></li>
+                             </ul>
+                        </accordion-group>
+                        <accordion-group heading="Asset Position(s)">
+                              <ul class="nav nav-tabs nav-stacked navbar-default">
+                                <li><a data-ui-sref="query_positions">Show Position summaries for all Assets</a></li>
+                             </ul>
+                        </accordion-group>
+                        <accordion-group heading="Asset Revenue">
+                              <ul class="nav nav-tabs nav-stacked navbar-default">
+                                <li><a data-ui-sref="query_revenue_1">Show Revenue total by date range</a></li>
+                                <li><a data-ui-sref="query_revenue_2">Show Revenue total by date range & Asset</a></li>
+                                <li><a data-ui-sref="query_revenue_3">Show Revenue history by date range</a></li>
+                                <li><a data-ui-sref="query_revenue_4">Show Revenue totals for each month by date range</a></li>
+                                <li><a data-ui-sref="query_revenue_5">Show Revenue based on income distribution frequency & date range</a></li>
+                                <li><a data-ui-sref="query_revenue_6">Show Revenue totals based on comparative reporting period(s) & date range</a></li>
+                             </ul>
+                        </accordion-group>
+                    </accordion>
+     
+                </div>
+               
+
+            </form>  
+        </div>
+
+    </section>
+
+</div>
+
+

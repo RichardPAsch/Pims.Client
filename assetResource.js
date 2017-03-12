@@ -1,5 +1,7 @@
 ﻿(function () {
 
+    // TODO: re-evaluate need for this, not used anywhere ? 9.23.16
+
     /* Reusable data access component for all /Asset-related CRUD operations,
        $resource object offers the following default methods for back-end communication:
          1)query, 

@@ -1,0 +1,246 @@
+﻿<!--can add css properties here if needed-->
+
+<style>
+   h4 {
+        text-align: center;
+    }
+    input {
+        background-color: lightgoldenrodyellow;
+        padding-left: 10px;
+    }
+    #hdr1 {
+        background-color: #f5f5f5;
+    }
+     #row0 {
+         background-color: #DFE3EE;
+         height: 25px;
+         margin-top: -2px;
+    }
+    #row2 {
+      background-color: #eee;
+    }
+    #row0, #row1, #row2 {
+        width: 569px;
+    }
+    #row1, #row2, #row3 {
+      border: ridge;
+      border-color: #DFE3EE;
+    }
+     #row0 {
+        background-color: lightgreen;
+        font-size: medium;
+        padding-top: 3px;
+    }
+    #modalbody {
+        height: 219px;
+    }
+    #row1, #row2, #row3 {
+        height: 41px;
+        width: 568px;
+    }
+    #btnCalendarFrom, #btnCalendarTo {
+        height: 27px;
+        margin-top: -7px;
+    }
+    #inputFromDate, #inputToDate {
+        background-color: lightgoldenrodyellow;
+        height: 37px;
+        width: 100px;
+    }
+    #lblFrom, #lblTo {
+        margin-top: 6px;
+    }
+    #criteriaInputs {
+        height: 60px;
+    }
+    button {
+        margin-top: 10px;
+    }
+   #footerBtns {
+        margin-top: 3px;
+    }
+    .modal-footer {
+        padding: 0;
+        width: 554px;
+    }
+    #calendarSpanFrom {
+        padding-top: 6px;
+    }
+    #inputR2a {
+        width: 155px;
+    }
+    #inputGrpR2a, #inputGrp3a {
+        padding-left: -4px;
+    }
+    #inputR2b, #inputR3b, #inputR3a {
+        width: 153px;
+    }
+    #lblR2a, #lblR2b, #lblR3a, #lblR3b {
+        padding-top: 9px;
+    }
+    #divR2b {
+        padding-left: 28px;
+    }
+    #inputR2a, #inputR2b, #inputR3a, #inputR3b {
+        background-color: lightgoldenrodyellow;
+    }
+    #btnOk {
+        background-color: lightgreen;
+    }
+    #incomeDistributionFreqOrPeriod {
+        background-color: lightgoldenrodyellow;
+        width: 165px;
+    }
+</style>
+
+
+
+<div modal="showModal" close="cancel()">
+
+    <div id="hdr1" class="modal-header">
+        <h4>Enter criteria for your following selected search :  </h4>
+    </div>
+
+    <div id="modalbody" class="modal-body">
+        <div class="container" id="criteriaInputs">
+
+            <div id="row0" class="row" data-ng-show="{{rowsDisplay[0]}}">
+                <div class="col-sm-12"><em>{{entries[2].Description}}</em></div>
+            </div>
+            
+
+            <div id="row1" class="row" data-ng-show="{{rowsDisplay[1]}}">
+                <div class="col-sm-12">
+                    <div class="col-sm-2">
+                            <label id="lblFrom" class="col-sm-2 control-label" for="inputFromDate">{{entries[0].Label_1}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group ui-datepicker ">
+                            <input type="text"
+                                    autofocus=""
+                                    readonly="readonly"
+                                    placeholder="M/dd/yyyy"
+                                    class="form-control"
+                                    data-is-open="openedFrom"
+                                    data-ng-required="true"
+                                    id="inputFromDate"
+                                    data-show-weeks="false"
+                                    data-ng-model="fromDate"
+                                    data-datepicker-popup="M/dd/yyyy" />
+                            <span class="input-group-addon" id="calendarSpanFrom">
+                                <button id="btnCalendarFrom" class="btn btn-default" data-ng-click="calendarOpenFrom($event)">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label id="lblTo" class="col-sm-2 control-label" for="inputToDate">{{entries[0].Label_2}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group ui-datepicker ">
+                            <input type="text"
+                                    autofocus=""
+                                    readonly="readonly"
+                                    placeholder="M/dd/yyyy"
+                                    class="form-control"
+                                    data-is-open="openedTo"
+                                    data-ng-required="true"
+                                    id="inputToDate"
+                                    data-show-weeks="false"
+                                    data-ng-model="toDate"
+                                    data-datepicker-popup="M/dd/yyyy" />
+                            <span class="input-group-addon" id="calendarSpan2">
+                                <button id="btnCalendarTo" class="btn btn-default" data-ng-click="calendarOpenTo($event)">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            
+
+            <div id="row2" class="row" data-ng-show="{{rowsDisplay[2]}}">
+                <div class="col-sm-12">
+                    <div class="col-sm-2">
+                            <label id="lblR2a" class="control-label" for="inputR2a">{{entries[0].Label_3}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div id="inputGrpR2a" class="input-group">
+                            <input type="text"
+                                    autofocus=""
+                                    class="form-control"
+                                    data-ng-required="true"
+                                   id="inputR2a"
+                                     style="text-transform:uppercase;"
+                                    data-ng-model="inputRow2a"/>
+                        </div>
+                    </div>
+                    <div id="divR2b" class="col-sm-2">
+                        <label id="lblR2b" class="control-label" for="inputR2b">{{entries[0].Label_4}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group" data-ng-show="{{showInputR2b}}">
+                            <input type="text"
+                                    autofocus=""
+                                    class="form-control"
+                                    data-ng-required="true"
+                                    id="inputR2b"
+                                    style="text-transform:uppercase;"
+                                    data-ng-model="inputRow2b"/>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            
+
+            <div id="row3" class="row" data-ng-show="{{rowsDisplay[3]}}">
+                <div class="col-sm-12">
+                    <div class="col-sm-2">
+                            <label id="lblR3a" class="control-label" for="incomeDistributionFreqOrPeriod">{{entries[0].Label_5}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div id="inputGrpR3a" class="input-group">
+                            <span class="ui-select">
+                                <select class="form-control"
+                                    id="incomeDistributionFreqOrPeriod"
+                                    data-ng-model="selectedFrequencyOrPeriod"
+                                    data-ng-options="distributionFrequency.frequencyDescription for distributionFrequency in incomeDistributionFrequencyAndReportingPeriods | orderBy:'frequencyDescription' track by distributionFrequency.frequencyDescription">
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <label id="lblR3b" class="col-sm-2 control-label" for="inputR3b">{{entries[0].Label_6}}</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group" data-ng-show="{{showInputR3b}}">
+                            <input type="text"
+                                    autofocus=""
+                                    class="form-control"
+                                    data-ng-required="true"
+                                    id="inputR3b"
+                                    data-ng-model="inputRow3b"/>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+            
+            
+            <div id="footerBtns" class="row">
+                <div class="col-sm-12">
+                    <div class="modal-footer">
+                        <button id="btnOk" class="btn btn-success" data-ng-click="ok()">Ok</button>
+                        <button class="btn" data-ng-click="cancel()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        
+        
+        </div>
+
+    </div>
+
+</div>
+

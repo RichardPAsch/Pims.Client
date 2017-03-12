@@ -28,14 +28,17 @@
 
 
 
-            // 3rd-party modules.
+            // Angular add-on 3rd-party modules.
             'ui.bootstrap',
             'ui.router',
             'ui.grid',
+            'ui.grid.edit',
+            'ui.grid.cellNav',
             'ui.grid.resizeColumns',
             'ui.grid.moveColumns',
             'ui.grid.selection',
-            'ui.grid.exporter'
+            'ui.grid.exporter',
+            'ui.grid.selection'
 
 
         ]);

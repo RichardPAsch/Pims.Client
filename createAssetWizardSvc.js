@@ -76,11 +76,11 @@
                       "PreEditPositionAccount": "",   // ex: IRA
                       "PostEditPositionAccount": "",  // ex: Roth-IRA
                       "Qty": 0,
-                      "CostBasis": 0.0,
+                      "UnitCosts": 0.0,
                       "DateOfPurchase": "1/1/1900",
                       "LastUpdate": "1/1/1900",
                       "Url": "",
-                      "LoggedInInvestor": "", // rpasch@rpclassics.net
+                      "LoggedInInvestor": "", // rpasch2@rpclassics.net
                       "ReferencedAccount": {
                           "AccountTypeDesc": "", // ex: IRA
                           "Url": ""
@@ -127,7 +127,7 @@
                         "PreEditPositionAccount": "", // ex: IRA
                         "PostEditPositionAccount": "", // ex: Roth-IRA
                         "Qty": 0,
-                        "CostBasis": 0.0,
+                        "UnitCosts": 0.0,
                         "DateOfPurchase": "1/1/1900",
                         "LastUpdate": "1/1/1900",
                         "Url": "",
@@ -318,6 +318,7 @@
             return d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
         }
 
+       
 
         
        
@@ -343,6 +344,7 @@
             getCreatedPositionsAccountTypes: getCreatedPositionsAccountTypes,
             checkIncomeDateVsPurchaseDate: checkIncomeDateVsPurchaseDate,
             checkNewRevenueDuplicate: checkNewRevenueDuplicate
+           
         }
 
 

@@ -31,7 +31,7 @@
             // Always the most recently added Position will be available for REVISIT viewing.
             positionCount = vm.currentAsset.PositionsCreated.length - 1;
             vm.positionQty = vm.currentAsset.PositionsCreated[positionCount].Qty;
-            vm.costBasis = vm.currentAsset.PositionsCreated[positionCount].CostBasis;
+            vm.unitCosts = vm.currentAsset.PositionsCreated[positionCount].UnitCosts;
             vm.assetPurchaseDate = vm.currentAsset.PositionsCreated[positionCount].DateOfPurchase;
             vm.positionLastUpdate = vm.currentAsset.PositionsCreated[positionCount].LastUpdate;
             var idx = createAssetWizardSvc.getAccountTypeIndex(vm.currentAsset.PositionsCreated[positionCount].PostEditPositionAccount, accountTypes);
@@ -44,7 +44,7 @@
             vm.assetPurchaseDate = "";
             vm.positionQty = 0;
             vm.positionUnitPrice = vm.currentAsset.ProfileToCreate == undefined ? 0 : vm.currentAsset.ProfileToCreate.Price;
-            vm.costBasis = 0;
+            vm.unitCosts = 0;
             vm.positionLastUpdate = getLastUpdate();
             vm.referencedAcctType = createAssetWizardSvc.getBaseReferencingAccount();
             vm.accountTypeSelected = vm.accountTypesCollection[5]; // "Select..."

@@ -1,4 +1,4 @@
-﻿(function(module) {
+﻿(function() {
 
     /*
         Provides Income Received portion of 'Activity Summary' page..
