@@ -230,6 +230,7 @@
                     params: {
                         status: null
                     }
+                    // Relying on service call from ctrl to inject.
                     //,
                     //resolve: {
                     //    queriesAssetSvc: "queriesAssetSvc",
