@@ -26,6 +26,7 @@
     function pimsGridCtrl(uiGridConstants, $modal, $location, queriesIncomeSvc, activitySummarySvc, pimsGridColumnSvc, queriesProfileProjectionSvc, $state, positionCreateSvc, queriesPositionsSvc, queriesAssetSvc, $stateParams) {
         
         var vm = this;
+        // Contexts based on current routing 'state' & their URLs.
         var currentContext = getCurrentContextFromUrl($location.$$url);
 
         vm.gridTitle = "";
@@ -109,15 +110,6 @@
 
         var modalCriteriaInstance = {};
         var queryResults = [];
-        //var urlIndex = $location.$$url.lastIndexOf("/");
-
-
-        
-        // Contexts based on current routing 'state' & their URLs.
-        // TODO: fix for asset summary routes 3.9.17
-        //var currentContext = $location.$$url.substring(urlIndex + 1);
-
-        //var currentContext = getCurrentContextFromUrl($location.$$url);
         var today = new Date();
 
         // Available generic grid heading message container when needed.
