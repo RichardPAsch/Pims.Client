@@ -1,0 +1,152 @@
+﻿<style>
+    #amtRecvd, #inputAssetClass, #cboAssetClasses, #amtProjected, #inputDateRecvd {
+        background-color: lightgoldenrodyellow;
+    }
+    /*#tickerSymbol {
+        width: 60%;
+    }*/
+    #costBasis,  #unitPrice {
+        width: 70%;
+    }
+   
+    .panel .panel-default {  /* adjust height as new fileds are added.*/
+        height: 375px;
+    }
+    #accountType {
+        width: 300px;
+    }
+    
+    #calendarSpan {
+        padding: 1px;
+    }
+    #btnSave {
+        margin-right: 8px;
+    }
+    .ui-checkbox
+    {
+        margin: 9px 20px 10px 85px;
+    }
+    #amtRecvd, #amtProjected {
+        width: 120px;
+    }
+    #lblAcctType {
+        margin-left: 40px;
+    }
+    #ChkboxOneOfMany {
+        margin-left: -59px;
+    }
+    #notation {
+        padding-left: 50px;
+    }
+    #dateRecvdValidationMsg {
+        margin-top: 8px;
+    }
+    #divProjectedIncome {
+        /*margin-left: -18px;*/
+        margin-left: -221px;
+        margin-top: 10px;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+   
+    [for~=tickerSymbol].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    #lblAmt.control-label:before{
+        content: " * ";
+        color: red;
+        font-size: 18px;
+    }
+    [for~=inputDateRecvd].control-label:before {
+        content:" * ";
+        color:red;
+        font-size: 18px;
+    }
+    #amtProjected
+    {
+        margin-left: 12px;
+    }
+    #inputDateRecvd {
+        width: 104px;
+    }
+    #panelSection {
+        margin-top: 70px;
+    }
+    #btnsDiv {
+        margin-left: 69px;
+        margin-top: 93px;
+    }
+    .form-horizontal {
+        height: 200px;
+    }
+    #cboAssetClasses {
+        width: 260px;
+    }
+    
+    
+</style>
+
+
+
+<div class="col-md-12" data-ng-app="incomeMgmt"> 
+    <section id="panelSection" class="panel panel-default">
+        <div class="panel-heading"><strong>
+           <span class="glyphicon glyphicon-th"></span> Asset classifications </strong>
+        </div>
+
+        <div class="panel-body">
+            <form class="form-horizontal ng-valid" role="form">
+
+                <div class="form-group">
+                    <div id="notation" class="col-md-12 col-md-offset-0">
+                        <!--location for messages here -->
+                        <p></p>
+                    </div>
+                </div>
+                
+
+                <div class="form-group"> 
+                    <label class="col-sm-2 control-label" for="cboAssetClasses">Asset classes:</label>
+                    <div class="col-sm-2">
+                        <span class="ui-select">
+                            <select class="form-control" id="cboAssetClasses" 
+                                    data-ng-model="vm.selectedAssetClass"
+                                    data-ng-options="assetClass for assetClass in vm.assetClasses track by assetClass">
+                            </select>
+                        </span>
+                    </div>
+                    <label class="col-sm-2 control-label" for="inputAssetClass" id="lblAcctType">New asset class:</label>
+                    <div class="col-sm-5">
+                         <input class="form-control" id="inputAssetClass" data-ng-model="vm.newAssetClass">
+                    </div>
+                </div>
+                
+
+               <div class="form-group">
+                    <div class="col-md-12 col-md-offset-1" id="btnsDiv">
+                        <span>
+                            <button id="btnSave" data-ng-disabled="! vm.isMinimumIncomeData()" class="btn btn-w-md btn-gap-v btn-info col-md-1" type="button" style="width: 70px; padding-right: 40px;" data-ng-click="vm.saveIncome()">
+                                Save
+                            </button>
+                        </span>
+                        <span>
+                            <button id="btnClear" class="btn btn-w-md btn-gap-v btn-info col-md-4" type="button" style="width: 80px;" data-ng-click="vm.clearRevenue()">
+                                Refresh
+                            </button>
+                        </span>
+                    </div>
+               </div>
+
+            </form>  
+
+        </div>
+
+    </section>
+</div>
+
+
+
+
+
