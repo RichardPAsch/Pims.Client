@@ -271,6 +271,21 @@
                 })
 
 
+                // Asset Classifications
+                .state("asset_classifications", {
+                    url: "/AssetClass",
+                    templateUrl: "../AssetClass/assetClassView.html",
+                    controller: "assetClassCtrl",
+                    controllerAs: "vm"
+                    //resolve: {
+                    //    assetClassSvc: "assetClassSvc",
+                    //    assetClasses: function (assetClassSvc) {
+                    //        return assetClassSvc.getAssetClassifications();
+                    //    }
+                    //}
+                })
+
+
             ; // termination for $stateProvider
 
         }]);
