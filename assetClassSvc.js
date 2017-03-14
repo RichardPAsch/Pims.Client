@@ -25,7 +25,7 @@
 
         function saveAssetClass(assetClassToSave, ctrl) {
 
-            var incomeUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/AssetClass";
+            var assetClassesUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/AssetClass";
 
             //if (!incomeMgmtSvc.isValidIncomeDateVsPositionAndTodayDate(incomeToSave.DateReceived, incomeToSave.PositionAddDate)) {
             //    alert("Invalid entry; income date may not precede date 'Position' was created, \nnor exceed todays' date.");
