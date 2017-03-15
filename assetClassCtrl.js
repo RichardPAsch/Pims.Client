@@ -6,19 +6,22 @@
         .module("incomeMgmt.assetClass")
         .controller("assetClassCtrl", assetClassCtrl);
 
-    assetClassCtrl.$inject = [];
+    assetClassCtrl.$inject = ['assetClassSvc'];
 
-    function assetClassCtrl() {
+
+    function assetClassCtrl(assetClassSvc) {
 
         var vm = this;
+        assetClassSvc.getAssetClassifications(vm);
         vm.assetClasses = [];
-        vm.selectedAssetClass = "";
         vm.newAssetClass = "";
+        vm.selectedAssetClass = "";
 
-        //vm.positionsByTicker = positionCreateSvc.getUniqueTickers(positionData);
-        //vm.selectedTicker = vm.positionsByTicker[0];
-
-
+       
+        vm.postAsyncGetAssetClasses = function(data) {
+            vm.assetClasses = data;
+            vm.selectedAssetClass = vm.assetClasses[0];
+        }
 
 
         //vm.updateAccounts = function () {
