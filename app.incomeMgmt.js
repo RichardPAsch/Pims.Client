@@ -2,10 +2,10 @@
     "use strict";
 
     /* 
-        PARENT module definition for application.
+        PARENT module definition for the application.
         Aggregator for all app functionality via module declarations.
         Note: Dependencies are defined at specific functional levels vs defining module
-              dependencies explicitly for each module in each module. Easier to
+              dependencies explicitly for each module in each module. This is easier to
               maintain, track, and extend.
     */
 
@@ -27,11 +27,12 @@
         'incomeMgmt.assetCreateProfile',
         'incomeMgmt.assetCreatePosition',
         'incomeMgmt.assetCreateIncome',
-        'incomeMgmt.createIncome',
-        'incomeMgmt.pimsGrid'
-
-
-
+        'incomeMgmt.pimsGrid',
+        'incomeMgmt.profileRetreive',
+        'incomeMgmt.incomeCreate',
+        'incomeMgmt.incomeEditDelete',
+        'incomeMgmt.positionEditDelete',
+        'incomeMgmt.assetClass'
 
 
     ]);

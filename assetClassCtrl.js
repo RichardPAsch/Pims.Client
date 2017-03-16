@@ -6,60 +6,46 @@
         .module("incomeMgmt.assetClass")
         .controller("assetClassCtrl", assetClassCtrl);
 
-    assetClassCtrl.$inject = ['assetClassSvc'];
 
+    assetClassCtrl.$inject = ['assetClassifications'];
+    
 
-    function assetClassCtrl(assetClassSvc) {
+    function assetClassCtrl(assetClassifications) {
 
         var vm = this;
-        assetClassSvc.getAssetClassifications(vm);
-        vm.assetClasses = [];
-        vm.newAssetClass = "";
-        vm.selectedAssetClass = "";
 
-       
-        vm.postAsyncGetAssetClasses = function(data) {
-            vm.assetClasses = data;
-            vm.selectedAssetClass = vm.assetClasses[0];
+        // TODO: re-eval injection via routing, as opposed to svc call, as page does NOT appear until route resolve/promise is fulfilled.
+        // Initialized via injected data, as a result of routing resolve/promise.
+        vm.assetClasses = assetClassifications;
+        if (vm.assetClasses.length == 0) {
+            alert("Error retreiving available asset classes.");
+            return;
         }
+        initializeAssetClassListing();
 
-
-        //vm.updateAccounts = function () {
-        //    vm.positionsByAccount = positionCreateSvc.getMatchingAccounts(vm.selectedTicker, positionData);
-        //    vm.selectedAccountType = vm.positionsByAccount[0];
-        //}
-
-
-       
+  
       
-        vm.clearRevenue = function () {
+        vm.reload = function () {
             location.reload(true);
         }
 
 
-       
+        function initializeAssetClassListing() {
+            var listingElement = document.getElementById("assetClassListing");
 
-
-
-      
-
-
-        //vm.postAsyncSave = function (isSaved) {
-        //    if (!vm.isDuplicateIncome) {
-        //        if (isSaved) {
-        //            vm.incomeIsSaved = isSaved;
-        //            alert("Successfully saved  $" + vm.incomeAmtReceived + "\nfor " + vm.selectedTicker + "\n on account " + vm.selectedAccountType);
-        //        } else {
-        //            if (!vm.incomeIsSaved)
-        //                alert("Error saving income.");
-        //        }
-        //    }
-        //}
-
+            for (var ac = 0; ac < vm.assetClasses.length; ac++) {
+                if (ac == 1) {
+                    listingElement.value = vm.assetClasses[ac].description;
+                } else if(ac > 1) {
+                    listingElement.value += "\r" + vm.assetClasses[ac].description;
+                }
+            }
+        }
 
 
 
     }
+
 
 
 }());

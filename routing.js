@@ -50,8 +50,9 @@
                     templateUrl: "../Asset/Create/assetCreateView.html",
                     controller: "assetCreateCtrl as vm" // added 1.4.16
                 })
+
                 .state("asset_create.ticker", {
-// first of 4 nested views, noted via dot notation
+                // first of 4 nested views, noted via dot notation
                     url: "/Ticker",
                     templateUrl: "../Asset/Create/Ticker/assetCreateTickerView.html",
                     controller: "assetCreateTickerCtrl", // required 
@@ -276,13 +277,13 @@
                     url: "/AssetClass",
                     templateUrl: "../AssetClass/assetClassView.html",
                     controller: "assetClassCtrl",
-                    controllerAs: "vm"
-                    //resolve: {
-                    //    assetClassSvc: "assetClassSvc",
-                    //    assetClasses: function (assetClassSvc) {
-                    //        return assetClassSvc.getAssetClassifications();
-                    //    }
-                    //}
+                    controllerAs: "vm",
+                    resolve: {
+                        assetClassificationsSvc: "assetClassificationsSvc",
+                        assetClassifications: function (assetClassificationsSvc) {
+                            return assetClassificationsSvc.query().$promise;
+                        }
+                    }
                 })
 
 
