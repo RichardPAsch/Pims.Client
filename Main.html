@@ -46,6 +46,7 @@
 					<accordion-group heading="Assets">
 						<ul class="nav nav-tabs nav-stacked navbar-default">
 							<li><a data-ui-sref="asset_create.ticker">Create</a></li> <!--modified 1.4.16-->
+							<li><a data-ui-sref="asset_classifications">Asset classes - view</a></li>
 							<li><a href="#">Retreive</a></li>
 							<li><a href="#">Update</a></li>
 							<li><a href="#">Delete</a></li>
@@ -54,7 +55,6 @@
 					<accordion-group heading="Profile">
 						<ul class="nav nav-tabs nav-stacked navbar-default">
 							<li><a data-ui-sref="profile_retreive">Retreive single Profile detail</a></li>
-							<li><a href="#">Update</a></li>
 						</ul>
 					</accordion-group>
 					<accordion-group heading="Positions"> <!--Allow for combined Retreive-Update fx (can update acct type?)-->
@@ -71,11 +71,6 @@
 					 <accordion-group heading="Queries">
 						<ul class="nav nav-tabs nav-stacked navbar-default">
 							<li><a data-ui-sref="queries_menu">Queries by group</a></li>
-						</ul>
-					</accordion-group>
-					<accordion-group heading="Asset Classes">
-						<ul class="nav nav-tabs nav-stacked navbar-default">
-							<li><a data-ui-sref="asset_classifications">View - Add</a></li>
 						</ul>
 					</accordion-group>
 					<accordion-group heading="Investor Profile">
@@ -224,7 +219,6 @@
 		<!--Asset Classification modules-->
 		<script src="../AssetClass/incomeMgmt.assetClass.js"></script>
 		<script src="../AssetClass/assetClassCtrl.js"></script>
-		<script src="../AssetClass/assetClassSvc.js"></script>
 
 	</body>
 	
