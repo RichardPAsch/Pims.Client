@@ -31,7 +31,6 @@
            
             // NO automatic login; require investor to login-- if desired.
             // Use customized service.
-            //investorRegisterloginSvc.registerInvestor(vm.registrationData,
             investorRegisterloginSvc.registration.registerInvestor(vm.registrationData,
                 // Success callback.
                 function (responseData) {
@@ -39,7 +38,6 @@
                     $timeout(function() {
                         $state.go("signIn");
                     }, 4000);
-                    //vm.message = "Registration successful...";
                     vm.isRegistered = true;
                 },
                 // Error callback.
