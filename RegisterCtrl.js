@@ -6,9 +6,9 @@
         .module("incomeMgmt.registration")
         .controller("RegisterCtrl", registerCtrl);  
 
-    registerCtrl.$inject = ['investorRegisterloginSvc'];
+    registerCtrl.$inject = ['investorRegisterloginSvc', '$timeout', '$state'];
 
-    function registerCtrl(investorRegisterloginSvc) {
+    function registerCtrl(investorRegisterloginSvc, $timeout, $state) {
         var vm = this;
 
         vm.isRegistered = false;
@@ -24,7 +24,7 @@
         vm.registerInvestor = function () {
             
             if (!angular.equals(vm.registrationData.ConfirmPassword.trim(), vm.registrationData.Password.trim()))
-                return "Invalid confirmation";
+                return "Invalid password confirmation";
 
             vm.registrationData.ConfirmPassword = vm.registrationData.Password.trim();
 
@@ -36,6 +36,10 @@
                 // Success callback.
                 function (responseData) {
                     vm.message = "Registration successful...";
+                    $timeout(function() {
+                        $state.go("signIn");
+                    }, 4000);
+                    //vm.message = "Registration successful...";
                     vm.isRegistered = true;
                 },
                 // Error callback.
