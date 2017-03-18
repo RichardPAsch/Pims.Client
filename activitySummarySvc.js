@@ -18,9 +18,11 @@
         .module("incomeMgmt.core")
         .factory("activitySummarySvc", incomeActivity);
 
+
     incomeActivity.$inject = ["$resource", "appSettings"]; 
+    
 
-
+    // Returns a resource class object.
     function incomeActivity($resource, appSettings) {
         return $resource(appSettings.serverPath + "/Pims.Web.Api/api/Income/Averages");
     };
