@@ -118,11 +118,14 @@
         switch (currentContext) {
             case "AS":
                 vm.showToggle = false;
-                //var today = new Date();
-                vm.gridTitle = "YTD Income Activity Summary for  " + today.getFullYear() ;
+                vm.gridTitle = "YTD Income Activity Summary for  " + today.getFullYear();
+
                 activitySummarySvc.query(function (responseData) {
-                    queryResults = responseData;
-                    buildGridColDefs();
+                      queryResults = responseData;
+                      buildGridColDefs();
+                }, function(err) {
+                    alert("Unable to fetch Activity Summary data due to: \n" + err.data.message);
+                    $state.go("home");
                 });
                 break;
             case "R1":
@@ -159,7 +162,7 @@
                 break;
             // Asset summary results via 'Queries' menu.
             case "AA":
-                vm.gridTitle = " Portfolio asset(s) summary information ";
+                vm.gridTitle = " Portfolio asset summary ";
                 queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
                 break;
         }
