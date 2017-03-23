@@ -7,10 +7,10 @@
         .controller("assetCreatePositionCtrl", assetCreatePositionCtrl);
 
     // $promise returned, via 'routing.js' state;  key reference injected for initializing dropdown.
-    assetCreatePositionCtrl.$inject = ['createAssetWizardSvc', 'accountTypes', '$state', '$filter', 'currentInvestorSvc', 'appSettings','$interval'];
+    assetCreatePositionCtrl.$inject = ['createAssetWizardSvc', 'accountTypes', '$state', '$filter', 'currentInvestorSvc', 'appSettings','$interval', 'incomeMgmtSvc'];
 
 
-    function assetCreatePositionCtrl(createAssetWizardSvc, accountTypes, $state, $filter, currentInvestorSvc, appSettings, $interval) {
+    function assetCreatePositionCtrl(createAssetWizardSvc, accountTypes, $state, $filter, currentInvestorSvc, appSettings, $interval, incomeMgmtSvc) {
 
         var vm = this;
         var positionCount = 0;
@@ -25,6 +25,7 @@
         vm.showQtyValidationMsg = false;
         vm.QuantityRegEx = "^[0-9.]+$";
         vm.inRevisitMode = false;
+        var today = new Date();
   
 
         if (vm.currentAsset.PositionsCreated != undefined) {
@@ -129,15 +130,22 @@
             }
                 
 
-            // Initialize with Position; object graph includes 'ReferencedAccount'
-            var positionBuild = createAssetWizardSvc.getBasePosition(); // fetch new instance to avoid duplicates.
+            // Initialize with Position view model; object graph includes 'ReferencedAccount'
+            // Fetch new instance to avoid duplicates.
+            var positionBuild = createAssetWizardSvc.getBasePositionVm();
 
             positionBuild.PreEditPositionAccount = vm.accountTypeSelected.accountTypeDesc;
             positionBuild.PostEditPositionAccount = vm.accountTypeSelected.accountTypeDesc;
             positionBuild.Qty = Number(vm.positionQty);
+            positionBuild.ReferencedTickerSymbol = vm.currentAsset.AssetTicker.toUpperCase().trim();
             positionBuild.CostBasis = createAssetWizardSvc.formatCurrency(vm.costBasis, 2);
+
+            positionBuild.UnitCost = incomeMgmtSvc.isValidCurrencyFormat(vm.positionUnitPrice.toString()) ? vm.positionUnitPrice : 0.0;
+            
+            //positionBuild.UnitCost = createAssetWizardSvc.formatCurrency(vm.positionUnitPrice, 2);
             positionBuild.DateOfPurchase = $filter('date')(vm.assetPurchaseDate, 'M/dd/yyyy');
             positionBuild.LastUpdate = $filter('date')(vm.positionLastUpdate, 'M/dd/yyyy');
+            positionBuild.DatePositionAdded = $filter('date')(today, 'M/dd/yyyy');
             positionBuild.Url = appSettings.serverPath + "/Pims.Web.Api/api/Asset/"
                                                        + vm.currentAsset.AssetTicker.toUpperCase().trim()
                                                        + "/Position/"
