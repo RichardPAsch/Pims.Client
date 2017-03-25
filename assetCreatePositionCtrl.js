@@ -25,6 +25,7 @@
         vm.showQtyValidationMsg = false;
         vm.QuantityRegEx = "^[0-9.]+$";
         vm.inRevisitMode = false;
+        vm.assetFees = 0.00;
         var today = new Date();
   
 
@@ -65,7 +66,19 @@
         
 
         vm.calculateCostBasis = function () {
-            vm.costBasis = $filter('currency')(vm.positionUnitPrice * vm.positionQty);
+            var unFormattedCostBasis = 0.0;
+            
+            if (vm.assetFees != "") {
+                if (incomeMgmtSvc.isValidCurrencyFormat(vm.assetFees)) {
+                    unFormattedCostBasis = parseFloat(((vm.positionUnitPrice * vm.positionQty) + parseFloat(vm.assetFees)));
+                } else {
+                    alert("Invalid fees entry.");
+                }
+            } else {
+                    unFormattedCostBasis = parseFloat(((vm.positionUnitPrice * vm.positionQty)));
+            }
+
+            vm.costBasis = createAssetWizardSvc.formatCurrency(unFormattedCostBasis.toString(), 2);
         }
 
 
