@@ -1,13 +1,13 @@
 ﻿
     
     <style>
-    #purchaseDate, #accountType, #tickerSymbol, #inputPurchaseDate, #qty, #costBasis, #lastUpdate, #unitPrice {
+    #purchaseDate, #accountType, #tickerSymbol, #inputPurchaseDate, #qty, #costBasis, #lastUpdate, #unitPrice, #inputFees {
         background-color: lightgoldenrodyellow;
     }
     #tickerSymbol {
         width: 60%;
     }
-    #costBasis,  #unitPrice {
+    #costBasis,  #unitPrice, #inputFees {
         width: 70%;
     }
     #qty {
@@ -41,21 +41,7 @@
     #dateValidationMsg {
         padding-left: 5px;
     }
-    [for~=accountType].control-label:before {
-        content:" * ";
-        color:red;
-        font-size: 18px;
-    }
-    [for~=inputPurchaseDate].control-label:before {
-        content:" * ";
-        color:red;
-        font-size: 18px;
-    }
-    [for~=qty].control-label:before {
-        content:" * ";
-        color:red;
-        font-size: 18px;
-    }
+   
    
 </style>
 
@@ -104,6 +90,10 @@
                             </span>
                        </div>
                    </div>
+                    <label class="col-sm-2 control-label" for="inputFees">Fees ($):</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" id="inputFees" data-ng-model="vm.assetFees" maxlength="10" data-ng-blur="vm.calculateCostBasis()">
+                    </div>
                     <!--Obsolete; keep for possible future use:-->
                    <span id="dateValidationMsg" data-ng-show="vm.showPurchaseDateValidationMsg" style="color:orangered">Invalid entry; please check date</span>
                 </div>
