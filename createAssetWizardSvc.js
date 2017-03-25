@@ -122,20 +122,25 @@
         }
 
 
-        function getBasePosition() {
+        function getBasePositionVm() {
+            // Satisfy WebApi.PositionController.CreateNewPosition() expected model state.
             return {
-                        "PreEditPositionAccount": "", // ex: IRA
-                        "PostEditPositionAccount": "", // ex: Roth-IRA
+                        "PreEditPositionAccount": "",        // ex: IRA
+                        "PostEditPositionAccount": "",       // ex: Roth-IRA
                         "Qty": 0,
-                        "UnitCosts": 0.0,
+                        "UnitCost": 0.0,
+                        "CostBasis": 0.0,
                         "DateOfPurchase": "1/1/1900",
                         "LastUpdate": "1/1/1900",
                         "Url": "",
-                        "LoggedInInvestor": "", // rpasch@rpclassics.net
+                        "LoggedInInvestor": "",              // ex: rpasch@rpclassics.net
                         "ReferencedAccount": {
-                            "AccountTypeDesc": "", // ex: IRA
+                            "AccountTypeDesc": "",           // ex: IRA
                             "Url": ""
-                        }
+                        },
+                        "ReferencedTickerSymbol": "",
+                        "DatePositionAdded": "",
+                        "Status": "A"                        // (A)ctive 
                    }
         }
 
@@ -273,15 +278,16 @@
         }
 
 
-        function saveNewAsset(newAsset) {
+        function saveNewAsset(newAsset, ctrl) {
 
             // The $resource 'class' object method immediately returns an empty reference (object or array). Once the data 
             // is returned from the server, the existing reference is populated with the actual data.
             var assetUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset";
-            $resource(assetUrl).save(newAsset, function() {
-                    return true;  // success
-            }, function() {
-                    return false; // error
+            $resource(assetUrl).save(newAsset, function () {
+                ctrl.postAsyncSaveAsset(true);  // success
+            }, function (err) {
+                var debugData = err.data.message;
+                ctrl.postAsyncSaveAsset(false, debugData);  // error
             }); 
 
         }
@@ -328,7 +334,7 @@
             getBaseAsset: getBaseAsset,
             getAsset: getAsset,
             showActiveTab: showActiveTab,
-            getBasePosition: getBasePosition,
+            getBasePositionVm: getBasePositionVm,
             getBaseReferencingAccount: getBaseReferencingAccount,
             checkAccountTypeDuplicate: checkAccountTypeDuplicate,
             getBaseRevenue: getBaseRevenue,
