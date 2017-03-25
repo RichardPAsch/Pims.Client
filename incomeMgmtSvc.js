@@ -50,7 +50,7 @@
             // Until a better solution is learned:
             // ** All controllers using this method MUST have the same postback function: 'postValidationTickerCheck()' **
 
-            // Validate existence against NYSE.
+            // Validate existence against NYSE or NASDAQ.
             var assetByTickerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + tickerToCheck;
             var resourceObj = $resource(assetByTickerUrl);
 
@@ -62,9 +62,9 @@
                     return;
                 }
                 controller.postValidationTickerCheck(true);
-
-            }, function () {
+            }, function (err) {
                 // Error fetching data.
+                var debug = err;
                 controller.postValidationTickerCheck(false);
             });
         }
