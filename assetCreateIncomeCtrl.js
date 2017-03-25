@@ -21,6 +21,8 @@
         vm.notOkToSaveAsset = true;
         vm.isDuplicateIncome = false;
         vm.inClearMode = false;
+        vm.hasIncomeData = false;
+        vm.assetTickerSymbol = "";
    
         // TODO: Why do we NOT need 'LoggedInInvestor' for 'RevenueCreated', as opposed to 'PositionsCreated' ?  Retest asset POST via Fiddler.
         // Ans: because income is tied to a Position, which is already tied to an Asset mapped to an investor ??
@@ -153,20 +155,25 @@
         vm.saveAsset = function () {
 
             // TODO: Embellish with nice looking globally accessible messages, via 'Envato-Square'.
-            var hasIncomeData = vm.currentAsset.RevenueCreated.length > 0;
-            var isSaved = createAssetWizardSvc.saveNewAsset(vm.currentAsset);
-
-            if (isSaved) {
-                if (hasIncomeData) {
-                    alert("Asset, Profile, Position(s), and Revenue successfully saved for : " + vm.currentAsset.tickerSymbol);
-                } else {
-                    alert("Asset, Profile, and Position(s) successfully saved for : " + vm.currentAsset.tickerSymbol);
-                }
-            }
-
-            return null;
+            vm.hasIncomeData = vm.currentAsset.RevenueCreated.length > 0;
+            vm.assetTickerSymbol = vm.currentAsset.tickerSymbol;
+            createAssetWizardSvc.saveNewAsset(vm.currentAsset,vm);
         }
-        
+
+
+        vm.postAsyncSaveAsset = function (isSaved, exceptionMsg) {
+            if (isSaved) {
+                if (vm.hasIncomeData) {
+                    alert("Asset, Profile, Position(s), and Revenue successfully saved for : \n" + vm.assetTickerSymbol);
+                } else {
+                    alert("Asset, Profile, and Position(s) successfully saved for : \n" + vm.assetTickerSymbol);
+                }
+            } else {
+                alert("Error: \nUnable to save Asset due to - " + exceptionMsg);
+            }
+            
+        }
+
 
         vm.calendarOpen = function($event) {
             $event.preventDefault(); // prevent any default action triggered
