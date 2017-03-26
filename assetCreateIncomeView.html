@@ -161,12 +161,12 @@
                 <div class="form-group">
                     <div class="col-md-12 col-md-offset-2">
                         <span>
-                            <button id="btnSave" data-ng-disabled="! vm.isMinimumIncomeData()" class="btn btn-w-md btn-gap-v btn-info col-md-2" type="button" style="width: 70px; padding-right: 40px;" data-ng-click="vm.saveAssetIncome()">
+                            <button id="btnSave" title="Save Asset with income" data-ng-disabled="! vm.isMinimumIncomeData()" class="btn btn-w-md btn-gap-v btn-info col-md-2" type="button" style="width: 70px; padding-right: 40px;" data-ng-click="vm.saveAssetIncome()">
                                 Save
                             </button>
                         </span>
                         <span>
-                            <button id="btnSaveAsset"  data-ng-disabled="vm.notOkToSaveAsset" class="btn btn-w-md btn-gap-v btn-info col-md-3" type="button" style="width: 125px;" data-ng-click="vm.saveAsset()">
+                            <button id="btnSaveAsset" title="Save Asset w/o income" data-ng-disabled="vm.notOkToSaveAsset" class="btn btn-w-md btn-gap-v btn-info col-md-3" type="button" style="width: 125px;" data-ng-click="vm.saveAsset()">
                                 Save asset
                             </button>
                         </span>
