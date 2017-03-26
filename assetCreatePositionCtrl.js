@@ -151,7 +151,7 @@
             positionBuild.PostEditPositionAccount = vm.accountTypeSelected.accountTypeDesc;
             positionBuild.Qty = Number(vm.positionQty);
             positionBuild.ReferencedTickerSymbol = vm.currentAsset.AssetTicker.toUpperCase().trim();
-            positionBuild.CostBasis = createAssetWizardSvc.formatCurrency(vm.costBasis, 2);
+            positionBuild.CostBasis = createAssetWizardSvc.formatCurrency(vm.costBasis.toString(), 2);
 
             positionBuild.UnitCost = incomeMgmtSvc.isValidCurrencyFormat(vm.positionUnitPrice.toString()) ? vm.positionUnitPrice : 0.0;
             
