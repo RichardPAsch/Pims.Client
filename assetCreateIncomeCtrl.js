@@ -153,15 +153,14 @@
 
 
         vm.saveAsset = function () {
-
-            // TODO: Embellish with nice looking globally accessible messages, via 'Envato-Square'.
-            vm.hasIncomeData = vm.currentAsset.RevenueCreated.length > 0;
-            vm.assetTickerSymbol = vm.currentAsset.tickerSymbol;
+            vm.hasIncomeData = vm.currentAsset.RevenueCreated == undefined ? false : true;
+            vm.assetTickerSymbol = vm.currentAsset.AssetTicker.trim().toUpperCase();
             createAssetWizardSvc.saveNewAsset(vm.currentAsset,vm);
         }
 
 
         vm.postAsyncSaveAsset = function (isSaved, exceptionMsg) {
+            // TODO: Embellish with nice looking globally accessible messages, via 'Envato-Square'.
             if (isSaved) {
                 if (vm.hasIncomeData) {
                     alert("Asset, Profile, Position(s), and Revenue successfully saved for : \n" + vm.assetTickerSymbol);
