@@ -16,6 +16,7 @@
         vm.currentProfile = assetProfile;
         vm.showDateTime = false;
         vm.assetDivFreq = "";
+        vm.headingProfile = "Profile attributes;  distribution frequency entry optional.";
 
         // Existing Asset state before or after Profile addition.
         vm.currentAsset = createAssetWizardSvc.processAsset();
@@ -42,7 +43,7 @@
             vm.assetTickerSymbol = vm.currentAsset.AssetTicker; //.toUpperCase();
             vm.assetDivRate = assetProfile.dividendRate == "N/A" ? 0 : assetProfile.dividendRate;
             vm.assetDivYield = assetProfile.dividendYield;
-            vm.assetDivFreq = createAssetWizardSvc.isValidDividendFrequency(vm.assetDivFreq) ? vm.assetDivFreq.trim() : "TBD";
+            vm.assetDivFreq = createAssetWizardSvc.isValidDividendFrequency(vm.assetDivFreq) ? vm.assetDivFreq.trim() : "";
             vm.assetPeRatio = assetProfile.pE_Ratio == null ? 0 : assetProfile.pE_Ratio;
             vm.assetEPS = assetProfile.earningsPerShare;
             vm.assetUnitPrice = assetProfile.price;
@@ -51,12 +52,20 @@
             vm.assetDescription = assetProfile.tickerDescription;
             vm.refreshDateTime = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
             vm.showDateTime = true;
+
+            toggleInputFields();
         }
 
         
 
 
         vm.saveAssetProfile = function () {
+
+            if (vm.assetUnitPrice <= 0 ) {
+                alert("Unable to proceed: \nmissing required 'unit price'.");
+                return false;
+            }
+               
             var profileBuild = createAssetWizardSvc.getBaseProfile();
 
             // Required 5 attributes:
@@ -95,6 +104,25 @@
             vm.lastRefresh = vm.refreshDateTime;
             vm.showDateTime = true;
         }
+
+
+        function toggleInputFields () {
+
+            // In instances where fetched Profile data is scant or non-existent, we'll allow for 
+            // some user input, such that 'Position(s)' - costBasis and 'Projections' may function.
+            if (vm.assetUnitPrice == 0) {
+
+                vm.headingProfile = "Profile data INCOMPLETE; enter unit price, div rate, div yield, & distribution frequency.";
+               
+                var eleUp = document.getElementById("unitPrice");
+                eleUp.removeAttribute("readonly");
+                var eleDr = document.getElementById("divRate");
+                eleDr.removeAttribute("readonly");
+                var eleDy = document.getElementById("divYield");
+                eleDy.removeAttribute("readonly");
+            }
+        }
+
 
 
     }
