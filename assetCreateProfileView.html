@@ -3,7 +3,7 @@
     #divRate, #divYield, #tickerSymbol, #peRatio, #eps,#ExDivDate, #divPayDate, #unitPrice, #divFreq, #tickerDesc {
         background-color: lightgoldenrodyellow;
     }
-    #tickerSymbol {
+    #tickerSymbol, #divFreq {
         width: 60%;
     }
     #divRate, #divYield, #peRatio, #eps, #unitPrice {
@@ -11,9 +11,6 @@
     }
     #ExDivDate, #divPayDate {
         width: 70%;
-    }
-     #divFreq {
-        width: 35%;
     }
     .panel .panel-default {  /* adjust height as new fileds are added.*/
         height: 325px;
@@ -33,8 +30,8 @@
 
 <div class="col-md-12" data-ng-app="incomeMgmt"> 
     <section class="panel panel-default">
-        <div class="panel-heading"><strong>
-            <span class="glyphicon glyphicon-th"></span> Current profile attributes [read-only] ... </strong>
+        <div class="panel-heading">
+            <strong><span class="glyphicon glyphicon-th"></span>&nbsp;{{vm.headingProfile}} </strong>
             <span class="glyphicon glyphicon-refresh" data-ng-show={{vm.showDateTime}} id="lastUpdate"> {{vm.refreshDateTime}}</span>
         </div>
         <div class="panel-body">
@@ -63,9 +60,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-sm-2 control-label" for="divFreq">Dividend frequency:</label>
+                    <label class="col-sm-2 control-label" for="divFreq">Distribution frequency:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="divFreq" data-ng-model="vm.assetDivFreq" readonly="readonly">
+                        <input class="form-control" id="divFreq" data-ng-model="vm.assetDivFreq" placeholder="A, S, Q, M">
                     </div>
                     <label class="col-sm-2 control-label" for="peRatio">Price/Earnings:</label>
                     <div class="col-sm-2">
