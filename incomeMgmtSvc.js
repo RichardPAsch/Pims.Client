@@ -18,8 +18,10 @@
         var vm = this;
         vm.tickerRegExpr = "^[a-zA-Z0-9-]+$";
         vm.currentTicker = "";
+        vm.frequencyDistributionPattern = new RegExp(/[a,A,s,S,q,Q,m,M]$/);
         // Matches currency with, or without commas and/or $.
-        vm.currencyPattern = new RegExp(/^\$?[\d+,]+(\.\d*)?$/); 
+        vm.currencyPattern = new RegExp(/^\$?[\d+,]+(\.\d*)?$/);
+
 
         
 
@@ -43,6 +45,14 @@
             }
 
             return false;
+        }
+
+
+        function isValidDistributionFrequency(frequencyToCheck) {
+            return frequencyToCheck.match(vm.frequencyDistributionPattern) == null
+                ? false
+                : true;
+
         }
                 
 
@@ -205,7 +215,8 @@
             isValidCalendarDate: isValidCalendarDate,
             formatDate: formatDate,
             getAllAccountTypes: getAllAccountTypes,
-            createGuid: createGuid
+            createGuid: createGuid,
+            isValidDistributionFrequency: isValidDistributionFrequency
            
 
         }
