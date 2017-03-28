@@ -7,10 +7,10 @@
         .controller("assetCreateProfileCtrl", assetCreateProfileCtrl);
 
     // $promise returned, via 'routing.js' state;  key reference injected for initializing dropdown.
-    assetCreateProfileCtrl.$inject = ['createAssetWizardSvc', 'assetProfile', '$state', '$filter'];
+    assetCreateProfileCtrl.$inject = ['createAssetWizardSvc', 'assetProfile', '$state', '$filter', 'incomeMgmtSvc'];
 
 
-    function assetCreateProfileCtrl(createAssetWizardSvc, assetProfile, $state, $filter) {
+    function assetCreateProfileCtrl(createAssetWizardSvc, assetProfile, $state, $filter, incomeMgmtSvc) {
 
         var vm = this;
         vm.currentProfile = assetProfile;
@@ -62,8 +62,16 @@
         vm.saveAssetProfile = function () {
 
             if (vm.assetUnitPrice <= 0 ) {
-                alert("Unable to proceed: \nmissing required 'unit price'.");
+                alert("Unable to save Profile; \nplease enter nmissing 'unit price'.");
                 return false;
+            }
+
+            if (vm.assetDivFreq != "") {
+                var isOk = incomeMgmtSvc.isValidDistributionFrequency(vm.assetDivFreq);
+                if (!isOk) {
+                    alert("Unable to save Profile; \nplease enter a valid frequency.");
+                    return false;
+                }
             }
                
             var profileBuild = createAssetWizardSvc.getBaseProfile();
