@@ -104,6 +104,7 @@
 
         vm.saveAssetPosition = function () {
 
+           
             if (!vm.isValidAccountType()) {
                 vm.showAAssetAcctTypeValidationMsg = true;
                 $interval(function () {
@@ -188,19 +189,6 @@
         }
 
 
-        vm.reInitialize = function() {
-            // If user forgets to uncheck 'Mark as one of many...' upon last entry/Save, then allow them to continue to 'Income' page;
-            // the most recent entry may be viewed via page/tab revisit.
-            if (!vm.isOneOfManyPositions && vm.currentAsset.PositionsCreated.length > 0) {
-                if (!vm.inRevisitMode)
-                    vm.inRevisitMode = true;
-
-                $state.go("asset_create.income");
-                createAssetWizardSvc.showActiveTab('steps clearfix', 'income');
-            }
-        }
-
-
         vm.clearPosition = function () {
             vm.accountTypeSelected = vm.accountTypesCollection[5]; 
             vm.assetPurchaseDate = "";
@@ -208,6 +196,9 @@
             vm.costBasis = 0;
             vm.positionLastUpdate = getLastUpdate();
             vm.referencedAcctType = createAssetWizardSvc.getBaseReferencingAccount();
+            vm.isOneOfManyPositions = false;
+            vm.assetFees = 0;
+
         }
 
 
