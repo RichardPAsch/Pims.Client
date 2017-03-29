@@ -25,7 +25,7 @@
         vm.showQtyValidationMsg = false;
         vm.QuantityRegEx = "^[0-9.]+$";
         vm.inRevisitMode = false;
-        vm.assetFees = 0.00;
+        vm.transactionFees = 0.00;
         var today = new Date();
   
 
@@ -68,9 +68,9 @@
         vm.calculateCostBasis = function () {
             var unFormattedCostBasis = 0.0;
             
-            if (vm.assetFees != "") {
-                if (incomeMgmtSvc.isValidCurrencyFormat(vm.assetFees)) {
-                    unFormattedCostBasis = parseFloat(((vm.positionUnitPrice * vm.positionQty) + parseFloat(vm.assetFees)));
+            if (vm.transactionFees != "") {
+                if (incomeMgmtSvc.isValidCurrencyFormat(vm.transactionFees)) {
+                    unFormattedCostBasis = parseFloat(((vm.positionUnitPrice * vm.positionQty) + parseFloat(vm.transactionFees)));
                 } else {
                     alert("Invalid fees entry.");
                 }
@@ -113,15 +113,6 @@
                 return null;
             }
 
-            // Not needed; field is now readonly!
-            //if (!vm.isValidPurchaseDate()) {
-            //    vm.showPurchaseDateValidationMsg = true;
-            //    $interval(function () {
-            //        vm.showPurchaseDateValidationMsg = false;
-            //    }, 5000);
-            //    return null;
-            //}
-
             if (!vm.isValidQuantity()) {
                 vm.showQtyValidationMsg = true;
                 $interval(function () {
@@ -155,6 +146,7 @@
             positionBuild.CostBasis = createAssetWizardSvc.formatCurrency(vm.costBasis.toString(), 2);
 
             positionBuild.UnitCost = incomeMgmtSvc.isValidCurrencyFormat(vm.positionUnitPrice.toString()) ? vm.positionUnitPrice : 0.0;
+            positionBuild.TransactionFees = vm.transactionFees;
             
             //positionBuild.UnitCost = createAssetWizardSvc.formatCurrency(vm.positionUnitPrice, 2);
             positionBuild.DateOfPurchase = $filter('date')(vm.assetPurchaseDate, 'M/dd/yyyy');
@@ -197,7 +189,7 @@
             vm.positionLastUpdate = getLastUpdate();
             vm.referencedAcctType = createAssetWizardSvc.getBaseReferencingAccount();
             vm.isOneOfManyPositions = false;
-            vm.assetFees = 0;
+            vm.transactionFees = 0;
 
         }
 
