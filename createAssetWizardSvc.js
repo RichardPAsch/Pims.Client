@@ -140,7 +140,8 @@
                         },
                         "ReferencedTickerSymbol": "",
                         "DatePositionAdded": "",
-                        "Status": "A"                        // (A)ctive 
+                        "Status": "A",                        // (A)ctive 
+                        "TransactionFees": 0
                    }
         }
 
