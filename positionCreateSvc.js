@@ -142,6 +142,19 @@
             return posDate;
         }
 
+
+        function getPositionFees(positionsToSearch, ticker, acctType) {
+            var posFees = 0;
+
+            for (var pos = 0; pos < positionsToSearch.length; pos++) {
+                if (positionsToSearch[pos].positionTickerSymbol == ticker && positionsToSearch[pos].positionAccountType == acctType) {
+                    posFees = positionsToSearch[pos].positionFees;
+                    break;
+                }
+            }
+            return posFees;
+        }
+
         
         function getMatchingAccountTypeIndex(acctTypesToSearch, acctTypeSelected) {
 
@@ -295,7 +308,8 @@
             getInvestorMatchingAccounts: getInvestorMatchingAccounts,
             getGuidsForPosition: getGuidsForPosition,
             processPositionUpdates: processPositionUpdates,
-            getMatchingAccountTypeId: getMatchingAccountTypeId
+            getMatchingAccountTypeId: getMatchingAccountTypeId,
+            getPositionFees: getPositionFees
         }
 
     }
