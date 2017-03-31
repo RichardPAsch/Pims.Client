@@ -15,8 +15,8 @@
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
         
 
-        // Encapsulate individual position changes--where applicable. 
-        // vm.positionFrom/positionTo -> mapped to positionInfo (vm) for WebApi calls.
+        // Encapsulate individual preEdit & postEdit position changes--where applicable--in one or both temp objects.
+        // vm.positionFrom/positionTo objects -> mapped to positionInfo (vm) object for WebApi calls.
         // ** 'positionTo' initialized only in new, or rollover to existing Position scenarios. **
         vm.positionFrom = {
             mktPrice: positionCreateSvc.getCurrentMarketUnitPrice(vm, vm.ticker.toUpperCase().trim()),
@@ -32,7 +32,8 @@
             positionDate: "",
             dateUpdated: "",
             purchaseDate: "",
-            accountTypeId: ""
+            accountTypeId: "",
+            originalFees: 0
         };
         vm.positionTo = {
             mktPrice: 0,
@@ -48,7 +49,8 @@
             positionDate: "",
             dateUpdated: "",
             purchaseDate: "",
-            accountTypeId: ""
+            accountTypeId: "",
+            adjustedFees: 0
         };
         
         // Data-binding & flags.
@@ -75,6 +77,8 @@
         vm.allValidAccountTypes = [];
         vm.matchingAccountTypes = positionCreateSvc.getMatchingAccounts(vm.ticker, allPositions);
         vm.selectedAccountType = vm.matchingAccountTypes[positionCreateSvc.getMatchingAccountTypeIndex(vm.matchingAccountTypes, vm.selectedAccountType)];
+        vm.adjustedFees = 0;
+        vm.currentFees = positionCreateSvc.getPositionFees(allPositions, vm.ticker.trim(), vm.selectedAccountType.trim());
 
 
         // Cache: 1) applicable pre-edit Position attributes, and 
@@ -86,12 +90,17 @@
         vm.positionFrom.unitCost = vm.unitCost;
         vm.positionFrom.positionDate = $state.params.positionSelectionObj.PositionAddDate;
         vm.positionFrom.purchaseDate = $state.params.positionSelectionObj.PurchDate;
+        vm.positionFrom.originalFees = vm.currentFees;
         // Asset, account, & investor Guids.
         var currentPositionGuids = positionCreateSvc.getGuidsForPosition(allPositions, vm.positionFrom.positionId);
         vm.positionFrom.accountTypeId = currentPositionGuids.accountTypeId;
 
        
         var allPositionsForAsset = [];
+
+        // VM for WebApi call. All "from"-related properties will always be initialized,
+        // while "to"-related properties may/may not be initialized, depending upon 
+        // whether a Position change has taken place, e.g., rollover.
         var positionInfo = {};
                
       
@@ -243,19 +252,19 @@
             return null;
         }
         
-
+        // TODO: Move to positionCreateSvc? Also used by assetCreatePositionView
         vm.calculateProfitLossAndValuation = function (units, costBasis)
         {
             vm.valuation = parseFloat(units * vm.positionFrom.mktPrice).toFixed(2);
             vm.gainLoss = (vm.valuation - parseFloat(costBasis)).toFixed(2);
         }
 
-
+        // TODO: Move to positionCreateSvc? Also used by assetCreatePositionView
         vm.calculateCostBasis = function (scenario, qty, adjOption) {
             // Utilize varying useage scenarios for calculations.
             switch(scenario) {
                 case "initialPageLoad":
-                    vm.costBasis = (vm.positionFrom.unitCost * vm.positionFrom.originalQty).toFixed(2);
+                    vm.costBasis = parseFloat((vm.positionFrom.unitCost * vm.positionFrom.originalQty).toFixed(2)) + parseFloat(vm.currentFees);
                     vm.calculateProfitLossAndValuation(vm.positionFrom.currentQty, vm.costBasis);
                     break;
                 case "positionChange":
@@ -620,6 +629,9 @@
                     positionInfo.dbActionNew = "na";
                     positionInfo.toPosId = incomeMgmtSvc.createGuid();
                     positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
+                    positionInfo.fromFees = vm.adjustedFees != 0
+                        ? parseFloat(vm.currentFees + vm.adjustedFees)
+                        : parseFloat(vm.currentFees);
                     break;
             }
 
@@ -634,7 +646,7 @@
 
             /* Debug info */
 
-            //alert("positionInfo Confirmation Results: "
+            //alert("positionInfo VM confirmation results: "
             //   + "\n----------------------------------"
             //   + "\nfromQty: " + positionInfo.fromQty
             //   + "\ntoQty: " + positionInfo.toQty
