@@ -192,13 +192,13 @@
                         <legend class="legend2"><label id="lblCurrent">Current:</label></legend>
                         <div id="currentR1" class="col-md-12">
                             Qty<input id="currentQtyInput" type="text" data-ng-model="vm.currentQty" readonly="">
-                            Fees ($): <input id="inputFees" type="text" data-ng-model="vm.trxFees" style="width: 80px" readonly="">
+                            Fees ($): <input id="inputFees" type="text" data-ng-model="vm.currentFees" style="width: 80px" readonly="">
                             Cost Basis ($): <input id="inputCostBasis" type="text" data-ng-model="vm.costBasis" style="width: 100px" readonly="">
                             Value ($): <input id="inputValuation" type="text" data-ng-model="vm.valuation" style="width: 106px" readonly="">
                         </div>
                         <div id="currentR2" class="col-md-12">
                             Pos. Date<input type="text" id="posDate" data-ng-model="vm.positionDate" readonly="" data-datepicker-popup="M/dd/yyyy" />
-                            Mkt.Price ($): <input id="inputMktPrice" type="text" style="width: 97px" data-ng-model="vm.positionFrom.mktPrice" readonly="">
+                            Mkt.Price ($): <input id="inputMktPrice" type="text" style="width: 97px" data-ng-model="vm.unitCost" readonly="">
                             Gain/Loss ($): <input id="inputGainLoss" type="text" style="width: 100px" data-ng-model="vm.gainLoss" readonly="">
                         </div>
                     </fieldset>
