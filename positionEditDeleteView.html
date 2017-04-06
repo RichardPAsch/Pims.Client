@@ -1,10 +1,10 @@
 ﻿  
  <style>
-    #tickerSymbol,  #posDate, #inputMktPrice, #inputGainLoss, #inputAdjQty, #inputFees, #accountType,
+    #tickerSymbol,  #posDate, #inputUnitCost, #inputGainLoss, #inputAdjQty, #inputFees, #accountType,
     #inputUnitCost, #adjustedDate, #currentQtyInput,#inputCostBasis, #inputValuation, #inputAdjFees, #posDate {
         background-color: lightgoldenrodyellow;
     }
-    #currentQtyInput,#inputCostBasis, #inputValuation, #inputMktPrice, #inputGainLoss, #inputAdjQty, #inputUnitCost, 
+    #currentQtyInput,#inputCostBasis, #inputValuation, #inputUnitCost, #inputGainLoss, #inputAdjQty, #inputUnitCost, 
     #inputAdjFees,  #posDate, #inputFees {
         border-style: ridge;
         text-align: right;
@@ -85,7 +85,7 @@
     }
     #divUnitCost {
         padding-left: 10px;
-        width: 211px;
+        width: 214px;
     }
     #divAdjQty {
         padding-left: 19px;
@@ -135,11 +135,16 @@
     #inputCostBasis {
         margin-right: 8px;
     }
-    #inputMktPrice {
+    #inputUnitCost {
         margin-right: 14px;
     }
     #newAccountInput {
         width: 300px;
+    }
+    #inputMktPrice {
+        width: 95px;
+        text-align: right;
+        margin-left: 5px;
     }
     
 </style>
@@ -198,7 +203,7 @@
                         </div>
                         <div id="currentR2" class="col-md-12">
                             Pos. Date<input type="text" id="posDate" data-ng-model="vm.positionDate" readonly="" data-datepicker-popup="M/dd/yyyy" />
-                            Mkt.Price ($): <input id="inputMktPrice" type="text" style="width: 97px" data-ng-model="vm.unitCost" readonly="">
+                            Unit Cost ($): <input id="inputUnitCost" type="text" style="width: 97px" data-ng-model="vm.unitCost" readonly="">
                             Gain/Loss ($): <input id="inputGainLoss" type="text" style="width: 100px" data-ng-model="vm.gainLoss" readonly="">
                         </div>
                     </fieldset>
@@ -216,16 +221,16 @@
                         </div>
                         <div id="adjustedR2">
                             <div class="col-sm-3" id="divAdjQty">
-                                Qty: [+/-]&nbsp; <input id="inputAdjQty" data-ng-model="vm.adjustedQty" type="number" style="width: 80px" data-ng-blur="vm.checkUnitCost(vm.adjustedOption)">
+                                Qty: [+/-]&nbsp; <input id="inputAdjQty" data-ng-model="vm.adjustedQty" type="number" style="width: 80px" data-ng-blur="vm.adjustUnitCost(vm.adjustedOption)">
                             </div>
                             <div class="col-sm-2" id="divUnitCost">
-                                Unit cost ($): <input id="inputUnitCost" data-ng-model="vm.adjustedUnitCost" type="text" style="width: 100px" data-ng-disabled="vm.unitCostDisabled">
+                                Mkt.Price ($): <input id="inputMktPrice" data-ng-model="vm.adjustedMktPrice" type="text" data-ng-disabled="vm.mktPriceDisabled">
                             </div>
                             <div class="col-sm-3" id="divFees">
-                                Fees: [+/-]&nbsp; <input id="inputAdjFees" data-ng-model="vm.adjustedFees" type="number" style="width: 100px" data-ng-blur="">
+                                Fees: [+/-]&nbsp; <input id="inputAdjFees" data-ng-model="vm.adjustedFees" type="number" style="width: 100px" data-ng-blur="vm.adjustFees(vm.adjustedOption)">
                             </div>
                             <div class="col-sm-1">
-                                Adj.Date
+                                Pos.Date
                                 <div class="input-group ui-datepicker col-sm-1 "> 
                                     <input type="text" 
                                            readonly="readonly"
