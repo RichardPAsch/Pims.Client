@@ -199,8 +199,35 @@
         }
 
 
+        function createCostBasisAndUnitCostData() {
+            var costBasisData = {
+                currentMktPrice: 0.0,
+                numberOfUnits: 0,
+                totalTransactionFees: 0.0
+            };
+            return costBasisData;
+        }
+
+
+        function calculateUnitCost(costBasisData) {
+            // Applicable to both 'Asset/Create Position' & 'Positiions/Update-Add' functionality.
+            var mktPrice = costBasisData.currentMktPrice;
+            var units = costBasisData.numberOfUnits;
+            var trxFees = costBasisData.totalTransactionFees;
+
+            // aka Cost Basis.
+            var netAmount = (parseFloat(mktPrice) * units) + parseFloat(trxFees);
+
+            return parseFloat(netAmount / units);
+        }
+
+
+        function calculateCostBasis(costBasisData) {
+            return (parseFloat(costBasisData.currentMktPrice) * costBasisData.numberOfUnits) + parseFloat(costBasisData.totalTransactionFees);
+        }
+
+
        
-        
         
 
         // API
@@ -216,7 +243,10 @@
             formatDate: formatDate,
             getAllAccountTypes: getAllAccountTypes,
             createGuid: createGuid,
-            isValidDistributionFrequency: isValidDistributionFrequency
+            isValidDistributionFrequency: isValidDistributionFrequency,
+            calculateUnitCost: calculateUnitCost,
+            createCostBasisAndUnitCostData: createCostBasisAndUnitCostData,
+            calculateCostBasis: calculateCostBasis
            
 
         }
