@@ -93,7 +93,23 @@
                 // Error fetching data.
                 controller.getPositions(null);
             });
-            
+
+        }
+
+
+        function getAllTransactions(positionId, ctrl) {
+            // All (B)uy-(S)ell-(R)ollover transactions affiliated with a Position,
+            // to be available for inline editing & recalculations.
+
+            var trxsByPositionUrl = appSettings.serverPath + "/Pims.Web.Api/api/PositionTransactions/" + positionId.trim();
+            var resourceObj = $resource(trxsByPositionUrl);
+
+            resourceObj.query().$promise.then(function(response) {
+                var trxs = response;
+                ctrl.postAsyncGetAllTransactions(trxs);
+            }, function(exception) {
+                ctrl.postAsyncGetAllTransactions(exception.data.message);
+            });
 
         }
 
@@ -246,7 +262,8 @@
             isValidDistributionFrequency: isValidDistributionFrequency,
             calculateUnitCost: calculateUnitCost,
             createCostBasisAndUnitCostData: createCostBasisAndUnitCostData,
-            calculateCostBasis: calculateCostBasis
+            calculateCostBasis: calculateCostBasis,
+            getAllTransactions: getAllTransactions
            
 
         }
