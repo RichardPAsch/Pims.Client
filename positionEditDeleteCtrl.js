@@ -221,6 +221,12 @@
             vm.mktPriceDisabled = vm.adjustedOption == 'edit' ? false : true;
             vm.adjDateDisabled = vm.adjustedOption == 'edit' ? false : true;
             vm.updateBtnDisabled = false;
+
+            // Enable inline editing of Position transaction(s).
+            if (vm.adjustedOption == 'edit') {
+                alert("posid : " + vm.positionFrom.positionId);
+                incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
+            }
         }
 
 
@@ -371,6 +377,24 @@
         vm.postAyncProfileFetch = function (profileData) {
             vm.positionFrom.mktPrice = parseFloat(profileData.price).toFixed(2);
             vm.calculateCostBasis("initialPageLoad");
+        }
+
+
+        vm.postAsyncGetAllTransactions = function (resultData) {
+
+            if (resultData.$resolved) {
+                var positionTrxs = resultData;
+
+                // assign data to modal ui-grid.
+                //alert("ui-grid WIP, trx count: " + positionTrxs.length);
+
+
+            } else {
+                alert("Unable to fetch associated transactions for editing.");
+                return false;
+            }
+
+            return null;
         }
 
       
