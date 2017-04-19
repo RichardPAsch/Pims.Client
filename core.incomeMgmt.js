@@ -38,7 +38,8 @@
             'ui.grid.moveColumns',
             'ui.grid.selection',
             'ui.grid.exporter',
-            'ui.grid.selection'
+            'ui.grid.selection',
+            'ui.grid.autoResize'
 
 
         ]);
