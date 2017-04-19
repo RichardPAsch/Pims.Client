@@ -1,0 +1,52 @@
+﻿<style>
+    .grid
+    {
+        width: 700px;
+        height: 250px;
+    }
+    div.modal-content
+    {
+        width: 750px; /* container adjustment*/
+    }
+    #footerBtns {
+        margin-top: 3px;
+    }
+   
+</style>
+
+
+<head>
+    <title>Test</title>
+    <script src="transactionsModalCtrl.js"></script>
+</head>
+
+ <body>
+     <div data-ng-controller="transactionsModalCtrl" data-ng-init="openUserModal()">
+      
+         <script type="text/ng-template" id="userModalContent.html">
+           <div class="modal-header">
+                <h4 class="modal-title">{{gridTitle}}</h4>
+           </div>
+           <div class="modal-body">
+              <div ui-grid="userRolesGrid" ui-grid-selection ui-grid-auto-resize class="grid"></div>
+           </div>
+             
+            <div id="footerBtns" class="row">
+                <div class="col-sm-12">
+                    <div class="modal-footer" style="text-align:left">
+                        <button id="btnOk" class="btn btn-success" data-ng-click="">Update</button>
+                        <button class="btn" data-ng-click="">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+        </script>
+         
+     </div>
+
+</body>
+    
+    
+
+
+
