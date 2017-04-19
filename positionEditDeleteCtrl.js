@@ -6,14 +6,19 @@
         .module("incomeMgmt.positionEditDelete")
         .controller("positionEditDeleteCtrl", positionEditDeleteCtrl);
 
-    positionEditDeleteCtrl.$inject = ['$state', '$filter', 'positionCreateSvc', 'incomeMgmtSvc', 'allPositions', 'incomeCreateSvc'];
+    positionEditDeleteCtrl.$inject = ['$state', '$filter', 'positionCreateSvc', 'allPositions', 'incomeMgmtSvc', 'incomeCreateSvc',
+                                      'uiGridConstants', '$modal', '$location', '$interval'];
 
 
-    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, incomeMgmtSvc, allPositions, incomeCreateSvc) {
+    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants, $modal, $location, $interval) {
 
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
+        var modalTrxEditingInstance = {};
+        //var trxSvc = new transactionsModalSvc();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
+
+
         
 
         // Encapsulate individual preEdit & postEdit position changes--where applicable--in one or both temp objects.
@@ -63,7 +68,28 @@
             gainLoss: 0,
             valuation: 0
         };
-        
+
+
+        // As needed, Position-Transactions editing modal grid configuration.
+        vm.gridOptions = {
+            enableFiltering: false,
+            enableCellEdit: true,
+            enableGridMenu: true,
+            showGridFooter: false,
+            showColumnFooter: true,
+            enableSelectAll: false,
+            data: null,
+            onRegisterApi: function(gridApi) {
+                vm.gridApi = gridApi;
+                // Per Angular documentation, call resize every 500ms for 5s 
+                // after modal finishes opening - usually only necessary on a bootstrap modal.
+                $interval(function () {
+                    vm.gridApi.core.handleWindowResize();
+                }, 500, 10);
+            }
+        };
+
+
         // UI data-binding & flags.
         vm.matchingAccountChanged = false;
         vm.newAccountAdded = false;
@@ -204,6 +230,23 @@
         }
 
 
+        // Modal dialog for Position-transaction edits.
+        function open() {
+            modalTrxEditingInstance = $modal.open({
+                templateUrl:  $location.$$protocol +
+                                "://" + $location.$$host +
+                                ":" + $location.$$port +
+                                "/app/Position-Transactions/testModalView.html",
+                controller: 'positionEditDeleteCtrl',
+                //templateUrl:  $location.$$protocol +
+                //                "://" + $location.$$host +
+                //                ":" + $location.$$port +
+                //                "/app/Position-Transactions/transactionsModalView.html",
+                size: 'md'
+            });
+        };
+
+
         vm.clearPosition = function () {
             var backlen = history.length;
             history.go(-backlen);
@@ -224,7 +267,7 @@
 
             // Enable inline editing of Position transaction(s).
             if (vm.adjustedOption == 'edit') {
-                alert("posid : " + vm.positionFrom.positionId);
+                //alert("posid : " + vm.positionFrom.positionId);
                 incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
             }
         }
@@ -384,10 +427,13 @@
 
             if (resultData.$resolved) {
                 var positionTrxs = resultData;
+                vm.gridOptions.data = positionTrxs;
+                //open(); // modal dialog/grid
+                //trxSvc.open();
+                $state.go("position_transactions_edit");
 
                 // assign data to modal ui-grid.
                 //alert("ui-grid WIP, trx count: " + positionTrxs.length);
-
 
             } else {
                 alert("Unable to fetch associated transactions for editing.");
@@ -397,8 +443,8 @@
             return null;
         }
 
-      
 
+       
         vm.postAsyncPositionUpdates = function (results, actionsRequested) {
             if (results.$resolved) {
                 // For Position changes only.
