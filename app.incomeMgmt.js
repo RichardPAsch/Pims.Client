@@ -32,7 +32,8 @@
         'incomeMgmt.incomeCreate',
         'incomeMgmt.incomeEditDelete',
         'incomeMgmt.positionEditDelete',
-        'incomeMgmt.assetClass'
+        'incomeMgmt.assetClass',
+        'incomeMgmt.positionTransactions'
 
 
     ]);
