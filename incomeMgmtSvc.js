@@ -108,7 +108,7 @@
                 var trxs = response;
                 ctrl.postAsyncGetAllTransactions(trxs);
             }, function(exception) {
-                ctrl.postAsyncGetAllTransactions(exception.data.message);
+                ctrl.postAsyncGetAllTransactions(exception);
             });
 
         }
