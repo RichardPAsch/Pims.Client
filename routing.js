@@ -15,26 +15,30 @@
 
             $stateProvider
                 .state("home", {
-// defined home state - state referenced via html 'sref=' (state reference)
+                // defined home state - state referenced via html 'sref=' (state reference)
                     url: "/",
                     templateUrl: "../Layout/welcomeView.html"
                 })
+
                 .state("signUp", {
                     url: "/Register",
                     templateUrl: "../RegistrationLogin/registerView.html",
                     controller: "RegisterCtrl as vm"
                 })
+
                 .state("signIn", {
                     url: "/Login",
                     templateUrl: "../RegistrationLogin/loginView.html",
                     controller: "LoginCtrl as vm"
                 })
+
                 .state("activitySummary", {
                     url: "/grid/AS",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("logout", {
                     url: "/",
                     templateUrl: "../Layout/welcomeView.html"
@@ -68,6 +72,7 @@
                         }
                     }
                 })
+
                 .state("asset_create.profile", {
                     url: "/Profile/:tickerSymbol",
                     templateUrl: "../Asset/Create/Profile/assetCreateProfileView.html",
@@ -81,6 +86,7 @@
                         }
                     }
                 })
+
                 .state("asset_create.profileEmpty", {
                     url: "/Profile",
                     templateUrl: "../Asset/Create/Profile/assetCreateProfileView.html",
@@ -93,6 +99,7 @@
                         }
                     }
                 })
+
                 .state("asset_create.position", {
                     url: "/Position",
                     templateUrl: "../Asset/Create/Position/assetCreatePositionView.html",
@@ -105,6 +112,7 @@
                         }
                     }
                 })
+
                 .state("asset_create.income", {
                     url: "/Income",
                     templateUrl: "../Asset/Create/Income/assetCreateIncomeView.html",
@@ -154,6 +162,7 @@
                         }
                     }
                 })
+
                 .state("queries_menu", {
                     url: "/Queries",
                     templateUrl: "../Queries/queriesMenuView.html",
@@ -181,48 +190,56 @@
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_revenue_2", {
                     url: "/grid/R2",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_revenue_3", {
                     url: "/grid/R3",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_revenue_4", {
                     url: "/grid/R4",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_revenue_5", {
                     url: "/grid/R5",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_revenue_6", {
                     url: "/grid/R6",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_profile_projection", {
                     url: "/grid/PP",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_positions", {
                     url: "/grid/PO",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
                     controllerAs: "vm"
                 })
+
                 .state("query_assets_abridged", {
                     url: "/grid/AA/:status",
                     templateUrl: "../Common.Templates/pimsGrid.html",
@@ -284,6 +301,15 @@
                             return assetClassificationsSvc.query().$promise;
                         }
                     }
+                })
+
+
+                 // Position-Transactions
+                .state("position_transactions_edit", {
+                    url: "/Transactions",
+                    templateUrl: "../Position-Transactions/transactionsModalView.html",
+                    controller: "transactionsModalCtrl",
+                    controllerAs: "vm"
                 })
 
 
