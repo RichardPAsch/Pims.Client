@@ -11,6 +11,12 @@
     #footerBtns {
         margin-top: 3px;
     }
+    div.ui-grid-viewport.ng-isolate-scope {   /* cell alignments for grid */
+        text-align: right;
+    }
+    .headerAlignment {
+        text-align: center;
+    }
    
 </style>
 
@@ -28,14 +34,14 @@
                 <h4 class="modal-title">{{gridTitle}}</h4>
            </div>
            <div class="modal-body">
-              <div ui-grid="userRolesGrid" ui-grid-selection ui-grid-auto-resize class="grid"></div>
+              <div ui-grid="transactionsGrid" ui-grid-selection ui-grid-auto-resize class="grid" ui-grid-resize-columns ui-grid-edit ></div>
            </div>
              
             <div id="footerBtns" class="row">
                 <div class="col-sm-12">
                     <div class="modal-footer" style="text-align:left">
-                        <button id="btnOk" class="btn btn-success" data-ng-click="">Update</button>
-                        <button class="btn" data-ng-click="">Cancel</button>
+                        <button id="btnOk" class="btn btn-success" data-ng-click="update()">Update</button>
+                        <button class="btn" data-ng-click="cancel()">Cancel</button>
                     </div>
                 </div>
             </div>
