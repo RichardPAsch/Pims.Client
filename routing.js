@@ -311,7 +311,8 @@
                     controller: "transactionsModalCtrl",
                     controllerAs: "vm",
                     params: {
-                        positionIdParam: ""
+                        positionIdParam: "",
+                        accountParam: ""
                     }
                 })
 
