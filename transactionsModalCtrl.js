@@ -16,6 +16,8 @@
 
     function transactionsModalCtrl($modal, $scope, $state, incomeMgmtSvc, $stateParams) {
 
+        $scope.trxsModel = [];
+
         $scope.openUserModal = function () {
             $modal.open({
                 templateUrl: 'userModalContent.html',
@@ -34,7 +36,7 @@
 
         $scope.update = function () {
             // WIP
-            alert("WIP");
+            var postEditModel = $scope.trxsModel; // ok - reflects edited data.
             //$state.go("positions_edit");
         };
 
@@ -42,12 +44,13 @@
         $scope.buildColumnDefs = function () {
 
             $scope.transactionsGrid.columnDefs = [
-                    { name: 'dateCreated', displayName: 'Created', enableCellEdit: false, width: '15%', type: 'date', cellFilter: 'date:\'MM-dd-yyyy\'', headerCellClass: 'headerAlignment' },
-                    { name: 'units', displayName: 'Qty', enableCellEdit: true, width: '10%', headerCellClass: 'headerAlignment'},
-                    { name: 'mktPrice', displayName: 'Price', enableCellEdit: true, width: '15%', cellFilter: 'number: 2', headerTooltip: 'Current market price', headerCellClass: 'headerAlignment' },
-                    { name: 'fees', displayName: 'Fees', enableCellEdit: true, width: '15%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
-                    { name: 'costBasis', displayName: 'Cost Basis', enableCellEdit: false, width: '20%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
-                    { name: 'unitCost', displayName: 'Unit Cost', enableCellEdit: false, width: '23%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' }
+                    { field: 'dateCreated', displayName: 'Created', enableCellEdit: false, width: '15%', type: 'date', cellFilter: 'date:\'MM-dd-yyyy\'', headerCellClass: 'headerAlignment' },
+                    { field: 'units', displayName: 'Qty', enableCellEdit: true, width: '10%', headerCellClass: 'headerAlignment' },
+                    { field: 'mktPrice', displayName: 'Price', enableCellEdit: true, width: '12%', cellFilter: 'number: 3', headerTooltip: 'Current market price', headerCellClass: 'headerAlignment' },
+                    { field: 'fees', displayName: 'Fees', enableCellEdit: true, width: '12%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
+                    { field: 'costBasis', displayName: 'Cost Basis', enableCellEdit: false, width: '17%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
+                    { field: 'unitCost', displayName: 'Unit Cost', enableCellEdit: false, width: '16%', cellFilter: 'number: 3', headerCellClass: 'headerAlignment' },
+                    { field: 'valuation', displayName: 'Value', enableCellEdit: false, width: '18%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' }
             ];
 
         };
@@ -59,7 +62,7 @@
         };
 
 
-        $scope.gridTitle = "Position transaction(s)";
+        $scope.gridTitle = "Position transaction(s) for account:  " + $stateParams.accountParam;
         $scope.positionId = $stateParams.positionIdParam;
 
         incomeMgmtSvc.getAllTransactions($scope.positionId, $scope);
@@ -72,6 +75,7 @@
         $scope.postAsyncGetAllTransactions = function (resultData) {
 
             if (resultData.$resolved) {
+                $scope.trxsModel = resultData;
                 $scope.buildColumnDefs();
                 $scope.transactionsGrid.data = resultData;
                 //alert("reoord count is: " + positionTrxs.length); // 1 - tested Ok!
