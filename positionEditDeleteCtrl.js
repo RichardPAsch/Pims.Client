@@ -231,20 +231,20 @@
 
 
         // Modal dialog for Position-transaction edits.
-        function open() {
-            modalTrxEditingInstance = $modal.open({
-                templateUrl:  $location.$$protocol +
-                                "://" + $location.$$host +
-                                ":" + $location.$$port +
-                                "/app/Position-Transactions/testModalView.html",
-                controller: 'positionEditDeleteCtrl',
-                //templateUrl:  $location.$$protocol +
-                //                "://" + $location.$$host +
-                //                ":" + $location.$$port +
-                //                "/app/Position-Transactions/transactionsModalView.html",
-                size: 'md'
-            });
-        };
+        //function open() {
+        //    modalTrxEditingInstance = $modal.open({
+        //        templateUrl:  $location.$$protocol +
+        //                        "://" + $location.$$host +
+        //                        ":" + $location.$$port +
+        //                        "/app/Position-Transactions/testModalView.html",
+        //        controller: 'positionEditDeleteCtrl',
+        //        //templateUrl:  $location.$$protocol +
+        //        //                "://" + $location.$$host +
+        //        //                ":" + $location.$$port +
+        //        //                "/app/Position-Transactions/transactionsModalView.html",
+        //        size: 'md'
+        //    });
+        //};
 
 
         vm.clearPosition = function () {
@@ -430,7 +430,7 @@
                 vm.gridOptions.data = positionTrxs;
                 //open(); // modal dialog/grid
                 //trxSvc.open();
-                $state.go("position_transactions_edit");
+                $state.go("position_transactions_edit", {positionIdParam: vm.positionFrom.positionId});
 
                 // assign data to modal ui-grid.
                 //alert("ui-grid WIP, trx count: " + positionTrxs.length);
