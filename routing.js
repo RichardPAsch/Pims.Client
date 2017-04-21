@@ -309,7 +309,10 @@
                     url: "/Transactions",
                     templateUrl: "../Position-Transactions/transactionsModalView.html",
                     controller: "transactionsModalCtrl",
-                    controllerAs: "vm"
+                    controllerAs: "vm",
+                    params: {
+                        positionIdParam: ""
+                    }
                 })
 
 
