@@ -14,7 +14,7 @@
 
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
-        var modalTrxEditingInstance = {};
+        //var modalTrxEditingInstance = {};
         //var trxSvc = new transactionsModalSvc();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
 
@@ -71,23 +71,26 @@
 
 
         // As needed, Position-Transactions editing modal grid configuration.
-        vm.gridOptions = {
-            enableFiltering: false,
-            enableCellEdit: true,
-            enableGridMenu: true,
-            showGridFooter: false,
-            showColumnFooter: true,
-            enableSelectAll: false,
-            data: null,
-            onRegisterApi: function(gridApi) {
-                vm.gridApi = gridApi;
-                // Per Angular documentation, call resize every 500ms for 5s 
-                // after modal finishes opening - usually only necessary on a bootstrap modal.
-                $interval(function () {
-                    vm.gridApi.core.handleWindowResize();
-                }, 500, 10);
-            }
-        };
+        //vm.gridOptions = {
+        //    enableFiltering: false,
+        //    enableCellEdit: true,
+        //    enableGridMenu: true,
+        //    showGridFooter: false,
+        //    showColumnFooter: true,
+        //    enableSelectAll: false,
+        //    data: null,
+        //    onRegisterApi: function(gridApi) {
+        //        vm.gridApi = gridApi;
+        //        //gridApi.on.afterCellEdit(vm, function(rowEntity, colDef, newValue, oldValue) {
+        //        //    alert("oldValue : " + oldValue + "\nnewValue: " + newValue);
+        //        //});
+        //        // Per Angular documentation, call resize every 500ms for 5s 
+        //        // after modal finishes opening - usually only necessary on a bootstrap modal.
+        //        $interval(function () {
+        //            vm.gridApi.core.handleWindowResize();
+        //        }, 500, 10);
+        //    }
+        //};
 
 
         // UI data-binding & flags.
@@ -251,7 +254,18 @@
 
             // Enable inline editing of Position transaction(s).
             if (vm.adjustedOption == 'edit') {
-                incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
+                var origPosDate = $filter('date')(vm.positionFrom.positionDate, 'M/d/yyyy');
+                var adjustedPosDate = $filter('date')(vm.positionAdjDate, 'M/d/yyyy');
+                // Unadjusted Position date indicates ok for transaction edit(s).
+                if (origPosDate == adjustedPosDate) {
+                        $state.go("position_transactions_edit",
+                           {
+                               positionIdParam: vm.positionFrom.positionId,
+                               accountParam: vm.selectedAccountType,
+                               mktPriceParam: vm.adjustedMktPrice
+                           });
+                }
+                //incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
             }
         }
 
@@ -327,6 +341,7 @@
                     vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
                     vm.unitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
                     vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
+                    vm.positionFrom.originalMktPrice = vm.adjustedMktPrice;
                     vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.costBasis);
                     break;
                 case "positionChange":
@@ -360,7 +375,8 @@
                 : true;
         }
         
-        
+
+        // TODO: Re-eval.
         vm.adjustUnitCost = function (optionSelected) {
 
             if ((optionSelected == 'rollover' || optionSelected == 'sell')) {
@@ -381,6 +397,7 @@
             //vm.positionAdjDate = incomeMgmtSvc.formatDate(today);
             return null;
         }
+
 
         // TODO: Re-eval need here.
         vm.adjustFees = function (optionSelected) {
@@ -406,23 +423,24 @@
         }
 
 
-        vm.postAsyncGetAllTransactions = function (resultData) {
+        // TODO: needed? duplicate of line 69 in transactionModalCtrl.
+        //vm.postAsyncGetAllTransactions = function (resultData) {
             
-            if (resultData.$resolved) {
-                var positionTrxs = resultData;
-                vm.gridOptions.data = positionTrxs;
-                $state.go("position_transactions_edit",
-                {
-                    positionIdParam: vm.positionFrom.positionId,
-                    accountParam: vm.selectedAccountType
-                });
-            } else {
-                alert("Unable to fetch associated transactions for editing.");
-                return false;
-            }
+        //    if (resultData.$resolved) {
+        //        //var positionTrxs = resultData;
+        //        //vm.gridOptions.data = positionTrxs;
+        //        $state.go("position_transactions_edit",
+        //        {
+        //            positionIdParam: vm.positionFrom.positionId,
+        //            accountParam: vm.selectedAccountType
+        //        });
+        //    } else {
+        //        alert("Unable to fetch associated transactions for editing.");
+        //        return false;
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
 
        
