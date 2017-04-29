@@ -22,7 +22,6 @@
         // Matches currency with, or without commas and/or $.
         vm.currencyPattern = new RegExp(/^\$?[\d+,]+(\.\d*)?$/);
 
-
         
 
         function isValidTickerSymbolFormat(ticker) {
@@ -243,6 +242,16 @@
         }
 
 
+        function removeArrayDuplicates(collectionToParse) {
+            // Callback is a predicate, to test each element of the array. 
+            // Returns true to keep the element, false otherwise, taking three arguments. 
+            // self = the array the filter was called upon.
+            return collectionToParse.filter(function (elem, index, self) {
+                return index == self.indexOf(elem);
+            })
+        }
+
+
        
         
 
@@ -263,7 +272,8 @@
             calculateUnitCost: calculateUnitCost,
             createCostBasisAndUnitCostData: createCostBasisAndUnitCostData,
             calculateCostBasis: calculateCostBasis,
-            getAllTransactions: getAllTransactions
+            getAllTransactions: getAllTransactions,
+            removeArrayDuplicates: removeArrayDuplicates
            
 
         }
