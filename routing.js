@@ -312,7 +312,8 @@
                     controllerAs: "vm",
                     params: {
                         positionIdParam: "",
-                        accountParam: ""
+                        accountParam: "",
+                        mktPriceParam: 0
                     }
                 })
 
