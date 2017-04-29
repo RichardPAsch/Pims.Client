@@ -37,10 +37,11 @@
       
          <script type="text/ng-template" id="userModalContent.html">
            <div class="modal-header">
-                <h4 class="modal-title">{{gridTitle}}</h4>
+               <!-- <h4 class="modal-title">{{gridTitle}}</h4>-->
+                <strong>Last Cell Edited:</strong> {{msg.lastCellEdited}}
            </div>
            <div class="modal-body">
-              <div ui-grid="transactionsGrid" ui-grid-selection ui-grid-auto-resize class="grid" ui-grid-resize-columns ui-grid-edit ></div>
+                <div ui-grid="gridOptions" ui-grid-selection ui-grid-auto-resize class="grid" ui-grid-resize-columns ui-grid-edit></div>
            </div>
              
             <div id="footerBtns" class="row">
