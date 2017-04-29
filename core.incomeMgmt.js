@@ -39,7 +39,8 @@
             'ui.grid.selection',
             'ui.grid.exporter',
             'ui.grid.selection',
-            'ui.grid.autoResize'
+            'ui.grid.autoResize',
+            'ui.grid.rowEdit'
 
 
         ]);
