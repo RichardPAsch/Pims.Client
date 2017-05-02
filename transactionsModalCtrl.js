@@ -16,7 +16,7 @@
 
     function transactionsModalCtrl($modal, $scope, $state, incomeMgmtSvc, $stateParams, transactionsModalSvc) {
 
-        $scope.preOrPostEditTrxs = [];
+        $scope.preOrPostEditTrxs = [];  // for either edited (pre-calculations) or post-calculation trxs.
         $scope.editedTrxRowKeys = [];   // cache rows edited.
         $scope.dirtyRows = 0;
         $scope.gridOptions = {};
@@ -38,15 +38,12 @@
 
 
         $scope.update = function () {
-            // WIP
-            //$scope.preOrPostEditTrxs; // ok - contains edited data.
             //$state.go("positions_edit");
             // Multiple edits may exist on same transaction record.
             $scope.editedTrxRowKeys = incomeMgmtSvc.removeArrayDuplicates($scope.editedTrxRowKeys);
-            alert("dirty row data count is: " + $scope.editedTrxRowKeys.length);
             $scope.sortTrxCollections();
-            $scope.updateTransactionCalculations();
-
+            $scope.preOrPostEditTrxs = transactionsModalSvc.updateTransactionCalculations($scope.preOrPostEditTrxs, $scope.editedTrxRowKeys);
+            transactionsModalSvc.updateTransactionsTable($scope.preOrPostEditTrxs, $scope);  // 5.2.17 - Ok
         };
 
 
@@ -113,8 +110,6 @@
 
         $scope.gridTitle = "Position transaction(s) for account:  " + $stateParams.accountParam;
         $scope.positionId = $stateParams.positionIdParam;
-       // $scope.gridOptions = {};
-        //$scope.gridOptions = { rowEditWaitInterval: -1 }
         $scope.gridOptions.onRegisterApi = function(gridApi) {
             $scope.gridApi = gridApi;
             gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
@@ -125,7 +120,6 @@
         };
         
 
-        //incomeMgmtSvc.getAllTransactions($scope.positionId, $scope);
         incomeMgmtSvc.getAllTransactions($stateParams.positionIdParam, $scope);
 
 
@@ -148,47 +142,28 @@
             return null;
         }
 
+        $scope.postAsyncTransactionUpdates = function(response, isFinalTrxUpdate) {
+            if (!response.$resolved) {
+                alert("Error updating transaction due to: " + response);
+                return false;
+            }
+
+            if (isFinalTrxUpdate) {
+                alert("Position table to be updated, transaction(s) saved."); // 5.2.17 - Ok
+                // TODO: 5.3.17 - update Position table; reconfirm design is ok for buy,sell,rollover, & position/create fx.
+            }
+
+            return null;
+        }
+
+
 
         $scope.captureRowEdits = function (currentRow) {
-            // Each edited row transactionId = PK. Event fired upon EACH cell edit.
+            // Each edited row transactionId = PK; event fired upon EACH cell edit.
             $scope.editedTrxRowKeys.push(currentRow.transactionId);
         }
 
 
-        $scope.updateTransactionCalculations = function () {
-
-            //angular.forEach($scope.preOrPostEditTrxs, function(value, key) {
-            //    console.log("value: " + value); // [Object object]
-            //});
-
-            // Totals to be updated in Positions table as result of edit(s).
-            var unitsTotal = 0;
-            var costBasisTotal = 0;
-            var unitCostQuotient = 0;
-
-            for (var e = 0; e < $scope.editedTrxRowKeys.length; e++) {
-                
-                for (var t = 0; t < $scope.preOrPostEditTrxs.length; t++) {
-
-                    if ($scope.preOrPostEditTrxs[t].transactionId == $scope.editedTrxRowKeys[e]) {
-                        $scope.preOrPostEditTrxs[t].valuation = transactionsModalSvc.calculateValuation($scope.preOrPostEditTrxs[t].units, $scope.preOrPostEditTrxs[t].mktPrice);
-                        $scope.preOrPostEditTrxs[t].costBasis = transactionsModalSvc.calculateCostBasis($scope.preOrPostEditTrxs[t].valuation, $scope.preOrPostEditTrxs[t].fees);
-                        $scope.preOrPostEditTrxs[t].unitCost = transactionsModalSvc.calculateUnitCost($scope.preOrPostEditTrxs[t].costBasis, $scope.preOrPostEditTrxs[t].units);
-
-                        //console.log("V: " + $scope.preOrPostEditTrxs[t].valuation + " CB: "
-                        //    + $scope.preOrPostEditTrxs[t].costBasis + " UC: "
-                        //    + $scope.preOrPostEditTrxs[t].unitCost + " TRXid: "
-                        //    + $scope.preOrPostEditTrxs[t].transactionId);
-                    }
-
-                    unitsTotal += $scope.preOrPostEditTrxs[t].units;
-                    costBasisTotal += $scope.preOrPostEditTrxs[t].costBasis;
-                }
-            }
-            // TODO: test
-            unitCostQuotient = costBasisTotal / unitsTotal;
-            alert("total units: \n" + unitsTotal + " total CB: \n" + costBasisTotal + " finalUC: \n" + unitCostQuotient);
-        }
   
     }
 
