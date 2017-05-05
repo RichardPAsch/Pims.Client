@@ -11,10 +11,10 @@
         .controller("transactionsModalCtrl", transactionsModalCtrl);
 
 
-    transactionsModalCtrl.$inject = ['$modal', '$scope', '$state', 'incomeMgmtSvc', '$stateParams', 'transactionsModalSvc'];
+    transactionsModalCtrl.$inject = ['$modal', '$scope', '$state', 'incomeMgmtSvc', '$stateParams', 'transactionsModalSvc', 'positionCreateSvc', '$filter'];
 
 
-    function transactionsModalCtrl($modal, $scope, $state, incomeMgmtSvc, $stateParams, transactionsModalSvc) {
+    function transactionsModalCtrl($modal, $scope, $state, incomeMgmtSvc, $stateParams, transactionsModalSvc, positionCreateSvc, $filter) {
 
         $scope.preOrPostEditTrxs = [];  // for either edited (pre-calculations) or post-calculation trxs.
         $scope.editedTrxRowKeys = [];   // cache rows edited.
@@ -125,7 +125,7 @@
 
 
         /* 
-            Service call-back processing.
+            Services call-back processing.
         */ 
         $scope.postAsyncGetAllTransactions = function (resultData) {
 
@@ -142,15 +142,27 @@
             return null;
         }
 
-        $scope.postAsyncTransactionUpdates = function(response, isFinalTrxUpdate) {
+        $scope.postAsyncTransactionUpdates = function(response, isLastTrxRecord) {
             if (!response.$resolved) {
                 alert("Error updating transaction due to: " + response);
                 return false;
             }
 
-            if (isFinalTrxUpdate) {
-                alert("Position table to be updated, transaction(s) saved."); // 5.2.17 - Ok
+            if (isLastTrxRecord) {
                 // TODO: 5.3.17 - update Position table; reconfirm design is ok for buy,sell,rollover, & position/create fx.
+                var positionData = $scope.initializePositionVm(response);
+                positionCreateSvc.processPositionUpdates2(positionData, $scope);  // 5.5.17 - Ok.
+            }
+
+            return null;
+        }
+
+        $scope.postAsyncPositionUpdates = function(results) {
+            if (!results.$resolved) {
+                alert("Error updating Position due to: " + results);
+                return false;
+            } else {
+                alert("Position & Transaction(s) successfully updated.");
             }
 
             return null;
@@ -158,9 +170,37 @@
 
 
 
+
+
+
+
         $scope.captureRowEdits = function (currentRow) {
             // Each edited row transactionId = PK; event fired upon EACH cell edit.
             $scope.editedTrxRowKeys.push(currentRow.transactionId);
+        }
+
+
+        $scope.initializePositionVm = function (trxResponseData) {
+            var today = new Date();
+            var currentPosition = positionCreateSvc.getPositionVm();
+
+            // Satisfies server model state; no mapping necessary.
+            currentPosition.TickerSymbol = $stateParams.currentPositionParam.tickerSymbol;
+            currentPosition.PositionId = $stateParams.currentPositionParam.positionId;
+            currentPosition.PositionAssetId = $stateParams.currentPositionParam.assetId;
+            currentPosition.AcctTypeId = $stateParams.currentPositionParam.accountTypeId;
+            currentPosition.Status = "A";
+            currentPosition.PurchaseDate = $stateParams.currentPositionParam.purchaseDate;
+            currentPosition.PositionDate = $stateParams.currentPositionParam.positionDate;
+            currentPosition.MarketPrice = trxResponseData.MktPrice;
+            currentPosition.Quantity = trxResponseData.Units;
+            currentPosition.UnitCost = trxResponseData.UnitCost;
+            currentPosition.Fees = trxResponseData.Fees;
+            currentPosition.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+            currentPosition.InvestorKey = $stateParams.currentPositionParam.investorId;
+            currentPosition.Url = "";
+
+            return currentPosition;
         }
 
 
