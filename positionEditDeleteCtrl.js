@@ -14,8 +14,6 @@
 
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
-        //var modalTrxEditingInstance = {};
-        //var trxSvc = new transactionsModalSvc();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
 
 
@@ -70,29 +68,6 @@
         };
 
 
-        // As needed, Position-Transactions editing modal grid configuration.
-        //vm.gridOptions = {
-        //    enableFiltering: false,
-        //    enableCellEdit: true,
-        //    enableGridMenu: true,
-        //    showGridFooter: false,
-        //    showColumnFooter: true,
-        //    enableSelectAll: false,
-        //    data: null,
-        //    onRegisterApi: function(gridApi) {
-        //        vm.gridApi = gridApi;
-        //        //gridApi.on.afterCellEdit(vm, function(rowEntity, colDef, newValue, oldValue) {
-        //        //    alert("oldValue : " + oldValue + "\nnewValue: " + newValue);
-        //        //});
-        //        // Per Angular documentation, call resize every 500ms for 5s 
-        //        // after modal finishes opening - usually only necessary on a bootstrap modal.
-        //        $interval(function () {
-        //            vm.gridApi.core.handleWindowResize();
-        //        }, 500, 10);
-        //    }
-        //};
-
-
         // UI data-binding & flags.
         vm.matchingAccountChanged = false;
         vm.newAccountAdded = false;
@@ -135,6 +110,9 @@
         vm.positionFrom.accountTypeId = currentPositionGuids.accountTypeId;
         vm.positionFrom.originalFees = vm.currentFees;
         vm.positionFrom.originalMktPrice = vm.positionFrom.mktPrice;
+        vm.positionFrom.assetId = currentPositionGuids.assetId;
+        vm.positionFrom.investorId = currentPositionGuids.investorId;
+        vm.positionFrom.tickerSymbol = vm.ticker.trim().toUpperCase();
 
 
        
@@ -256,16 +234,17 @@
             if (vm.adjustedOption == 'edit') {
                 var origPosDate = $filter('date')(vm.positionFrom.positionDate, 'M/d/yyyy');
                 var adjustedPosDate = $filter('date')(vm.positionAdjDate, 'M/d/yyyy');
-                // Unadjusted Position date indicates ok for transaction edit(s).
+                // Unadjusted Position date indicates process for transaction edit(s).
+                // TODO: 1st 3 params may now not be needed after addition of currentPositionParam?
                 if (origPosDate == adjustedPosDate) {
                         $state.go("position_transactions_edit",
                            {
                                positionIdParam: vm.positionFrom.positionId,
                                accountParam: vm.selectedAccountType,
-                               mktPriceParam: vm.adjustedMktPrice
+                               mktPriceParam: vm.adjustedMktPrice,
+                               currentPositionParam: vm.positionFrom
                            });
                 }
-                //incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
             }
         }
 
@@ -423,27 +402,6 @@
         }
 
 
-        // TODO: needed? duplicate of line 69 in transactionModalCtrl.
-        //vm.postAsyncGetAllTransactions = function (resultData) {
-            
-        //    if (resultData.$resolved) {
-        //        //var positionTrxs = resultData;
-        //        //vm.gridOptions.data = positionTrxs;
-        //        $state.go("position_transactions_edit",
-        //        {
-        //            positionIdParam: vm.positionFrom.positionId,
-        //            accountParam: vm.selectedAccountType
-        //        });
-        //    } else {
-        //        alert("Unable to fetch associated transactions for editing.");
-        //        return false;
-        //    }
-
-        //    return null;
-        //}
-
-
-       
         vm.postAsyncPositionUpdates = function (results, actionsRequested) {
             if (results.$resolved) {
                 // For Position changes only.
@@ -754,58 +712,58 @@
                     break;
                 case 'edit':
                     // TODO: 4.7.17 - cancelled functionality; will provide editing via new Position trx table & grid.
-                    positionInfo.adjustedOption = vm.adjustedOption;
-                    positionInfo.dbActionNew = "na";
-                    positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                    positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                    vm.positionFrom.dBAction = 'update';
-                    positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    vm.positionTo.dBAction = 'na';
-                    positionInfo.fromPositionStatus = "A";
-                    positionInfo.toPositionStatus = "na";
-                    if (vm.adjustedQty != 0 || vm.adjustedMktPrice != vm.positionFrom.originalMktPrice || vm.adjustedFees != 0) {
-                        dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
-                        dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
-                        dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                        positionInfo.fromQty = dataReceptacle.numberOfUnits;
-                        vm.positionFrom.originalQty = vm.currentQty;
-                        vm.positionFrom.currentQty = positionInfo.fromQty;
-                        if (positionInfo.fromQty <= 0) {
-                            alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
-                            return null;
-                        }
-                        positionInfo.toQty = 0;
-                        vm.positionTo.currentQty = 0;
+                    //positionInfo.adjustedOption = vm.adjustedOption;
+                    //positionInfo.dbActionNew = "na";
+                    //positionInfo.toPosId = incomeMgmtSvc.createGuid();
+                    //positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
+                    //vm.positionFrom.dBAction = 'update';
+                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
+                    //vm.positionTo.dBAction = 'na';
+                    //positionInfo.fromPositionStatus = "A";
+                    //positionInfo.toPositionStatus = "na";
+                    //if (vm.adjustedQty != 0 || vm.adjustedMktPrice != vm.positionFrom.originalMktPrice || vm.adjustedFees != 0) {
+                    //    dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
+                    //    dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
+                    //    dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
+                    //    positionInfo.fromQty = dataReceptacle.numberOfUnits;
+                    //    vm.positionFrom.originalQty = vm.currentQty;
+                    //    vm.positionFrom.currentQty = positionInfo.fromQty;
+                    //    if (positionInfo.fromQty <= 0) {
+                    //        alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
+                    //        return null;
+                    //    }
+                    //    positionInfo.toQty = 0;
+                    //    vm.positionTo.currentQty = 0;
 
-                        positionInfo.fromFees = dataReceptacle.totalTransactionFees;
-                        positionInfo.toFees = 0.00;
-                        vm.positionFrom.currentFees = positionInfo.fromFees;
-                        vm.positionTo.currentFees = 0.00;
+                    //    positionInfo.fromFees = dataReceptacle.totalTransactionFees;
+                    //    positionInfo.toFees = 0.00;
+                    //    vm.positionFrom.currentFees = positionInfo.fromFees;
+                    //    vm.positionTo.currentFees = 0.00;
 
-                        vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                        vm.positionFrom.costBasis = vm.costBasis;
-                        vm.positionTo.costBasis = 0.0;
+                    //    vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
+                    //    vm.positionFrom.costBasis = vm.costBasis;
+                    //    vm.positionTo.costBasis = 0.0;
 
-                        positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                        positionInfo.toUnitCost = 0;
-                        vm.positionFrom.unitCost = positionInfo.fromUnitCost;
-                        vm.positionTo.unitCost = 0.0;
+                    //    positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
+                    //    positionInfo.toUnitCost = 0;
+                    //    vm.positionFrom.unitCost = positionInfo.fromUnitCost;
+                    //    vm.positionTo.unitCost = 0.0;
 
-                        if (vm.positionAdjDate != vm.positionDate) {
-                            positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                            positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                            vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                            vm.positionTo.positionDate = "n/a";
-                        }
-                    } else {
-                        positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                        vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                        vm.positionTo.positionDate = "n/a";
-                    }
-                    vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
+                    //    if (vm.positionAdjDate != vm.positionDate) {
+                    //        positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
+                    //        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
+                    //        vm.positionFrom.positionDate = positionInfo.fromPositionDate;
+                    //        vm.positionTo.positionDate = "n/a";
+                    //    }
+                    //} else {
+                    //    positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
+                    //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
+                    //    vm.positionFrom.positionDate = positionInfo.fromPositionDate;
+                    //    vm.positionTo.positionDate = "n/a";
+                    //}
+                    //vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
 
-                    vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
+                    //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
 
                     //positionInfo.dbActionOrig = "update";
                     //positionInfo.fromPositionStatus = "A";
