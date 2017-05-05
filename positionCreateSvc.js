@@ -12,10 +12,10 @@
        .module("incomeMgmt.core")
        .factory("positionCreateSvc", positionCreateSvc);
 
-    positionCreateSvc.$inject = ["$resource", 'appSettings'];
+    positionCreateSvc.$inject = ["$resource", 'appSettings', '$filter'];
 
 
-    function positionCreateSvc($resource, appSettings) {
+    function positionCreateSvc($resource, appSettings, $filter) {
 
         var vm = this;
         vm.baseUrl = appSettings.serverPath + "/Pims.Web.Api/api/";
@@ -75,6 +75,7 @@
 
             // Returns expected promise to ui-routers' resolve().
             return $resource(positionsUrl).query().$promise;
+            
         }
 
 
@@ -291,6 +292,51 @@
         }
 
 
+        /*  == 5.3.2017 ==
+            New (simplified ?) functions reflecting existence of Transactions implementation.
+        */
+
+        function getPositionVm() {
+
+            var today = new Date();
+            return {
+                TickerSymbol: "",
+                PositionId : "",
+                PositionAssetId	: "",
+                AcctTypeId : "",
+                Status : "A", 
+                PurchaseDate : "",
+                PositionDate: "",
+                MarketPrice: 0,
+                Quantity : 0, 
+                UnitCost : 0,
+                Fees : 0, 
+                LastUpdate : $filter('date')(today, 'M/dd/yyyy'),
+                InvestorKey : "",
+                Url : ""
+            }
+        }
+
+
+        function processPositionUpdates2(positionData, ctrl) {
+
+            var resourceObj = {};
+
+            var positionCreateUpdateUrl = appSettings.serverPath + "/Pims.Web.Api/api/Positions/UpdateCreate";
+            resourceObj = $resource(positionCreateUpdateUrl,
+                            null,
+                            {
+                                'update': { method: 'PATCH' }
+                            });
+
+            resourceObj.update(null, positionData).$promise.then(function (response) {
+                ctrl.postAsyncPositionUpdates(response);
+            }, function (ex) {
+                ctrl.postAsyncPositionUpdates(ex.statusText);
+            });
+        }
+
+
 
         // API
         return {
@@ -309,7 +355,9 @@
             getGuidsForPosition: getGuidsForPosition,
             processPositionUpdates: processPositionUpdates,
             getMatchingAccountTypeId: getMatchingAccountTypeId,
-            getPositionFees: getPositionFees
+            getPositionFees: getPositionFees,
+            getPositionVm: getPositionVm,
+            processPositionUpdates2: processPositionUpdates2
         }
 
     }
