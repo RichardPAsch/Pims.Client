@@ -313,7 +313,8 @@
                     params: {
                         positionIdParam: "",
                         accountParam: "",
-                        mktPriceParam: 0
+                        mktPriceParam: 0,
+                        currentPositionParam: null
                     }
                 })
 
