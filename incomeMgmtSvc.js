@@ -248,7 +248,7 @@
             // self = the array the filter was called upon.
             return collectionToParse.filter(function (elem, index, self) {
                 return index == self.indexOf(elem);
-            })
+            });
         }
 
 
