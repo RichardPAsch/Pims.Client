@@ -337,6 +337,19 @@
         }
 
 
+        function savePosition(vmToSave) {
+
+            var positionUrl = vm.baseUrl + "Asset/<ticker>/Position";
+
+            $resource(positionUrl).save(positionData).$promise.then(function () {
+                ctrl.postAsyncPositionSave(true);
+            }, function () {
+                ctrl.postAsyncPositionSave(false);
+            });
+
+        }
+
+
 
         // API
         return {
@@ -357,7 +370,8 @@
             getMatchingAccountTypeId: getMatchingAccountTypeId,
             getPositionFees: getPositionFees,
             getPositionVm: getPositionVm,
-            processPositionUpdates2: processPositionUpdates2
+            processPositionUpdates2: processPositionUpdates2,
+            savePosition: savePosition
         }
 
     }
