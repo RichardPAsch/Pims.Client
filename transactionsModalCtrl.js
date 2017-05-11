@@ -43,7 +43,7 @@
             $scope.editedTrxRowKeys = incomeMgmtSvc.removeArrayDuplicates($scope.editedTrxRowKeys);
             $scope.sortTrxCollections();
             $scope.preOrPostEditTrxs = transactionsModalSvc.updateTransactionCalculations($scope.preOrPostEditTrxs, $scope.editedTrxRowKeys);
-            transactionsModalSvc.updateTransactionsTable($scope.preOrPostEditTrxs, $scope);  // 5.2.17 - Ok
+            transactionsModalSvc.updateTransactionTable($scope.preOrPostEditTrxs, $scope);  // 5.2.17 - Ok
         };
 
 
