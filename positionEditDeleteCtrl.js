@@ -7,14 +7,15 @@
         .controller("positionEditDeleteCtrl", positionEditDeleteCtrl);
 
     positionEditDeleteCtrl.$inject = ['$state', '$filter', 'positionCreateSvc', 'allPositions', 'incomeMgmtSvc', 'incomeCreateSvc',
-                                      'uiGridConstants', '$modal', '$location', '$interval'];
+                                      'uiGridConstants', '$modal', '$location', '$interval', 'transactionsModalSvc'];
 
 
-    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants, $modal, $location, $interval) {
+    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants, $modal, $location, $interval, transactionsModalSvc) {
 
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
+        var trxDataEdits = transactionsModalSvc.createTransactionVm();
 
 
         
@@ -392,6 +393,24 @@
         }
 
 
+        vm.initializeTransactionVm = function() {
+            trxDataEdits.PositionId = vm.positionFrom.positionId;
+            trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
+            trxDataEdits.Action = "B";
+            trxDataEdits.Units = vm.adjustedQty;
+            trxDataEdits.MktPrice = vm.positionFrom.mktPrice;
+            trxDataEdits.Fees = vm.adjustedFees;
+            trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(trxDataEdits.Units, trxDataEdits.MktPrice);
+            trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(trxDataEdits.Valuation, trxDataEdits.Fees);
+            trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(trxDataEdits.CostBasis, trxDataEdits.Units);
+            trxDataEdits.PositionQty = 0;
+            trxDataEdits.PositionCostBasis = 0;
+            trxDataEdits.PositionUnitCost = 0;
+
+            return trxDataEdits;
+        }
+
+
 
 
 
@@ -519,6 +538,24 @@
         }
 
 
+        vm.postAsyncTransactionInsert = function(status, responseData) {
+            if (!status) {
+                alert("Error inserting new Position-Transaction");
+                return false;
+            }
+            // TODO: 5.11.17 - begin test here.
+            incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
+            return false;
+        }
+
+
+        vm.postAsyncGetAllTransactions = function(results) {
+            var allCurrentPosTrxs = results;
+            var calculatedTrxs = transactionsModalSvc.updateTransactionCalculations(allCurrentPosTrxs);
+            positionCreateSvc.processPositionUpdates2(calculatedTrxs, vm);
+        }
+
+
 
 
         /* -- WebApi call -- */
@@ -638,58 +675,66 @@
                                ? parseFloat(vm.currentFees + vm.adjustedTotalFees)
                                : parseFloat(vm.currentFees);
                     } else {
-                        // TODO: 4.7.17 - working functionality; use as model for  buy/sell/rollover fx.
                         // Adding shares to an EXISTING account w/o involving a 'rollover'.
                         if (parseInt(vm.adjustedQty) == 0) {
                             alert("Invalid quantity; \nminimum purchase quantity required = 1.");
                             return null;
                         }
-                        positionInfo.adjustedOption = vm.adjustedOption;
-                        positionInfo.dbActionNew = "na";
-                        positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                        positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                        vm.positionFrom.dBAction = 'update';
-                        positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                        vm.positionTo.dBAction = 'na';
-                        positionInfo.fromPositionStatus = "A";
-                        positionInfo.toPositionStatus = "na";
 
-                        //vm.calculateCostBasis("postDbUpdate", 0, "buy");
-                        dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
-                        dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
-                        dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                        positionInfo.fromQty = dataReceptacle.numberOfUnits;
-                        vm.positionFrom.originalQty = vm.currentQty;
-                        vm.positionFrom.currentQty = positionInfo.fromQty;
-                        if (positionInfo.fromQty <= 0) {
-                            alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
-                            return null;
-                        }
-                        positionInfo.toQty = 0;
-                        vm.positionTo.currentQty = 0;
+                        // 5.9.17 - Revision due to new transactions functionality.
+                        var trxs = this.initializeTransactionVm();
+                        transactionsModalSvc.insertTransactionTable(trxs, vm);
 
-                        positionInfo.fromFees = dataReceptacle.totalTransactionFees;
-                        positionInfo.toFees = 0.00;
-                        vm.positionFrom.currentFees = positionInfo.fromFees;
-                        vm.positionTo.currentFees = 0.00;
 
-                        vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                        vm.positionFrom.costBasis = vm.costBasis;
-                        vm.positionTo.costBasis = 0.0;
+
+
+
+                        //positionInfo.adjustedOption = vm.adjustedOption;
+                        //positionInfo.dbActionNew = "na";
+                        //positionInfo.toPosId = incomeMgmtSvc.createGuid();
+                        //positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
+                        //vm.positionFrom.dBAction = 'update';
+                        //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
+                        //vm.positionTo.dBAction = 'na';
+                        //positionInfo.fromPositionStatus = "A";
+                        //positionInfo.toPositionStatus = "na";
+
+                        ////vm.calculateCostBasis("postDbUpdate", 0, "buy");
+                        //dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
+                        //dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
+                        //dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
+                        //positionInfo.fromQty = dataReceptacle.numberOfUnits;
+                        //vm.positionFrom.originalQty = vm.currentQty;
+                        //vm.positionFrom.currentQty = positionInfo.fromQty;
+                        //if (positionInfo.fromQty <= 0) {
+                        //    alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
+                        //    return null;
+                        //}
+                        //positionInfo.toQty = 0;
+                        //vm.positionTo.currentQty = 0;
+
+                        //positionInfo.fromFees = dataReceptacle.totalTransactionFees;
+                        //positionInfo.toFees = 0.00;
+                        //vm.positionFrom.currentFees = positionInfo.fromFees;
+                        //vm.positionTo.currentFees = 0.00;
+
+                        //vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
+                        //vm.positionFrom.costBasis = vm.costBasis;
+                        //vm.positionTo.costBasis = 0.0;
                         
-                        positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                        positionInfo.toUnitCost = 0;
-                        vm.positionFrom.unitCost = positionInfo.fromUnitCost;
-                        vm.positionTo.unitCost = 0.0;
+                        //positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
+                        //positionInfo.toUnitCost = 0;
+                        //vm.positionFrom.unitCost = positionInfo.fromUnitCost;
+                        //vm.positionTo.unitCost = 0.0;
 
-                        positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                        vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                        vm.positionTo.positionDate = "n/a";
+                        //positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
+                        //positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
+                        //vm.positionFrom.positionDate = positionInfo.fromPositionDate;
+                        //vm.positionTo.positionDate = "n/a";
                         
-                        vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
+                        //vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
 
-                        vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
+                        //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
                     }
                     positionInfo.adjustedOption = vm.adjustedOption;
                     postUpdateRefreshUi();
@@ -711,7 +756,7 @@
                     positionInfo.dbActionNew = "na";
                     break;
                 case 'edit':
-                    // TODO: 4.7.17 - cancelled functionality; will provide editing via new Position trx table & grid.
+                    // TODO: 4.7.17 - cancelled functionality; will provide editing via new Position trx table & grid. - DONE.
                     //positionInfo.adjustedOption = vm.adjustedOption;
                     //positionInfo.dbActionNew = "na";
                     //positionInfo.toPosId = incomeMgmtSvc.createGuid();
