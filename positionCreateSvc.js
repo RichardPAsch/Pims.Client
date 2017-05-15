@@ -12,10 +12,10 @@
        .module("incomeMgmt.core")
        .factory("positionCreateSvc", positionCreateSvc);
 
-    positionCreateSvc.$inject = ["$resource", 'appSettings', '$filter'];
+    positionCreateSvc.$inject = ["$resource", 'appSettings', '$filter', 'transactionsModalSvc'];
 
 
-    function positionCreateSvc($resource, appSettings, $filter) {
+    function positionCreateSvc($resource, appSettings, $filter, transactionsModalSvc) {
 
         var vm = this;
         vm.baseUrl = appSettings.serverPath + "/Pims.Web.Api/api/";
@@ -292,6 +292,7 @@
         }
 
 
+       
         /*  == 5.3.2017 ==
             New (simplified ?) functions reflecting existence of Transactions implementation.
         */
@@ -339,6 +340,7 @@
 
         function savePosition(vmToSave) {
 
+            // TODO: Used where?
             var positionUrl = vm.baseUrl + "Asset/<ticker>/Position";
 
             $resource(positionUrl).save(positionData).$promise.then(function () {
@@ -346,6 +348,38 @@
             }, function () {
                 ctrl.postAsyncPositionSave(false);
             });
+
+        }
+
+
+        function calculatePositionTotalsFromTransactions(positionTransactions, transactionVm) {
+            var qtySubTotal = 0;
+            var feesSubTotal = 0;
+            var costBasisSubTotal = 0;
+            var today = new Date();
+            var positionViewModel = this.getPositionVm();
+
+            for (var t = 0; t < positionTransactions.length; t++) {
+                qtySubTotal += positionTransactions[t].units;
+                feesSubTotal += positionTransactions[t].fees;
+                costBasisSubTotal += positionTransactions[t].costBasis;
+            }
+
+            // Initialize from 'transactionVm' for upcoming 'Position' persistence.
+            positionViewModel.Quantity = qtySubTotal;
+            positionViewModel.MarketPrice = transactionVm.MktPrice;    // req'd for ModelState validation.
+            positionViewModel.Fees = feesSubTotal;
+            positionViewModel.UnitCost = transactionsModalSvc.calculateUnitCost(costBasisSubTotal, qtySubTotal);
+            positionViewModel.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+            positionViewModel.PurchaseDate = transactionVm.PositionPurchaseDate;
+            positionViewModel.PositionDate = transactionVm.PositionDate;
+            positionViewModel.PositionId = transactionVm.PositionId;
+            positionViewModel.PositionAssetId = transactionVm.PositionAssetId;
+            positionViewModel.AcctTypeId = transactionVm.PositionAcctTypeId;
+            positionViewModel.TickerSymbol = transactionVm.PositionTickerSymbol;
+            positionViewModel.InvestorKey = transactionVm.PositionInvestorId;
+
+            return positionViewModel;
 
         }
 
@@ -371,7 +405,8 @@
             getPositionFees: getPositionFees,
             getPositionVm: getPositionVm,
             processPositionUpdates2: processPositionUpdates2,
-            savePosition: savePosition
+            savePosition: savePosition,
+            calculatePositionTotalsFromTransactions: calculatePositionTotalsFromTransactions
         }
 
     }
