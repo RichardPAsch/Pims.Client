@@ -15,7 +15,7 @@
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
-        var trxDataEdits = transactionsModalSvc.createTransactionVm();
+        vm.trxDataEdits = transactionsModalSvc.createTransactionVm();
 
 
         
@@ -394,20 +394,29 @@
 
 
         vm.initializeTransactionVm = function() {
-            trxDataEdits.PositionId = vm.positionFrom.positionId;
-            trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
-            trxDataEdits.Action = "B";
-            trxDataEdits.Units = vm.adjustedQty;
-            trxDataEdits.MktPrice = vm.positionFrom.mktPrice;
-            trxDataEdits.Fees = vm.adjustedFees;
-            trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(trxDataEdits.Units, trxDataEdits.MktPrice);
-            trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(trxDataEdits.Valuation, trxDataEdits.Fees);
-            trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(trxDataEdits.CostBasis, trxDataEdits.Units);
-            trxDataEdits.PositionQty = 0;
-            trxDataEdits.PositionCostBasis = 0;
-            trxDataEdits.PositionUnitCost = 0;
-
-            return trxDataEdits;
+            
+            vm.trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
+            vm.trxDataEdits.TransactionEvent = "B"; 
+            vm.trxDataEdits.Units = vm.adjustedQty;
+            vm.trxDataEdits.MktPrice = vm.positionFrom.mktPrice;
+            vm.trxDataEdits.Fees = vm.adjustedFees;
+            vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
+            vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
+            vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
+            // Necessary data for later 'Position' update:
+            vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
+            vm.trxDataEdits.PositionQty = 0;
+            vm.trxDataEdits.PositionCostBasis = 0;
+            vm.trxDataEdits.PositionUnitCost = 0;
+            vm.trxDataEdits.PositionAcctTypeId = vm.positionFrom.accountTypeId;
+            vm.trxDataEdits.PositionAssetId = vm.positionFrom.assetId;
+            vm.trxDataEdits.PositionPurchaseDate = vm.positionFrom.purchaseDate;
+            vm.trxDataEdits.PositionDate = vm.positionFrom.positionDate;
+            vm.trxDataEdits.PositionTickerSymbol = vm.positionFrom.tickerSymbol;
+            vm.trxDataEdits.PositionStatus = vm.positionFrom.status;
+            vm.trxDataEdits.PositionFees = 0;
+            vm.trxDataEdits.positionLastUpdate = "";
+            vm.trxDataEdits.PositionInvestorId = vm.positionFrom.investorId;
         }
 
 
@@ -426,21 +435,24 @@
                 // For Position changes only.
                 // actionsRequested : "fromPosition + toPosition" regarding
                 // successful db record action(s) to be taken.
-                switch (actionsRequested) {
-                    case "update-update":
-                        alert("Positions updated successfully.");
-                        break;
-                    case "update-insert":
-                        alert("Positions updated & created successfully.");
-                        break;
-                    case "update-na":
-                        alert("Position edit updated successfully.");
-                        break;
-                    case "insert-na":
-                        alert("Position created successfully.");
-                        break;
-                }
+                //switch (actionsRequested) {
+                //    case "update-update":
+                //        alert("Positions updated successfully.");
+                //        break;
+                //    case "update-insert":
+                //        alert("Positions updated & created successfully.");
+                //        break;
+                //    case "update-na":
+                //        alert("Position edit updated successfully.");
+                //        break;
+                //    case "insert-na":
+                //        alert("Position created successfully.");
+                //        break;
+                //}
 
+                alert("Position updated successfully.");
+
+                // TODO: update with new fixes 5.15.17
                 updateDisplayPostDbUpdate(positionInfo);
 
                 // Clear UI for display, as needed.
@@ -543,16 +555,26 @@
                 alert("Error inserting new Position-Transaction");
                 return false;
             }
-            // TODO: 5.11.17 - begin test here.
+
             incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
             return false;
         }
 
 
-        vm.postAsyncGetAllTransactions = function(results) {
-            var allCurrentPosTrxs = results;
-            var calculatedTrxs = transactionsModalSvc.updateTransactionCalculations(allCurrentPosTrxs);
-            positionCreateSvc.processPositionUpdates2(calculatedTrxs, vm);
+        vm.postAsyncGetAllTransactions = function (allCurrentPosTrxs) {
+            //var updatedPositionVm = transactionsModalSvc.updateTransactionCalculations(allCurrentPosTrxs, null, vm.trxDataEdits);
+            var updatedPositionVm = positionCreateSvc.calculatePositionTotalsFromTransactions(allCurrentPosTrxs, vm.trxDataEdits);
+
+            //vm.trxDataEdits.PositionQty = updatedPositionVm.Quantity;
+            if (vm.adjustedOption == "buy")
+                updatedPositionVm.Status = "A";
+
+            //vm.trxDataEdits.PositionUnitCost = updatedPositionVm.UnitCost;
+            //vm.trxDataEdits.PositionFees = updatedPositionVm.Fees;
+            //vm.trxDataEdits.positionLastUpdate = $filter('date')(new Date, 'M/dd/yyyy'),
+
+            //positionCreateSvc.processPositionUpdates2(vm.trxDataEdits, vm);
+            positionCreateSvc.processPositionUpdates2(updatedPositionVm, vm);
         }
 
 
@@ -682,13 +704,9 @@
                         }
 
                         // 5.9.17 - Revision due to new transactions functionality.
-                        var trxs = this.initializeTransactionVm();
-                        transactionsModalSvc.insertTransactionTable(trxs, vm);
-
-
-
-
-
+                        this.initializeTransactionVm();
+                        transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
+                        
                         //positionInfo.adjustedOption = vm.adjustedOption;
                         //positionInfo.dbActionNew = "na";
                         //positionInfo.toPosId = incomeMgmtSvc.createGuid();
@@ -846,30 +864,30 @@
                 
 
             /* Debug info */
-            alert("positionInfo VM confirmation results: "
-               + "\n----------------------------------"
-               + "\nfromQty: " + positionInfo.fromQty
-               + "\ntoQty: " + positionInfo.toQty
-               + "\ndbActionNew: " + positionInfo.dbActionNew
-               + "\ndbActionOrig: " + positionInfo.dbActionOrig
-               + "\nfromStatus: " + positionInfo.fromPositionStatus
-               + "\ntoStatus: " + positionInfo.toPositionStatus
-               + "\nfromPosId: " + positionInfo.fromPosId
-               + "\ntoPosId: " + positionInfo.toPosId
-               + "\nfromUnitCost: " + positionInfo.fromUnitCost
-               + "\ntoUnitCost: " + positionInfo.toUnitCost
-               + "\nfromPosDate: " + $filter('date')(positionInfo.fromPositionDate, 'M/dd/yyyy')
-               + "\ntoPosDate: " + $filter('date')(positionInfo.toPositionDate, 'M/dd/yyyy')
-               + "\nassetId: " + positionInfo.positionAssetId
-               + "\nfromAccountTypeId: " + positionInfo.positionFromAccountId
-               + "\ntoAccountTypeId: " + positionInfo.positionToAccountId
-               + "\nlastUpdate: " + $filter('date')(today, 'M/dd/yyyy')
-               + "\ninvestorId: " + positionInfo.positionInvestorId
-               + "\nfromPurchaseDate: " + $filter('date')(positionInfo.fromPurchaseDate, 'M/dd/yyyy')
-               + "\ntoPurchaseDate: " + $filter('date')(positionInfo.toPurchaseDate, 'M/dd/yyyy')
-               + "\nfromFees: " + positionInfo.fromFees
-               + "\ntoFees: " + positionInfo.toFees
-               );
+            //alert("positionInfo VM confirmation results: "
+            //   + "\n----------------------------------"
+            //   + "\nfromQty: " + positionInfo.fromQty
+            //   + "\ntoQty: " + positionInfo.toQty
+            //   + "\ndbActionNew: " + positionInfo.dbActionNew
+            //   + "\ndbActionOrig: " + positionInfo.dbActionOrig
+            //   + "\nfromStatus: " + positionInfo.fromPositionStatus
+            //   + "\ntoStatus: " + positionInfo.toPositionStatus
+            //   + "\nfromPosId: " + positionInfo.fromPosId
+            //   + "\ntoPosId: " + positionInfo.toPosId
+            //   + "\nfromUnitCost: " + positionInfo.fromUnitCost
+            //   + "\ntoUnitCost: " + positionInfo.toUnitCost
+            //   + "\nfromPosDate: " + $filter('date')(positionInfo.fromPositionDate, 'M/dd/yyyy')
+            //   + "\ntoPosDate: " + $filter('date')(positionInfo.toPositionDate, 'M/dd/yyyy')
+            //   + "\nassetId: " + positionInfo.positionAssetId
+            //   + "\nfromAccountTypeId: " + positionInfo.positionFromAccountId
+            //   + "\ntoAccountTypeId: " + positionInfo.positionToAccountId
+            //   + "\nlastUpdate: " + $filter('date')(today, 'M/dd/yyyy')
+            //   + "\ninvestorId: " + positionInfo.positionInvestorId
+            //   + "\nfromPurchaseDate: " + $filter('date')(positionInfo.fromPurchaseDate, 'M/dd/yyyy')
+            //   + "\ntoPurchaseDate: " + $filter('date')(positionInfo.toPurchaseDate, 'M/dd/yyyy')
+            //   + "\nfromFees: " + positionInfo.fromFees
+            //   + "\ntoFees: " + positionInfo.toFees
+            //   );
 
             // temp debug
             //positionCreateSvc.processPositionUpdates(positionInfo, vm);
