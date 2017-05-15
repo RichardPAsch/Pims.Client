@@ -144,40 +144,12 @@
                         }
                     }
                 }
+                return postCalculationTrxs;
             } else {
-                // Totals for all non-Edited trxs, i.e., buy, sell, & rollover.
-                for (var t = 0; t < trxData.length; t++) {
-                    trxData[t].valuation = calculateValuation(trxData[t].units, trxData[t].mktPrice);
-                    trxData[t].costBasis = calculateCostBasis(trxData[t].valuation, trxData[t].fees);
-                    trxData[t].unitCost = calculateUnitCost(trxData[t].costBasis, trxData[t].units);
-
-                    var trx2 = createTransactionVm();
-                    trx2.PositionId = trxData[t].positionId;
-                    trx2.TransactionId = trxData[t].transactionId;
-                    trx2.Units = trxData[t].units;
-                    trx2.MktPrice = trxData[t].mktPrice;
-                    trx2.Fees = trxData[t].fees;
-                    trx2.Valuation = trxData[t].valuation;
-                    trx2.CostBasis = trxData[t].costBasis;
-                    trx2.UnitCost = trxData[t].unitCost;
-
-                    postCalculationTrxs.push(trx2);
-                 
-
-                unitsTotal += trxData[t].units;
-                costBasisTotal += trxData[t].costBasis;
-
-                if (t == trxData.length - 1) {
-                    var lastEditedRecordIndex2 = postCalculationTrxs.length - 1;
-                    postCalculationTrxs[lastEditedRecordIndex2].PositionQty = unitsTotal;
-                    postCalculationTrxs[lastEditedRecordIndex2].PositionCostBasis = costBasisTotal;
-                    postCalculationTrxs[lastEditedRecordIndex2].PositionUnitCost = calculateUnitCost(postCalculationTrxs[lastEditedRecordIndex2].PositionCostBasis,
-                                                                                                    postCalculationTrxs[lastEditedRecordIndex2].PositionQty);
-                    }
-                }
+                return false;
             }
             
-            return postCalculationTrxs;
+
         }
         
 
