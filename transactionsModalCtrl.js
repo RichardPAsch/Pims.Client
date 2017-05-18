@@ -149,9 +149,9 @@
             }
 
             if (isLastTrxRecord) {
-                // TODO: 5.3.17 - update Position table; reconfirm design is ok for buy,sell,rollover, & position/create fx.
+                // BUG: 5.17.17 - Position table not updated with trx totals - post edit(s).
                 var positionData = $scope.initializePositionVm(response);
-                positionCreateSvc.processPositionUpdates2(positionData, $scope);  // 5.5.17 - Ok.
+                positionCreateSvc.processPositionUpdates2(positionData, $scope);  
             }
 
             return null;
