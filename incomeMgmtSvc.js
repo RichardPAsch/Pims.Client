@@ -97,6 +97,7 @@
 
 
         function getAllTransactions(positionId, ctrl) {
+
             // All (B)uy-(S)ell-(R)ollover transactions affiliated with a Position,
             // to be available for inline editing & recalculations.
 
