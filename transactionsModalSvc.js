@@ -28,6 +28,7 @@
                 UnitCost: 0,
                 CostBasis: 0,
                 Valuation: 0,
+                Date: "",
                 PositionQty: 0,         //  Cumlative value to be persisted in Position table   
                 PositionCostBasis: 0,   //  Cumlative value to be persisted in Position table 
                 PositionUnitCost: 0     //  Cumlative value to be persisted in Position table   
@@ -67,7 +68,7 @@
                     var singleResourceObj = $resource(transactionsCreateUrl);
 
                     singleResourceObj.save(null, trxDataEdits).$promise.then(function(resultData) {
-                        ctrl.postAsyncTransactionInsert(true, resultData); // trx record inserted
+                        ctrl.postAsyncTransactionInsert(true, resultData); 
                     }, function () {
                         ctrl.postAsyncTransactionInsert(false);
                     });
