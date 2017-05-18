@@ -18,6 +18,7 @@
     function positionCreateSvc($resource, appSettings, $filter, transactionsModalSvc) {
 
         var vm = this;
+        var today = new Date();
         vm.baseUrl = appSettings.serverPath + "/Pims.Web.Api/api/";
         vm.accountTypes = [];
         vm.investorPositionData = [];
@@ -299,22 +300,22 @@
 
         function getPositionVm() {
 
-            var today = new Date();
             return {
-                TickerSymbol: "",
-                PositionId : "",
-                PositionAssetId	: "",
-                AcctTypeId : "",
-                Status : "A", 
-                PurchaseDate : "",
-                PositionDate: "",
-                MarketPrice: 0,
-                Quantity : 0, 
-                UnitCost : 0,
-                Fees : 0, 
-                LastUpdate : $filter('date')(today, 'M/dd/yyyy'),
-                InvestorKey : "",
-                Url : ""
+                PreEditPositionAccount: "",
+                PostEditPositionAccount: "",
+                Qty: 0,
+                UnitCost: 0,
+                DateOfPurchase: "",
+                LastUpdate: "",
+                Url: "",
+                LoggedInInvestor: "",
+                ReferencedAccount: null,
+                CreatedPositionId: "",
+                ReferencedAssetId: "",
+                ReferencedTickerSymbol: "",
+                DatePositionAdded: "",
+                Status: "A",
+                TransactionFees: 0
             }
         }
 
@@ -338,17 +339,15 @@
         }
 
 
-        function savePosition(vmToSave) {
+        function savePosition(vmToSave, ctrl) {
+                        
+            var positionUrl = vm.baseUrl + "Asset/" + vmToSave.ReferencedTickerSymbol + "/Position";
 
-            // TODO: Used where?
-            var positionUrl = vm.baseUrl + "Asset/<ticker>/Position";
-
-            $resource(positionUrl).save(positionData).$promise.then(function () {
-                ctrl.postAsyncPositionSave(true);
+            $resource(positionUrl).save(vmToSave).$promise.then(function (responseData) {
+                ctrl.postAsyncPositionSave(true, responseData.positionId);
             }, function () {
                 ctrl.postAsyncPositionSave(false);
             });
-
         }
 
 
