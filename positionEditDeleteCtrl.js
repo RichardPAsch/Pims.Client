@@ -14,8 +14,10 @@
 
         var vm = this;
         var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
+        var today = new Date();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
         vm.trxDataEdits = transactionsModalSvc.createTransactionVm();
+        vm.trxsSubTotalsForNewPosition = [];
 
 
         
@@ -156,39 +158,39 @@
 
             // Most buy or sell selections will not include "toXXX" Vm attributes, except
             // for adding shares to a NEW account w/o involving a rollover.
-            alert("in updateDisplayPostDbUpdate(positionVm)");
-            switch (positionVm.adjustedOption) {
-                case "buy":
-                    if (positionVm.dbActionNew == "insert") {
-                        vm.positionTo.currentQty = positionVm.toQty;
-                        vm.positionTo.unitCost = positionVm.toUnitCost;
-                        vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
-                        vm.positionDate = positionVm.toPositionDate;
-                    } else {
-                        // update existing Position.
-                        //vm.currentFees += vm.adjustedTotalFees;
-                        vm.positionFrom.mktPrice = positionVm.fromUnitCost;
-                        vm.currentQty = positionVm.fromQty;
-                        vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
-                        vm.positionDate = positionVm.fromPositionDate;
-                    }
-                    break;
-                case "rollover":
-                        vm.positionTo.currentQty = positionVm.toQty;
-                        vm.currentQty = positionVm.toQty;
-                        vm.positionTo.unitCost = positionVm.toUnitCost;
-                        vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
-                        vm.positionDate = positionVm.toPositionDate;
-                    break;
-                case "edit":
-                case "sell":
-                    vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
-                    vm.positionFrom.unitCost = vm.unitCost;
-                    vm.currentQty = vm.positionFrom.originalQty + vm.adjustedQty;
-                    vm.currentFees = vm.currentFees + vm.adjustedFees;
-                    vm.positionFrom.adjustedTotalFees = vm.currentFees;
-                    break;
-            }
+            //alert("in updateDisplayPostDbUpdate(positionVm)");
+            //switch (positionVm.adjustedOption) {
+            //    case "buy":
+            //        if (positionVm.dbActionNew == "insert") {
+            //            vm.positionTo.currentQty = positionVm.toQty;
+            //            vm.positionTo.unitCost = positionVm.toUnitCost;
+            //            vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
+            //            vm.positionDate = positionVm.toPositionDate;
+            //        } else {
+            //            // update existing Position.
+            //            //vm.currentFees += vm.adjustedTotalFees;
+            //            vm.positionFrom.mktPrice = positionVm.fromUnitCost;
+            //            vm.currentQty = positionVm.fromQty;
+            //            vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
+            //            vm.positionDate = positionVm.fromPositionDate;
+            //        }
+            //        break;
+            //    case "rollover":
+            //            vm.positionTo.currentQty = positionVm.toQty;
+            //            vm.currentQty = positionVm.toQty;
+            //            vm.positionTo.unitCost = positionVm.toUnitCost;
+            //            vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
+            //            vm.positionDate = positionVm.toPositionDate;
+            //        break;
+            //    case "edit":
+            //    case "sell":
+            //        vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
+            //        vm.positionFrom.unitCost = vm.unitCost;
+            //        vm.currentQty = vm.positionFrom.originalQty + vm.adjustedQty;
+            //        vm.currentFees = vm.currentFees + vm.adjustedFees;
+            //        vm.positionFrom.adjustedTotalFees = vm.currentFees;
+            //        break;
+            //}
   
         }
 
@@ -358,6 +360,7 @@
 
         // TODO: Re-eval.
         vm.adjustUnitCost = function (optionSelected) {
+            //alert("adjustUnitCost() in use.");
 
             if ((optionSelected == 'rollover' || optionSelected == 'sell')) {
                 if (vm.adjustedQty > vm.positionFrom.originalQty) {
@@ -373,7 +376,7 @@
                 vm.mktPriceDisabled = true;
                 vm.positionTo.adjustedQty = vm.adjustedQty;
             }
-            var today = new Date();
+            //var today = new Date();
             //vm.positionAdjDate = incomeMgmtSvc.formatDate(today);
             return null;
         }
@@ -381,6 +384,8 @@
 
         // TODO: Re-eval need here.
         vm.adjustFees = function (optionSelected) {
+            //alert("adjustFees() in use.");
+
             // Update dynamically upon each 'vm.adjustedFees' lost focus.
             switch(optionSelected) {
                 case "edit":
@@ -390,33 +395,71 @@
                 //                            : parseFloat(vm.currentFees);
                 //    break;
             }
+
         }
 
 
-        vm.initializeTransactionVm = function() {
-            
+        vm.initializeTransactionVm = function(newPositionPersisted) {
+            // When creating a new Position first = newPositionPersisted = true
             vm.trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
-            vm.trxDataEdits.TransactionEvent = "B"; 
+            vm.trxDataEdits.TransactionEvent = "B";
+            vm.trxDataEdits.Date = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
             vm.trxDataEdits.Units = vm.adjustedQty;
             vm.trxDataEdits.MktPrice = vm.positionFrom.mktPrice;
             vm.trxDataEdits.Fees = vm.adjustedFees;
             vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
             vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
             vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
-            // Necessary data for later 'Position' update:
-            vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
-            vm.trxDataEdits.PositionQty = 0;
-            vm.trxDataEdits.PositionCostBasis = 0;
-            vm.trxDataEdits.PositionUnitCost = 0;
-            vm.trxDataEdits.PositionAcctTypeId = vm.positionFrom.accountTypeId;
-            vm.trxDataEdits.PositionAssetId = vm.positionFrom.assetId;
-            vm.trxDataEdits.PositionPurchaseDate = vm.positionFrom.purchaseDate;
-            vm.trxDataEdits.PositionDate = vm.positionFrom.positionDate;
-            vm.trxDataEdits.PositionTickerSymbol = vm.positionFrom.tickerSymbol;
-            vm.trxDataEdits.PositionStatus = vm.positionFrom.status;
-            vm.trxDataEdits.PositionFees = 0;
-            vm.trxDataEdits.positionLastUpdate = "";
-            vm.trxDataEdits.PositionInvestorId = vm.positionFrom.investorId;
+
+            if (!newPositionPersisted) {
+                // Necessary 'Position' values for upcoming persistence, e.g., 'Buy' for new Position - no 'Rollover'
+                vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
+                vm.trxDataEdits.PositionQty = 0;
+                vm.trxDataEdits.PositionCostBasis = 0;
+                vm.trxDataEdits.PositionUnitCost = 0;
+                vm.trxDataEdits.PositionAcctTypeId = vm.positionFrom.accountTypeId;
+                vm.trxDataEdits.PositionAssetId = vm.positionFrom.assetId;
+                vm.trxDataEdits.PositionPurchaseDate = vm.positionFrom.purchaseDate;
+                vm.trxDataEdits.PositionDate = vm.positionFrom.positionDate;
+                vm.trxDataEdits.PositionTickerSymbol = vm.positionFrom.tickerSymbol;
+                vm.trxDataEdits.PositionStatus = vm.positionFrom.status;
+                vm.trxDataEdits.PositionFees = 0;
+                vm.trxDataEdits.positionLastUpdate = "";
+                vm.trxDataEdits.PositionInvestorId = vm.positionFrom.investorId;
+            } else {
+                vm.trxDataEdits.PositionId = vm.positionTo.positionId;
+                vm.trxDataEdits.PositionAcctTypeId = vm.positionTo.accountTypeId;
+                vm.trxDataEdits.PositionDate = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
+            }
+        }
+
+
+        vm.intializePositionVm = function () {
+
+            // During Position edit scenarios where a new Position is required, i.e., Buy, Rollover,
+            // we'll set up a pending Position POST first, due to FK Position-Transactions constraints,
+            var positionVm = positionCreateSvc.getPositionVm();
+
+            positionVm.PreEditPositionAccount = vm.positionFrom.accountTypeId;
+            positionVm.PostEditPositionAccount = vm.positionTo.accountTypeId;
+            positionVm.DateOfPurchase = vm.positionFrom.purchaseDate;
+            positionVm.LastUpdate =  $filter('date')(today, "M/d/yyyy h:mm a");
+            positionVm.Url = "";
+            positionVm.LoggedInInvestor = vm.positionFrom.investorId;
+            positionVm.ReferencedAccount = null;
+            positionVm.CreatedPositionId = incomeMgmtSvc.createGuid();
+            positionVm.ReferencedAssetId = vm.positionFrom.assetId;
+            positionVm.ReferencedTickerSymbol = vm.positionFrom.tickerSymbol;
+            positionVm.DatePositionAdded = $filter('date')(today, "M/d/yyyy h:mm a");
+            positionVm.Status = "A";
+            positionVm.Qty = parseInt(vm.adjustedQty);
+            positionVm.TransactionFees = vm.adjustedFees;
+
+            var valuation = transactionsModalSvc.calculateValuation(positionVm.Qty, vm.adjustedMktPrice);
+            var costBasis = transactionsModalSvc.calculateCostBasis(valuation, positionVm.TransactionFees);
+            positionVm.UnitCost = transactionsModalSvc.calculateUnitCost(costBasis, positionVm.Qty);
+
+            return positionVm;
         }
 
 
@@ -424,6 +467,21 @@
 
 
         /* -- Service async callbacks -- */
+        vm.postAsyncPositionSave = function(response, receivedPosId) {
+            if (response) {
+                if (receivedPosId != undefined) {
+                    //alert("new PosId : " + receivedPosId);
+                    vm.positionTo.positionId = receivedPosId;
+                    vm.initializeTransactionVm(true);
+                    transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
+                }
+                alert("new Position with Transaction saved.");
+            }else {
+                alert("new Position save failed.");
+            }
+        }
+
+
         vm.postAyncProfileFetch = function (profileData) {
             vm.positionFrom.mktPrice = parseFloat(profileData.price).toFixed(2);
             vm.calculateCostBasis("initialPageLoad");
@@ -477,8 +535,11 @@
                 accountTypeDescriptions.push(vm.allAccountTypes[at].accountTypeDesc.toUpperCase().trim());
             }
 
-            if (accountTypeDescriptions.indexOf(vm.newAccount.trim().toUpperCase()) == -1 || vm.newAccount.trim().toUpperCase() == "Select...")
+            if (accountTypeDescriptions.indexOf(vm.newAccount.trim().toUpperCase()) == -1 || vm.newAccount.trim().toUpperCase() == "Select...") {
                 alert("Invalid account type entry; check spelling.");
+                return true;
+            }
+                
 
             vm.positionTo.accountTypeId = positionCreateSvc.getMatchingAccountTypeId(vm.allAccountTypes, vm.newAccount);
 
@@ -555,26 +616,27 @@
                 alert("Error inserting new Position-Transaction");
                 return false;
             }
-
-            incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
+            
+            if (vm.adjustedOption == 'buy' && vm.positionTo.dBAction == "") {
+                // Adding shares to an existing Position, e.g., 'buy'.
+                incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
+            } else {
+                // to be implemented
+            }
+            
             return false;
         }
 
 
         vm.postAsyncGetAllTransactions = function (allCurrentPosTrxs) {
-            //var updatedPositionVm = transactionsModalSvc.updateTransactionCalculations(allCurrentPosTrxs, null, vm.trxDataEdits);
+            
             var updatedPositionVm = positionCreateSvc.calculatePositionTotalsFromTransactions(allCurrentPosTrxs, vm.trxDataEdits);
 
-            //vm.trxDataEdits.PositionQty = updatedPositionVm.Quantity;
             if (vm.adjustedOption == "buy")
                 updatedPositionVm.Status = "A";
 
-            //vm.trxDataEdits.PositionUnitCost = updatedPositionVm.UnitCost;
-            //vm.trxDataEdits.PositionFees = updatedPositionVm.Fees;
-            //vm.trxDataEdits.positionLastUpdate = $filter('date')(new Date, 'M/dd/yyyy'),
-
-            //positionCreateSvc.processPositionUpdates2(vm.trxDataEdits, vm);
             positionCreateSvc.processPositionUpdates2(updatedPositionVm, vm);
+           
         }
 
 
@@ -630,7 +692,7 @@
             
 
             // Initialize static vm attributes.
-            var today = new Date();
+            //today = new Date();
             positionInfo.fromPosId = vm.positionFrom.positionId;
             positionInfo.positionFromAccountId = vm.positionFrom.accountTypeId;
             positionInfo.positionAssetId = currentPositionGuids.assetId;
@@ -679,23 +741,60 @@
                     break;
                 case 'buy':
                     if (vm.positionTo.dBAction == 'insert') {
-                        // Adding shares to a NEW account w/o involving a 'rollover'.
-                        positionInfo.positionFromAccountId = incomeMgmtSvc.createGuid();
-                        positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
-                        positionInfo.dbActionOrig = "na";
-                        positionInfo.toQty = parseInt(vm.adjustedQty);
-                        vm.currentQty = positionInfo.toQty;
-                        positionInfo.toUnitCost = vm.positionFrom.mktPrice;
-                        positionInfo.toPositionStatus = "A";
-                        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-                        positionInfo.dbActionNew = "insert";
-                        positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                        positionInfo.fromPositionStatus = "na";
-                        positionInfo.fromUnitCost = 0;
-                        positionInfo.fromQty = 0;
-                        positionInfo.fromFees = vm.adjustedTotalFees != 0
-                               ? parseFloat(vm.currentFees + vm.adjustedTotalFees)
-                               : parseFloat(vm.currentFees);
+                        // Adding shares to a NEW account (Position) w/o involving a 'rollover'.
+                        // 5.15.17 - Revision due to new transactions functionality.
+
+                        /*   -------    Valid positionVm POST template ----
+                            {
+                                PreEditPositionAccount: "01bacffb-3727-4383-a0ec-f63e4cbdd1b1",
+                                PostEditPositionAccount: "79f6f3f2-4701-4384-9d28-30296ccbda40",
+                                Qty: 100,
+                                UnitCost: 28.22,
+                                DateOfPurchase: "10/30/2010",
+                                LastUpdate: "5/17/2017",
+                                Url : "",
+                                LoggedInInvestor: "593cfa61-35e6-446e-bae3-48a460c0b4e6",
+                                ReferencedAccount: null,
+
+                                CreatedPositionId : "660142d6-cf7c-4e0d-a25a-91d9939b07f7",
+                                ReferencedAssetId: "4ba3b760-e38c-4957-bf1f-a74101114904",
+                                ReferencedTickerSymbol: "GE",
+                                DatePositionAdded: "5/16/2017",
+                                Status: "A",
+                                TransactionFees: 175.16
+                            }
+                        */
+                        var initializedPositionVm = this.intializePositionVm();
+                        positionCreateSvc.savePosition(initializedPositionVm, vm);
+                        
+
+                        /* on hold until done with Position insert
+                        this.initializeTransactionVm();
+                        vm.trxDataEdits.PositionId = incomeMgmtSvc.createGuid();
+                        vm.trxDataEdits.PositionAcctTypeId = vm.positionTo.accountTypeId;
+                        vm.trxDataEdits.PositionDate = $filter('date')(today, 'M/dd/yyyy');
+                        vm.trxDataEdits.PositionStatus = "A";
+
+                        transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
+                        */
+
+
+                        //positionInfo.positionFromAccountId = incomeMgmtSvc.createGuid();
+                        //positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
+                        //positionInfo.dbActionOrig = "na";
+                        //positionInfo.toQty = parseInt(vm.adjustedQty);
+                        //vm.currentQty = positionInfo.toQty;
+                        //positionInfo.toUnitCost = vm.positionFrom.mktPrice;
+                        //positionInfo.toPositionStatus = "A";
+                        //positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
+                        //positionInfo.dbActionNew = "insert";
+                        //positionInfo.toPosId = incomeMgmtSvc.createGuid();
+                        //positionInfo.fromPositionStatus = "na";
+                        //positionInfo.fromUnitCost = 0;
+                        //positionInfo.fromQty = 0;
+                        //positionInfo.fromFees = vm.adjustedTotalFees != 0
+                        //       ? parseFloat(vm.currentFees + vm.adjustedTotalFees)
+                        //       : parseFloat(vm.currentFees);
                     } else {
                         // Adding shares to an EXISTING account w/o involving a 'rollover'.
                         if (parseInt(vm.adjustedQty) == 0) {
@@ -704,7 +803,7 @@
                         }
 
                         // 5.9.17 - Revision due to new transactions functionality.
-                        this.initializeTransactionVm();
+                        this.initializeTransactionVm(false);
                         transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
                         
                         //positionInfo.adjustedOption = vm.adjustedOption;
