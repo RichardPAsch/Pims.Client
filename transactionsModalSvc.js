@@ -21,7 +21,7 @@
             return {
                 PositionId: "",
                 TransactionId: "",
-                Action: "",
+                TransactionEvent: "",
                 Units: 0,
                 MktPrice: 0,
                 Fees: 0,
@@ -36,10 +36,11 @@
         }
 
 
-        function updateTransactionTable(editedTrxs, ctrl) {
-            
+        function updateTransaction(editedTrxs, ctrl) {
+
             // Ex: http://localhost/Pims.Web.Api/api/PositionTransactions/a96f7eb2-feef-458d-950b-183d97458315
             var transactionsUpdateUrl = vm.baseUrl + "PositionTransactions/";
+
             for (var i = 0; i < editedTrxs.length; i++) {
                 transactionsUpdateUrl += editedTrxs[i].TransactionId;
 
@@ -50,12 +51,31 @@
                            });
 
                 resourceObj.update(null, editedTrxs[i]).$promise.then(function (response) {
-                    ctrl.postAsyncTransactionUpdates(response, i == editedTrxs.length);
+                    ctrl.postAsyncTransactionUpdates(response);
                 }, function (ex) {
-                    ctrl.postAsyncTransactionUpdates(ex.data.message, false);
+                    ctrl.postAsyncTransactionUpdates(ex.data.messageDetail);
                 });
-
             }
+        }
+
+
+        function updateTransactions(editedTrxs, ctrl) {
+
+            // One or more 'edit' trxs to be updated.
+            // Ex: http://localhost/Pims.Web.Api/api/PositionTransactions
+            var transactionsUpdateUrl = vm.baseUrl + "PositionTransactions";
+            
+            var resourceObj = $resource(transactionsUpdateUrl,
+                        null,
+                        {
+                            'update': { method: 'PATCH' }
+                        });
+
+            resourceObj.update(null, editedTrxs).$promise.then(function (response) {
+                ctrl.postAsyncTransactionUpdates(response);
+            }, function (ex) {
+                ctrl.postAsyncTransactionUpdates(ex.data.messageDetail);
+            });
         }
 
 
@@ -129,6 +149,7 @@
                             trx.Valuation = trxData[t].valuation;
                             trx.CostBasis = trxData[t].costBasis;
                             trx.UnitCost = trxData[t].unitCost;
+                            trx.TransactionEvent = trxData[t].transactionEvent;
 
                             postCalculationTrxs.push(trx);
                         }
@@ -152,6 +173,20 @@
             
 
         }
+
+
+        function getAllTransactionsPostEdit(positionId, ctrl) {
+
+            var trxsByPositionUrl = appSettings.serverPath + "/Pims.Web.Api/api/PositionTransactions/" + positionId;
+            var resourceObj = $resource(trxsByPositionUrl);
+
+            resourceObj.query().$promise.then(function (response) {
+                var trxs = response;
+                ctrl.postAsyncGetAllTransactionsPostEdit(trxs); // contains 'TickerSymbol' ?
+            }, function (exception) {
+                ctrl.postAsyncGetAllTransactionsPostEdit(exception);
+            });
+        }
         
 
 
@@ -164,9 +199,11 @@
             calculateCostBasis: calculateCostBasis,
             calculateUnitCost: calculateUnitCost,
             updateTransactionCalculations: updateTransactionCalculations,
-            updateTransactionTable: updateTransactionTable,
+            updateTransaction: updateTransaction,
             createTransactionVm: createTransactionVm,
-            insertTransactionTable: insertTransactionTable
+            insertTransactionTable: insertTransactionTable,
+            getAllTransactionsPostEdit: getAllTransactionsPostEdit,
+            updateTransactions: updateTransactions
         }
 
     }
