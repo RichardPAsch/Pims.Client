@@ -692,7 +692,6 @@
             
 
             // Initialize static vm attributes.
-            //today = new Date();
             positionInfo.fromPosId = vm.positionFrom.positionId;
             positionInfo.positionFromAccountId = vm.positionFrom.accountTypeId;
             positionInfo.positionAssetId = currentPositionGuids.assetId;
