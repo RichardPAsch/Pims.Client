@@ -16,7 +16,7 @@
 
     function transactionsModalCtrl($modal, $scope, $state, incomeMgmtSvc, $stateParams, transactionsModalSvc, positionCreateSvc, $filter) {
 
-        $scope.preOrPostEditTrxs = [];  // for either edited (pre-calculations) or post-calculation trxs.
+        $scope.preOrPostEditTrxs = [];  // holds either pre-calculated (pre-edited), or post-calculated trxs.
         $scope.editedTrxRowKeys = [];   // cache rows edited.
         $scope.dirtyRows = 0;
         $scope.gridOptions = {};
@@ -39,11 +39,11 @@
 
         $scope.update = function () {
             //$state.go("positions_edit");
-            // Multiple edits may exist on same transaction record.
+            // Multiple edits may exist on the same transaction record, so we'll remove duplicate record keys.
             $scope.editedTrxRowKeys = incomeMgmtSvc.removeArrayDuplicates($scope.editedTrxRowKeys);
             $scope.sortTrxCollections();
             $scope.preOrPostEditTrxs = transactionsModalSvc.updateTransactionCalculations($scope.preOrPostEditTrxs, $scope.editedTrxRowKeys);
-            transactionsModalSvc.updateTransactionTable($scope.preOrPostEditTrxs, $scope);  // 5.2.17 - Ok
+            transactionsModalSvc.updateTransactions($scope.preOrPostEditTrxs, $scope); 
         };
 
 
@@ -85,7 +85,8 @@
                     { field: 'fees', displayName: 'Fees', enableCellEdit: true, width: '12%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
                     { field: 'costBasis', displayName: 'Cost Basis', enableCellEdit: false, width: '17%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
                     { field: 'unitCost', displayName: 'Unit Cost', enableCellEdit: false, width: '16%', cellFilter: 'number: 3', headerCellClass: 'headerAlignment' },
-                    { field: 'valuation', displayName: 'Value', enableCellEdit: false, width: '18%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' }
+                    { field: 'valuation', displayName: 'Value', enableCellEdit: false, width: '18%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
+                    { field: 'transactionEvent', visible: false, enableCellEdit: false, width: '1%', }
             ];
 
             //$scope.transactionsGrid.columnDefs = [
@@ -133,7 +134,6 @@
                 $scope.preOrPostEditTrxs = resultData;
                 $scope.buildColumnDefs();
                 $scope.gridOptions.data = resultData;
-
             } else {
                 alert("Unable to fetch associated transactions for editing.");
                 return false;
@@ -142,20 +142,42 @@
             return null;
         }
 
-        $scope.postAsyncTransactionUpdates = function(response, isLastTrxRecord) {
+
+        $scope.postAsyncGetAllTransactionsPostEdit = function (positionTrxs) {
+
+            if (positionTrxs.$resolved) {
+
+                //var requisitePositionData = transactionsModalSvc.createTransactionVm();
+                /* Valid ModelState 'Position' data
+                    "PositionId": "d211283f-8eeb-4e9c-a046-a77600ba7b49",
+                    "UnitCost": 29.575,
+                    "Fees": 105.00,	
+                    "Quantity": 60,
+                    "LastUpdate": "May 19 2017  5:03PM",
+                    "Status": 'A'   // Optional
+                */
+
+                var requisitePositionData = positionCreateSvc.calculatePositionTotalsFromTransactions(positionTrxs);
+                positionCreateSvc.processPositionUpdates2(requisitePositionData, $scope, true);
+            } else {
+                alert("Unable to fetch associated edited transactions for this Position.");
+                return false;
+            }
+
+            return null;
+        }
+
+
+        $scope.postAsyncTransactionUpdates = function(response) {
             if (!response.$resolved) {
                 alert("Error updating transaction due to: " + response);
                 return false;
             }
 
-            if (isLastTrxRecord) {
-                // BUG: 5.17.17 - Position table not updated with trx totals - post edit(s).
-                var positionData = $scope.initializePositionVm(response);
-                positionCreateSvc.processPositionUpdates2(positionData, $scope);  
-            }
-
-            return null;
+            transactionsModalSvc.getAllTransactionsPostEdit(response[0].PositionId, $scope);
+            return true;
         }
+
 
         $scope.postAsyncPositionUpdates = function(results) {
             if (!results.$resolved) {
@@ -184,7 +206,7 @@
             var today = new Date();
             var currentPosition = positionCreateSvc.getPositionVm();
 
-            // Satisfies server model state; no mapping necessary.
+            // Satisfies WebApi model state; no mapping necessary.
             currentPosition.TickerSymbol = $stateParams.currentPositionParam.tickerSymbol;
             currentPosition.PositionId = $stateParams.currentPositionParam.positionId;
             currentPosition.PositionAssetId = $stateParams.currentPositionParam.assetId;
