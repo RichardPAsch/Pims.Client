@@ -85,8 +85,8 @@
             var tickerSymbolsOnly = [];
             var uniqueTickers = [];
 
-            for (var i = 0; i <= positions.length - 1; i++) {
-                tickerSymbolsOnly.push(positions[i].positionTickerSymbol);
+            for (var x = 0; x <= positions.length - 1; x++) {
+                tickerSymbolsOnly.push(positions[x].positionTickerSymbol);
             }
 
             tickerSymbolsOnly.sort();
@@ -250,8 +250,8 @@
         function processPositionUpdates(newAndOrEditedPositions, ctrl) {
 
             var actionsTaken = "";
-            var positionCreateUpdateUrl = "";
-            var resourceObj = {};
+            var positionCreateUpdateUrl;
+            var resourceObj;
 
             switch (newAndOrEditedPositions.dbActionOrig, newAndOrEditedPositions.dbActionNew) {
                 case "update", "update":
@@ -320,11 +320,21 @@
         }
 
 
-        function processPositionUpdates2(positionData, ctrl) {
+        function processPositionUpdates2(positionData, ctrl, useTickerSymbol) {
 
-            var resourceObj = {};
+            var resourceObj; 
+            var positionCreateUpdateUrl; 
+            
+            if (useTickerSymbol) {
+                // WebApi: PositionController.UpdatePosition().
+                positionCreateUpdateUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/"
+                                                                 + positionData.ReferencedTickerSymbol
+                                                                 + "/Position/" + positionData.PositionId;
+            } else {
+                // WebApi: PositionController.UpdateCreateEditedPositions().
+                positionCreateUpdateUrl = appSettings.serverPath + "/Pims.Web.Api/api/Positions/UpdateCreate";
+            }
 
-            var positionCreateUpdateUrl = appSettings.serverPath + "/Pims.Web.Api/api/Positions/UpdateCreate";
             resourceObj = $resource(positionCreateUpdateUrl,
                             null,
                             {
@@ -350,12 +360,11 @@
             });
         }
 
-
+        
         function calculatePositionTotalsFromTransactions(positionTransactions, transactionVm) {
             var qtySubTotal = 0;
             var feesSubTotal = 0;
             var costBasisSubTotal = 0;
-            var today = new Date();
             var positionViewModel = this.getPositionVm();
 
             for (var t = 0; t < positionTransactions.length; t++) {
@@ -364,22 +373,30 @@
                 costBasisSubTotal += positionTransactions[t].costBasis;
             }
 
-            // Initialize from 'transactionVm' for upcoming 'Position' persistence.
             positionViewModel.Quantity = qtySubTotal;
-            positionViewModel.MarketPrice = transactionVm.MktPrice;    // req'd for ModelState validation.
             positionViewModel.Fees = feesSubTotal;
-            positionViewModel.UnitCost = transactionsModalSvc.calculateUnitCost(costBasisSubTotal, qtySubTotal);
             positionViewModel.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
-            positionViewModel.PurchaseDate = transactionVm.PositionPurchaseDate;
-            positionViewModel.PositionDate = transactionVm.PositionDate;
-            positionViewModel.PositionId = transactionVm.PositionId;
-            positionViewModel.PositionAssetId = transactionVm.PositionAssetId;
-            positionViewModel.AcctTypeId = transactionVm.PositionAcctTypeId;
-            positionViewModel.TickerSymbol = transactionVm.PositionTickerSymbol;
-            positionViewModel.InvestorKey = transactionVm.PositionInvestorId;
+            positionViewModel.UnitCost = transactionsModalSvc.calculateUnitCost(costBasisSubTotal, qtySubTotal);
+
+            if (transactionVm != undefined) {
+                // Initialize from 'transactionVm' for upcoming 'Position' persistence. 'transactionVm' represents
+                // a saved transaction resulting from a 'Buy' operation, where shares were added to an existing account.
+                positionViewModel.MarketPrice = transactionVm.MktPrice;    // req'd for ModelState validation.
+                positionViewModel.PurchaseDate = transactionVm.PositionPurchaseDate;
+                positionViewModel.PositionDate = transactionVm.PositionDate;
+                positionViewModel.PositionId = transactionVm.PositionId;
+                positionViewModel.PositionAssetId = transactionVm.PositionAssetId;
+                positionViewModel.AcctTypeId = transactionVm.PositionAcctTypeId;
+                positionViewModel.ReferencedTickerSymbol = transactionVm.PositionTickerSymbol;
+                positionViewModel.InvestorKey = transactionVm.PositionInvestorId;
+            } else {
+                // Initialization resulting from transaction 'Edit' mode.
+                positionViewModel.PositionId = positionTransactions[0].positionId;
+                positionViewModel.Status = "A";
+                positionViewModel.ReferencedTickerSymbol = positionTransactions[0].tickerSymbol;
+            }
 
             return positionViewModel;
-
         }
 
 
