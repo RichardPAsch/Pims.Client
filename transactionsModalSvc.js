@@ -84,6 +84,7 @@
             // Ex: http://localhost/Pims.Web.Api/api/PositionTransactions
             var transactionsCreateUrl = vm.baseUrl + "PositionTransactions/";
 
+            // Position 'Buy'/'Sell' mode - one or more trx records.
             if (trxDataEdits.length == undefined) {
                     var singleResourceObj = $resource(transactionsCreateUrl);
 
