@@ -47,6 +47,7 @@
             gainLoss: 0,
             valuation: 0
         };
+
         vm.positionTo = {
             mktPrice: 0,
             originalMktPrice: 0,
@@ -400,7 +401,7 @@
 
 
         vm.initializeTransactionVm = function(newPositionPersisted) {
-            // When creating a new Position first = newPositionPersisted = true
+            // When creating a new Position FIRST : newPositionPersisted = true
             vm.trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
             vm.trxDataEdits.TransactionEvent = "B";
             vm.trxDataEdits.Date = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
@@ -412,7 +413,7 @@
             vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
 
             if (!newPositionPersisted) {
-                // Necessary 'Position' values for upcoming persistence, e.g., 'Buy' for new Position - no 'Rollover'
+                // Necessary 'Position' values for upcoming update, e.g., 'Buy', 'Sell', for new Position - no 'Rollover'
                 vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
                 vm.trxDataEdits.PositionQty = 0;
                 vm.trxDataEdits.PositionCostBasis = 0;
@@ -436,7 +437,7 @@
 
         vm.intializePositionVm = function () {
 
-            // During Position edit scenarios where a new Position is required, i.e., Buy, Rollover,
+            // During Position 'edit' scenarios where a new Position is required, i.e., Buy, Rollover,
             // we'll set up a pending Position POST first, due to FK Position-Transactions constraints,
             var positionVm = positionCreateSvc.getPositionVm();
 
@@ -620,8 +621,19 @@
             if (vm.adjustedOption == 'buy' && vm.positionTo.dBAction == "") {
                 // Adding shares to an existing Position, e.g., 'buy'.
                 incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
-            } else {
-                // to be implemented
+            }
+
+            if (vm.adjustedOption == 'sell') {
+                if (responseData.valuation == 0 && responseData.costBasis == 0) {
+                    // Full sale.
+                    responseData.ReferencedTickerSymbol = vm.positionFrom.tickerSymbol;
+                    var posVm = positionCreateSvc.processPositionSale(responseData);
+                    positionCreateSvc.processPositionUpdates2(posVm, vm, true);
+                } else {
+                    // Partial sale.
+                    // TODO: 6.1.17 - check logic & test beginning here.
+                    incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
+                }
             }
             
             return false;
@@ -637,6 +649,17 @@
 
             positionCreateSvc.processPositionUpdates2(updatedPositionVm, vm);
            
+        }
+
+        vm.postAsyncTransactionUpdate = function (status, responseData) {
+            if (!status) {
+                alert("Error inserting updating Transaction.");
+                return false;
+            }
+
+           // Proceed with Position update now.
+
+            return false;
         }
 
 
@@ -797,7 +820,7 @@
                     } else {
                         // Adding shares to an EXISTING account w/o involving a 'rollover'.
                         if (parseInt(vm.adjustedQty) == 0) {
-                            alert("Invalid quantity; \nminimum purchase quantity required = 1.");
+                            alert("Invalid quantity; \nminimum purchase quantity required: 1.");
                             return null;
                         }
 
@@ -856,20 +879,62 @@
                     postUpdateRefreshUi();
                     break;
                 case 'sell':
-                    vm.positionFrom.originalQty = vm.currentQty;
-                    vm.positionFrom.currentQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
-                    positionInfo.fromQty = vm.positionFrom.currentQty;
-                    positionInfo.fromUnitCost = vm.positionFrom.mktPrice;
-                    positionInfo.fromPositionStatus = vm.positionFrom.currentQty == 0 ? "I" : "A";
-                    positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    positionInfo.adjustedOption = vm.adjustedOption;
-                    positionInfo.toPositionDate = "na";
-                    positionInfo.positionToAccountId = "na";
-                    positionInfo.toPositionStatus = "na";
-                    positionInfo.toUnitCost = 0;
-                    positionInfo.toQty = 0;
-                    positionInfo.toPosId = "na";
-                    positionInfo.dbActionNew = "na";
+                    if (parseInt(vm.adjustedQty) == 0 || parseInt(vm.adjustedQty) < 0 ) {
+                        alert("Invalid quantity; \nminimum sell quantity must be at least 1 or /may not exceed total shares.");
+                        return null;
+                    }
+                    var trxUnitsBalance = vm.positionFrom.currentQty - vm.adjustedQty;
+                    /*  Valid transaction model for POST.
+                        {
+                            PositionId: "a916caca-0df4-4bd5-8fc8-a73f00f0eb02",
+                            TransactionId: "fe5772e4-19ae-4acc-9a5b-a7820106d864",
+                            TransactionEvent: "S",
+                            Units: 26,   
+                            MktPrice: 152.850, 
+                            Fees: 72.11, 
+                            UnitCost: 155.623,
+                            CostBasis: 4046.21,
+                            Valuation: 3974.10
+                        }
+                    */
+
+                    this.initializeTransactionVm(false);
+                    vm.trxDataEdits.TransactionEvent = "S";
+                    vm.trxDataEdits.Units = vm.adjustedQty;
+                    if (trxUnitsBalance > 0) {
+                        vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
+                        vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
+                        vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
+                        vm.trxDataEdits.PositionStatus = "A";
+                    } else {
+                        vm.trxDataEdits.Valuation = 0;
+                        vm.trxDataEdits.CostBasis = 0;
+                        vm.trxDataEdits.UnitCost = 0;
+                        vm.trxDataEdits.PositionStatus = "I";
+                    }
+
+                    // Now send trx to be persisted; afterward, Position values should be assigned.
+                    transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
+
+                    //vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
+                    //vm.trxDataEdits.PositionFees = vm.trxDataEdits.Fees;
+                    //vm.trxDataEdits.PositionCostBasis = 0;
+                  
+
+                    //vm.positionFrom.originalQty = vm.currentQty;
+                    //vm.positionFrom.currentQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
+                    //positionInfo.fromQty = vm.positionFrom.currentQty;
+                    //positionInfo.fromUnitCost = vm.positionFrom.mktPrice;
+                    //positionInfo.fromPositionStatus = vm.positionFrom.currentQty == 0 ? "I" : "A";
+                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
+                    //positionInfo.adjustedOption = vm.adjustedOption;
+                    //positionInfo.toPositionDate = "na";
+                    //positionInfo.positionToAccountId = "na";
+                    //positionInfo.toPositionStatus = "na";
+                    //positionInfo.toUnitCost = 0;
+                    //positionInfo.toQty = 0;
+                    //positionInfo.toPosId = "na";
+                    //positionInfo.dbActionNew = "na";
                     break;
                 case 'edit':
                     // TODO: 4.7.17 - cancelled functionality; will provide editing via new Position trx table & grid. - DONE.
