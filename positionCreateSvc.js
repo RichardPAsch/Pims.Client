@@ -25,7 +25,7 @@
         vm.investorTickers = [];
         vm.investorMatchingAccounts = [];
 
-
+        
 
         function getPositionsForTicker(searchTicker, ctrl) {
             // Positions fetch via modal dialog submitted ticker symbol search.
@@ -319,6 +319,20 @@
             }
         }
 
+        function getPositionModel() {
+
+            // TODO: Position.UpdatePosition(position) is inconsistent re: WebApi signature for the ctrl.
+            // 5.31.2017: Updated to match WebApi expected Position parameter; may be
+            // extended, as minimum required data for update is as follows:
+            return {
+                PositionId: "",
+                UnitCost: 0,
+                Fees: 0,
+                Quantity: 0,
+                Status: ""
+            }
+        }
+
 
         function processPositionUpdates2(positionData, ctrl, useTickerSymbol) {
 
@@ -349,6 +363,31 @@
         }
 
 
+        function processPositionSale(postSaveTrxData) {
+
+            var positionViewModel = this.getPositionModel();
+            positionViewModel.PositionId = postSaveTrxData.transactionPositionId;
+            positionViewModel.ReferencedTickerSymbol = postSaveTrxData.ReferencedTickerSymbol; // extended
+            positionViewModel.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+
+            if (postSaveTrxData.valuation == 0 && postSaveTrxData.costBasis == 0) {
+                // Position units: full sale
+                positionViewModel.Quantity = 0;
+                positionViewModel.Fees = 0;
+                positionViewModel.UnitCost = 0;
+                positionViewModel.Status = "I";
+            } else {
+                // Position units: partial sale
+                positionViewModel.Quantity = postSaveTrxData.units;
+                positionViewModel.Fees = postSaveTrxData.fees;
+                positionViewModel.UnitCost = postSaveTrxData.unitCost;
+                positionViewModel.Status = "A";
+            }
+
+            return positionViewModel;
+        }
+
+
         function savePosition(vmToSave, ctrl) {
                         
             var positionUrl = vm.baseUrl + "Asset/" + vmToSave.ReferencedTickerSymbol + "/Position";
@@ -368,7 +407,11 @@
             var positionViewModel = this.getPositionVm();
 
             for (var t = 0; t < positionTransactions.length; t++) {
-                qtySubTotal += positionTransactions[t].units;
+                if (positionTransactions[t].transactionEvent.trim() == "B") // 'Buy'
+                    qtySubTotal += positionTransactions[t].units;
+                else {
+                    qtySubTotal -= positionTransactions[t].units;
+                }
                 feesSubTotal += positionTransactions[t].fees;
                 costBasisSubTotal += positionTransactions[t].costBasis;
             }
@@ -400,6 +443,7 @@
         }
 
 
+        
 
         // API
         return {
@@ -420,9 +464,11 @@
             getMatchingAccountTypeId: getMatchingAccountTypeId,
             getPositionFees: getPositionFees,
             getPositionVm: getPositionVm,
+            getPositionModel: getPositionModel,
             processPositionUpdates2: processPositionUpdates2,
             savePosition: savePosition,
-            calculatePositionTotalsFromTransactions: calculatePositionTotalsFromTransactions
+            calculatePositionTotalsFromTransactions: calculatePositionTotalsFromTransactions,
+            processPositionSale: processPositionSale
         }
 
     }
