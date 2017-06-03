@@ -631,7 +631,6 @@
                     positionCreateSvc.processPositionUpdates2(posVm, vm, true);
                 } else {
                     // Partial sale.
-                    // TODO: 6.1.17 - check logic & test beginning here.
                     incomeMgmtSvc.getAllTransactions(responseData.transactionPositionId, vm);
                 }
             }
@@ -737,29 +736,54 @@
                         alert("Invalid quantity adjustment for rollover. \nMinimum required value: 1.");
                         return null;
                     }
-                    vm.positionFrom.currentQty = vm.positionFrom.originalQty - vm.adjustedQty;
-                    positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    positionInfo.toUnitCost = vm.positionFrom.mktPrice;
-                    positionInfo.fromUnitCost = vm.positionFrom.unitCost;
-                    positionInfo.dbActionNew = vm.positionTo.dBAction;
-                    positionInfo.fromPositionStatus = vm.positionFrom.originalQty - vm.adjustedQty == 0 ? "I" : "A";
-                    positionInfo.adjustedOption = vm.adjustedOption;
-                    positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
-                    positionInfo.fromQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
-                    positionInfo.toPositionStatus = vm.positionTo.currentQty > 0 && vm.adjustedOption == 'rollover' ? "A" : "I";
-
-
-                    if (vm.positionTo.dBAction == "update") {
-                        positionInfo.toQty = parseInt(vm.positionTo.currentQty) + parseInt(vm.positionTo.adjustedQty);
-                        positionInfo.toPosId = vm.positionTo.positionId; 
+                    // Source trx.
+                    this.initializeTransactionVm(false); // line 403
+                    vm.trxDataEdits.TransactionEvent = "R";
+                    vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
+                    vm.trxDataEdits.Units = vm.positionFrom.originalQty - vm.adjustedQty;
+                    // No fees associated with a conversion - per ML. 
+                    //TODO: Validate no fees entered in UI.
+                    vm.trxDataEdits.Fees = vm.adjustedFees;
+                    // TODO: Verify these 3 calculations as correct for Rollover full/partial conversion scenarios.
+                    if (vm.trxDataEdits.Units = 0) {
+                        // Full conversion.
+                        vm.trxDataEdits.PositionStatus = "I";
+                        vm.trxDataEdits.Valuation = 0;
+                        vm.trxDataEdits.CostBasis = 0;
+                        vm.trxDataEdits.UnitCost = 0;
                     } else {
-                        // Insert
-                        positionInfo.toQty = parseInt(vm.positionTo.adjustedQty);
-                        positionInfo.toPositionStatus = "A";  // Override
-                        positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-                        positionInfo.toPosId = incomeMgmtSvc.createGuid();
+                        // Partial conversion.
+                        vm.trxDataEdits.PositionStatus = "A";
+                        vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
+                        vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
+                        vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
                     }
+                    
+
+
+                    //vm.positionFrom.currentQty = vm.positionFrom.originalQty - vm.adjustedQty;
+                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
+                    //positionInfo.toUnitCost = vm.positionFrom.mktPrice;
+                    //positionInfo.fromUnitCost = vm.positionFrom.unitCost;
+                    //positionInfo.dbActionNew = vm.positionTo.dBAction;
+                    //positionInfo.fromPositionStatus = vm.positionFrom.originalQty - vm.adjustedQty == 0 ? "I" : "A";
+                    //positionInfo.adjustedOption = vm.adjustedOption;
+                    //positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
+                    //positionInfo.fromQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
+                    //positionInfo.toPositionStatus = vm.positionTo.currentQty > 0 && vm.adjustedOption == 'rollover' ? "A" : "I";
+
+
+                    //if (vm.positionTo.dBAction == "update") {
+                    //    positionInfo.toQty = parseInt(vm.positionTo.currentQty) + parseInt(vm.positionTo.adjustedQty);
+                    //    positionInfo.toPosId = vm.positionTo.positionId; 
+                    //} else {
+                    //    // Insert
+                    //    positionInfo.toQty = parseInt(vm.positionTo.adjustedQty);
+                    //    positionInfo.toPositionStatus = "A";  // Override
+                    //    positionInfo.dbActionOrig = vm.positionFrom.dBAction;
+                    //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
+                    //    positionInfo.toPosId = incomeMgmtSvc.createGuid();
+                    //}
                     break;
                 case 'buy':
                     if (vm.positionTo.dBAction == 'insert') {
