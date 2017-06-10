@@ -102,7 +102,7 @@
 
         // Cache: 1) applicable pre-edit Position attributes, and 
         //        2) existing Position Guids for selected ticker.
-        vm.positionFrom.accountType = vm.selectedAccountType.matchedAccountType;
+        vm.positionFrom.accountType = vm.selectedAccountType;
         vm.positionFrom.currentQty = $state.params.positionSelectionObj.Qty;
         vm.positionFrom.originalQty = vm.positionFrom.currentQty;
         vm.positionFrom.positionId = $state.params.positionSelectionObj.PositionId;
@@ -254,8 +254,8 @@
 
 
         vm.toggleNewAccountCheckBox = function () {
-            updateDisplayUponPositionChange(vm.selectedAccountType.matchedAccountType);
-            if (vm.positionFrom.accountType != vm.selectedAccountType.matchedAccountType) {
+            updateDisplayUponPositionChange(vm.selectedAccountType);
+            if (vm.positionFrom.accountType != vm.selectedAccountType) {
                 vm.newAccountDisabled = true;
                 vm.matchingAccountChanged = true;
                 vm.positionTo.dBAction = "update";
@@ -353,7 +353,7 @@
 
 
         vm.positionEditContainsAccountChange = function () {
-            return vm.selectedAccountType.matchedAccountType.toUpperCase().trim() == vm.positionFrom.accountType.toUpperCase().trim() && vm.showNewAccountInput == false
+            return vm.selectedAccountType.toUpperCase().trim() == vm.positionFrom.accountType.toUpperCase().trim() && vm.showNewAccountInput == false
                 ? false
                 : true;
         }
@@ -691,7 +691,7 @@
             }
             else {
                 // Use existing account from drop down listing.
-                vm.positionTo.accountType = vm.selectedAccountType.matchedAccountType;
+                vm.positionTo.accountType = vm.selectedAccountType;
                 vm.newAccountAdded = false;
             }
 
@@ -736,7 +736,7 @@
                         alert("Invalid quantity adjustment for rollover. \nMinimum required value: 1.");
                         return null;
                     }
-                    // Source trx.
+                    // Source trx. Equivalent vm.positionTo data avaialble ?? YES.
                     this.initializeTransactionVm(false); // line 403
                     vm.trxDataEdits.TransactionEvent = "R";
                     vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
@@ -745,7 +745,7 @@
                     //TODO: Validate no fees entered in UI.
                     vm.trxDataEdits.Fees = vm.adjustedFees;
                     // TODO: Verify these 3 calculations as correct for Rollover full/partial conversion scenarios.
-                    if (vm.trxDataEdits.Units = 0) {
+                    if (vm.trxDataEdits.Units == 0) {
                         // Full conversion.
                         vm.trxDataEdits.PositionStatus = "I";
                         vm.trxDataEdits.Valuation = 0;
@@ -758,9 +758,15 @@
                         vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
                         vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
                     }
-                    
 
+                    vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
+                    vm.trxDataEdits.PositionId = vm.trxDataEdits.PositionId;
+                    vm.trxDataEdits.Fees = vm.trxDataEdits.Fees;
+                    vm.trxDataEdits.PositionUnitCost = vm.trxDataEdits.UnitCost;
+                    vm.trxDataEdits.PositionStatus = vm.trxDataEdits.PositionStatus;
+                    vm.trxDataEdits.positionLastUpdate = $filter('date')(today, 'M/dd/yyyy');
 
+                    // Target trx.
                     //vm.positionFrom.currentQty = vm.positionFrom.originalQty - vm.adjustedQty;
                     //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
                     //positionInfo.toUnitCost = vm.positionFrom.mktPrice;
