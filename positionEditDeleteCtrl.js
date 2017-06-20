@@ -401,7 +401,7 @@
 
 
         vm.initializeTransactionVm = function(newPositionPersisted) {
-            // When creating a new Position FIRST : newPositionPersisted = true
+            // When creating a new Position FIRST, then newPositionPersisted = true
             vm.trxDataEdits.TransactionId = incomeMgmtSvc.createGuid();
             vm.trxDataEdits.TransactionEvent = "B";
             vm.trxDataEdits.Date = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
@@ -650,13 +650,24 @@
            
         }
 
-        vm.postAsyncTransactionUpdate = function (status, responseData) {
+
+        vm.postAsyncTransactionUpdates = function (status, responseData) {
+
             if (!status) {
-                alert("Error inserting updating Transaction.");
+                alert("Error inserting or updating Transaction.");
                 return false;
             }
 
-           // Proceed with Position update now.
+            // Proceed with Position update now.
+            //var posVm = positionCreateSvc.getPositionVm();
+            //posVm.PositionId = vm.positionFrom.positionId;
+            //posVm.UnitCost = 0;
+            //posVm.Fees = 0;
+            //posVm.Quantity = 0;
+            //posVm.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+            //posVm.Status = "A";
+
+            //positionCreateSvc.processPositionUpdates2(posVm, vm, true);
 
             return false;
         }
@@ -731,40 +742,90 @@
             // attributes will be intialized as 'na' [not applicable] or 0.
             switch (vm.adjustedOption) {
                 case 'rollover':
-                    // Handles full or partial conversions.
+                    // Handle full or partial conversions.
                     if (vm.adjustedQty <= 0) {
                         alert("Invalid quantity adjustment for rollover. \nMinimum required value: 1.");
                         return null;
                     }
-                    // Source trx. Equivalent vm.positionTo data avaialble ?? YES.
-                    this.initializeTransactionVm(false); // line 403
-                    vm.trxDataEdits.TransactionEvent = "R";
-                    vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
-                    vm.trxDataEdits.Units = vm.positionFrom.originalQty - vm.adjustedQty;
-                    // No fees associated with a conversion - per ML. 
-                    //TODO: Validate no fees entered in UI.
-                    vm.trxDataEdits.Fees = vm.adjustedFees;
-                    // TODO: Verify these 3 calculations as correct for Rollover full/partial conversion scenarios.
-                    if (vm.trxDataEdits.Units == 0) {
+
+                    // Source trx. Equivalent vm.positionTo data available ?? YES.
+                    // TODO: 6.15.17 - re-evaluate; combine both src & target trxs into an array & pass to transactionsModalSvc.insertTransactionTable()
+                    // TODO: reference object states from printout. Check WebApi repository for batch saving - trxs & then positions.
+                    var rolloverData = [];
+                    var sourceTrx = positionCreateSvc.getTransactionVm();
+                    var sourcePos = positionCreateSvc.getPositionVm();
+
+                    sourceTrx.PositionId = vm.positionFrom.positionId;
+                    sourceTrx.TransactionId = incomeCreateSvc.createGuid();
+                    sourceTrx.TransactionEvent = "R";
+                    sourceTrx.MktPrice = vm.positionFrom.mktPrice;
+                    sourceTrx.Fees = 0;
+                    sourceTrx.Units = vm.positionFrom.originalQty - vm.adjustedQty;
+                    if (sourceTrx.Units == 0) {
                         // Full conversion.
-                        vm.trxDataEdits.PositionStatus = "I";
-                        vm.trxDataEdits.Valuation = 0;
-                        vm.trxDataEdits.CostBasis = 0;
-                        vm.trxDataEdits.UnitCost = 0;
+                        sourceTrx.Valuation = 0;
+                        sourceTrx.CostBasis = 0;
+                        sourceTrx.UnitCost = 0;
+                        sourcePos.Qty = 0;
+                        sourcePos.UnitCost = 0;
+                        sourcePos.TransactionFees = 0;
+                        sourcePos.Status = "I";
                     } else {
                         // Partial conversion.
-                        vm.trxDataEdits.PositionStatus = "A";
-                        vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
-                        vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
-                        vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
+                        sourceTrx.Valuation = transactionsModalSvc.calculateValuation(sourceTrx.Units, sourceTrx.MktPrice);
+                        sourceTrx.CostBasis = transactionsModalSvc.calculateCostBasis(sourceTrx.Valuation, sourceTrx.Units);
+                        sourceTrx.UnitCost = transactionsModalSvc.calculateUnitCost(sourceTrx.CostBasis, sourceTrx.Units);
+                        // we haven't POSTED the sourceTrx yet, so get totals from existing records + adjusted units.
+                        sourcePos.Qty = 0;
                     }
+                    sourceTrx.DateCreated = $filter('date')(today, 'M/dd/yyyy');
+                    sourcePos.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+                    sourcePos.CreatedPositionId = vm.positionFrom.positionId;
+                    sourcePos.DateOfPurchase = vm.positionFrom.purchaseDate;
+                    sourcePos.DatePositionAdded = vm.positionFrom.positionDate;
+                    sourcePos.PostEditPositionAccount = vm.positionFrom.accountTypeId;
+                    sourcePos.ReferencedAssetId = vm.positionFrom.assetId;
+                    rolloverData.push(sourceTrx);
+                    rolloverData.push(sourcePos);
 
-                    vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
-                    vm.trxDataEdits.PositionId = vm.trxDataEdits.PositionId;
-                    vm.trxDataEdits.Fees = vm.trxDataEdits.Fees;
-                    vm.trxDataEdits.PositionUnitCost = vm.trxDataEdits.UnitCost;
-                    vm.trxDataEdits.PositionStatus = vm.trxDataEdits.PositionStatus;
-                    vm.trxDataEdits.positionLastUpdate = $filter('date')(today, 'M/dd/yyyy');
+
+                    
+                    
+                    
+
+
+
+
+                    //this.initializeTransactionVm(false); // line 403
+                    //vm.trxDataEdits.TransactionEvent = "R";
+                    //vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
+                    //vm.trxDataEdits.Units = vm.positionFrom.originalQty - vm.adjustedQty;
+                    //// No fees associated with a conversion - per ML. 
+                    ////TODO: Validate no fees entered in UI.
+                    //vm.trxDataEdits.Fees = vm.adjustedFees;
+                    //// TODO: Verify these 3 calculations as correct for Rollover full/partial conversion scenarios.
+                    //if (vm.trxDataEdits.Units == 0) {
+                    //    // Full conversion.
+                    //    vm.trxDataEdits.PositionStatus = "I";
+                    //    vm.trxDataEdits.Valuation = 0;
+                    //    vm.trxDataEdits.CostBasis = 0;
+                    //    vm.trxDataEdits.UnitCost = 0;
+                    //} else {
+                    //    // Partial conversion.
+                    //    vm.trxDataEdits.PositionStatus = "A";
+                    //    vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
+                    //    vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
+                    //    vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
+                    //}
+
+                    //vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
+                    //vm.trxDataEdits.PositionId = vm.trxDataEdits.PositionId;
+                    //vm.trxDataEdits.Fees = vm.trxDataEdits.Fees;
+                    //vm.trxDataEdits.PositionUnitCost = vm.trxDataEdits.UnitCost;
+                    //vm.trxDataEdits.PositionStatus = vm.trxDataEdits.PositionStatus;
+                    //vm.trxDataEdits.positionLastUpdate = $filter('date')(today, 'M/dd/yyyy');
+
+                    //transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
 
                     // Target trx.
                     //vm.positionFrom.currentQty = vm.positionFrom.originalQty - vm.adjustedQty;
@@ -1047,13 +1108,13 @@
                     break;
             }
 
-          
+            // 6.15.17 - Obsolete ??
             // Initialize to satisfy WebApi model-state validation. 
-            if (positionInfo.toPosId == "na" && positionInfo.dbActionNew == "na") {
-                positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-            }
+            //if (positionInfo.toPosId == "na" && positionInfo.dbActionNew == "na") {
+            //    positionInfo.toPosId = incomeMgmtSvc.createGuid();
+            //    positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
+            //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
+            //}
                 
 
             /* Debug info */
