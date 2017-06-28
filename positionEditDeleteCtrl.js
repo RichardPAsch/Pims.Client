@@ -45,7 +45,8 @@
             adjustedTotalFees: 0,    // original + adjustments
             costBasis: 0,
             gainLoss: 0,
-            valuation: 0
+            valuation: 0,
+            transactions: []
         };
 
         vm.positionTo = {
@@ -68,7 +69,8 @@
             adjustedTotalFees: 0,
             costBasis: 0,
             gainLoss: 0,
-            valuation: 0
+            valuation: 0,
+            transactions: []
         };
 
 
@@ -84,7 +86,7 @@
         vm.accountPlaceHolder = "Enter a new Position account for " + vm.ticker.toUpperCase().trim() + "...";
         vm.originalPositionDbAction = "";
         vm.newPositionDbAction = "";
-        vm.adjustedOption = ""; // edit
+        vm.adjustedOption = "";
         vm.selectedAccountType = $state.params.positionSelectionObj.AcctType;
         vm.currentQty = $state.params.positionSelectionObj.Qty;
         vm.adjustedQty = 0; // changed from 1, check this doesn't cause bugs
@@ -249,6 +251,13 @@
                                currentPositionParam: vm.positionFrom
                            });
                 }
+            }
+
+            if (vm.adjustedOption == 'rollover') {
+                // Obtain currently persisted transactions; useful in calculating source & target position 
+                // total values, as necessary via updatePosition().
+                transactionsModalSvc.getAllTransactionsPostEdit(vm.positionFrom.positionId, vm, true);
+                transactionsModalSvc.getAllTransactionsPostEdit(vm.positionTo.positionId, vm, false);
             }
         }
 
@@ -673,6 +682,15 @@
         }
 
 
+        vm.postAsyncGetAllTransactionsPostEdit = function(currentTrxs, isSourceTrxs) {
+            if (isSourceTrxs)
+                vm.positionFrom.transactions = currentTrxs;
+            else {
+                vm.positionTo.transactions = currentTrxs;
+            }
+        }
+
+
 
 
         /* -- WebApi call -- */
@@ -736,10 +754,6 @@
 
             dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
 
-
-            // Coalesce each Positions' edits, if applicable, into a single vm for 
-            // passing to positionCreateSvc for db trx processing. Any irrelevant positionInfo{} 
-            // attributes will be intialized as 'na' [not applicable] or 0.
             switch (vm.adjustedOption) {
                 case 'rollover':
                     // Handle full or partial conversions.
@@ -748,52 +762,79 @@
                         return null;
                     }
 
-                    // Source trx. Equivalent vm.positionTo data available ?? YES.
-                    // TODO: 6.15.17 - re-evaluate; combine both src & target trxs into an array & pass to transactionsModalSvc.insertTransactionTable()
-                    // TODO: reference object states from printout. Check WebApi repository for batch saving - trxs & then positions.
+                    if (vm.positionFrom.transactions.length == 0 || vm.positionTo.transactions.length == 0) {
+                        alert("Error: Unable to fetch source and/or target transactions for Positions: \n" +
+                            vm.positionFrom.positionId + "\n" + vm.positionTo.positionId);
+                        return null
+                    }
+
                     var rolloverData = [];
                     var sourceTrx = positionCreateSvc.getTransactionVm();
                     var sourcePos = positionCreateSvc.getPositionVm();
+                    var targetTrx = positionCreateSvc.getTransactionVm();
+                    var targetPos = positionCreateSvc.getPositionVm();
+                    var persistedCostBasisTotal = 0; 
+                    var persistedQtyTotal = 0; 
 
                     sourceTrx.PositionId = vm.positionFrom.positionId;
-                    sourceTrx.TransactionId = incomeCreateSvc.createGuid();
+                    targetTrx.PositionId = vm.positionTo.positionId;
+                    sourceTrx.TransactionId = incomeMgmtSvc.createGuid();
+                    targetPos.TransactionId = incomeMgmtSvc.createGuid();
                     sourceTrx.TransactionEvent = "R";
+                    targetTrx.TransactionEvent = "R";
                     sourceTrx.MktPrice = vm.positionFrom.mktPrice;
+                    targetTrx.MktPrice = vm.positionFrom.mktPrice;
                     sourceTrx.Fees = 0;
-                    sourceTrx.Units = vm.positionFrom.originalQty - vm.adjustedQty;
-                    if (sourceTrx.Units == 0) {
+                    targetTrx.Fees = 0;
+                    sourceTrx.Units = vm.adjustedQty;
+                    targetTrx.Units = vm.positionTo.originalQty + vm.adjustedQty;
+                    sourcePos.TransactionFees = 0;
+                    targetPos.TransactionFees = 0;
+                    if (vm.positionFrom.originalQty == vm.adjustedQty) {
                         // Full conversion.
                         sourceTrx.Valuation = 0;
                         sourceTrx.CostBasis = 0;
                         sourceTrx.UnitCost = 0;
                         sourcePos.Qty = 0;
                         sourcePos.UnitCost = 0;
-                        sourcePos.TransactionFees = 0;
                         sourcePos.Status = "I";
                     } else {
                         // Partial conversion.
                         sourceTrx.Valuation = transactionsModalSvc.calculateValuation(sourceTrx.Units, sourceTrx.MktPrice);
-                        sourceTrx.CostBasis = transactionsModalSvc.calculateCostBasis(sourceTrx.Valuation, sourceTrx.Units);
+                        sourceTrx.CostBasis = sourceTrx.Valuation;
                         sourceTrx.UnitCost = transactionsModalSvc.calculateUnitCost(sourceTrx.CostBasis, sourceTrx.Units);
-                        // we haven't POSTED the sourceTrx yet, so get totals from existing records + adjusted units.
-                        sourcePos.Qty = 0;
+                        // We haven't POSTED new source transactions yet, so update with current values.
+                        sourcePos.Qty = vm.positionFrom.originalQty - vm.adjustedQty;
+                        persistedCostBasisTotal = positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions);
+                        persistedQtyTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionFrom.transactions, true);
+                        sourcePos.UnitCost = (persistedCostBasisTotal + sourceTrx.CostBasis) / (persistedQtyTotal - vm.adjustedQty);
                     }
+                    targetTrx.Valuation = transactionsModalSvc.calculateValuation(vm.adjustedQty, sourceTrx.MktPrice);
+                    targetTrx.CostBasis = sourceTrx.Valuation;
+                    targetTrx.UnitCost = transactionsModalSvc.calculateUnitCost(targetTrx.CostBasis, vm.adjustedQty);
+                    targetPos.Status = "A";
+                    targetPos.Qty = targetTrx.Units;
+                    persistedCostBasisTotal = positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionTo.transactions);
+                    persistedQtyTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionTo.transactions, false);
+                    targetPos.UnitCost = (persistedCostBasisTotal + targetTrx.CostBasis) / (persistedQtyTotal + vm.adjustedQty);
                     sourceTrx.DateCreated = $filter('date')(today, 'M/dd/yyyy');
+                    targetTrx.DateCreated = $filter('date')(today, 'M/dd/yyyy');
                     sourcePos.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
+                    targetPos.LastUpdate = $filter('date')(today, 'M/dd/yyyy');
                     sourcePos.CreatedPositionId = vm.positionFrom.positionId;
+                    targetPos.CreatedPositionId = vm.positionTo.positionId;
                     sourcePos.DateOfPurchase = vm.positionFrom.purchaseDate;
+                    targetPos.DateOfPurchase = vm.positionTo.purchaseDate; // TODO: correct "" value x purchaseDate
                     sourcePos.DatePositionAdded = vm.positionFrom.positionDate;
+                    targetPos.DatePositionAdded = vm.positionFrom.positionDate;
                     sourcePos.PostEditPositionAccount = vm.positionFrom.accountTypeId;
+                    targetPos.PostEditPositionAccount = vm.positionTo.accountTypeId;
                     sourcePos.ReferencedAssetId = vm.positionFrom.assetId;
+                    targetPos.ReferencedAssetId = vm.positionFrom.assetId;
                     rolloverData.push(sourceTrx);
                     rolloverData.push(sourcePos);
-
-
-                    
-                    
-                    
-
-
+                    rolloverData.push(targetTrx);
+                    rolloverData.push(targetPos);
 
 
                     //this.initializeTransactionVm(false); // line 403
