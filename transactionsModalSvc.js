@@ -176,14 +176,15 @@
         }
 
 
-        function getAllTransactionsPostEdit(positionId, ctrl) {
+        function getAllTransactionsPostEdit(positionId, ctrl, isSrcTransactions) {
 
+            // isSrcTransactions = true if trxs to be fetched are for source Position, as in a 'rollover' scenario.
             var trxsByPositionUrl = appSettings.serverPath + "/Pims.Web.Api/api/PositionTransactions/" + positionId;
             var resourceObj = $resource(trxsByPositionUrl);
 
             resourceObj.query().$promise.then(function (response) {
                 var trxs = response;
-                ctrl.postAsyncGetAllTransactionsPostEdit(trxs); // contains 'TickerSymbol' ?
+                ctrl.postAsyncGetAllTransactionsPostEdit(trxs, isSrcTransactions); 
             }, function (exception) {
                 ctrl.postAsyncGetAllTransactionsPostEdit(exception);
             });
