@@ -110,6 +110,7 @@
         vm.positionFrom.positionId = $state.params.positionSelectionObj.PositionId;
         vm.positionFrom.positionDate = $state.params.positionSelectionObj.PositionAddDate;
         vm.positionFrom.purchaseDate = $state.params.positionSelectionObj.PurchDate;
+        vm.positionTo.purchaseDate = "";
         vm.positionFrom.originalFees = vm.currentFees;
         // Asset, account, & investor Guids.
         var currentPositionGuids = positionCreateSvc.getGuidsForPosition(allPositions, vm.positionFrom.positionId);
@@ -133,7 +134,7 @@
         /* -- UI processing & event handling -- */
         function updateDisplayUponPositionChange(targetAccount) {
 
-            // Updates for data bindings  & position objects.
+            // Updates for data bindings & position objects.
             allPositionsForAsset = positionCreateSvc.getInvestorMatchingAccounts();
             
             for (var pos = 0; pos <= allPositionsForAsset.length; pos++) {
@@ -144,6 +145,7 @@
                         vm.positionTo.currentQty = allPositionsForAsset[pos].qty;
                         vm.positionTo.positionDate = allPositionsForAsset[pos].datePositionAdded;
                         vm.positionDate = vm.positionTo.positionDate;
+                        vm.positionTo.purchaseDate = allPositionsForAsset[pos].dateOfPurchase;
                         vm.currentQty = vm.positionTo.originalQty;
                         vm.calculateCostBasis("positionChange");
                         // Though not currently displayed, we'll use the opportunity to update positionId for 'update' scenarios.
@@ -779,7 +781,7 @@
                     sourceTrx.PositionId = vm.positionFrom.positionId;
                     targetTrx.PositionId = vm.positionTo.positionId;
                     sourceTrx.TransactionId = incomeMgmtSvc.createGuid();
-                    targetPos.TransactionId = incomeMgmtSvc.createGuid();
+                    targetTrx.TransactionId = incomeMgmtSvc.createGuid();
                     sourceTrx.TransactionEvent = "R";
                     targetTrx.TransactionEvent = "R";
                     sourceTrx.MktPrice = vm.positionFrom.mktPrice;
@@ -787,9 +789,11 @@
                     sourceTrx.Fees = 0;
                     targetTrx.Fees = 0;
                     sourceTrx.Units = vm.adjustedQty;
-                    targetTrx.Units = vm.positionTo.originalQty + vm.adjustedQty;
+                    targetTrx.Units = vm.adjustedQty; 
                     sourcePos.TransactionFees = 0;
                     targetPos.TransactionFees = 0;
+                    sourcePos.LoggedInInvestor = vm.positionFrom.investorId;
+                    targetPos.LoggedInInvestor = vm.positionFrom.investorId;
                     if (vm.positionFrom.originalQty == vm.adjustedQty) {
                         // Full conversion.
                         sourceTrx.Valuation = 0;
@@ -803,7 +807,7 @@
                         sourceTrx.Valuation = transactionsModalSvc.calculateValuation(sourceTrx.Units, sourceTrx.MktPrice);
                         sourceTrx.CostBasis = sourceTrx.Valuation;
                         sourceTrx.UnitCost = transactionsModalSvc.calculateUnitCost(sourceTrx.CostBasis, sourceTrx.Units);
-                        // We haven't POSTED new source transactions yet, so update with current values.
+                        // We haven't POSTED new source transactions yet, so update with new current values.
                         sourcePos.Qty = vm.positionFrom.originalQty - vm.adjustedQty;
                         persistedCostBasisTotal = positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions);
                         persistedQtyTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionFrom.transactions, true);
@@ -813,7 +817,7 @@
                     targetTrx.CostBasis = sourceTrx.Valuation;
                     targetTrx.UnitCost = transactionsModalSvc.calculateUnitCost(targetTrx.CostBasis, vm.adjustedQty);
                     targetPos.Status = "A";
-                    targetPos.Qty = targetTrx.Units;
+                    targetPos.Qty = vm.positionTo.originalQty + vm.adjustedQty;
                     persistedCostBasisTotal = positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionTo.transactions);
                     persistedQtyTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionTo.transactions, false);
                     targetPos.UnitCost = (persistedCostBasisTotal + targetTrx.CostBasis) / (persistedQtyTotal + vm.adjustedQty);
