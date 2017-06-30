@@ -319,6 +319,24 @@
             }
         }
 
+
+        function getTransactionVm() {
+
+            return {
+                PositionId: "",
+                TransactionId: "",
+                TransactionEvent: "",
+                Units: 0,
+                MktPrice: 0,
+                Fees: 0,
+                UnitCost: 0,
+                CostBasis: 0,
+                Valuation: 0,
+                DateCreated: ""
+            }
+        }
+
+
         function getPositionModel() {
 
             // TODO: Position.UpdatePosition(position) is inconsistent re: WebApi signature for the ctrl.
@@ -388,6 +406,20 @@
         }
 
 
+        function processPositionRollover(sourceAndTargetData, ctrl) {
+            
+            var rolloverUrl = vm.baseUrl + "/PositionTransaction/Rollover";
+
+            $resource(rolloverUrl).save(sourceAndTargetData).$promise.then(function (response) {
+                ctrl.postAsyncRolloverPostPut(response);
+            }, function () {
+                ctrl.postAsyncRolloverPostPut();
+            });
+
+
+        }
+
+
         function savePosition(vmToSave, ctrl) {
                         
             var positionUrl = vm.baseUrl + "Asset/" + vmToSave.ReferencedTickerSymbol + "/Position";
@@ -443,7 +475,50 @@
         }
 
 
+        function sumCostBasisFromPersistedTransactions(existingTrxs) {
+            var totalCostBasis = 0;
+            for (var t = 0; t < existingTrxs.length; t++) {
+                totalCostBasis += existingTrxs[t].costBasis;
+            }
+            return totalCostBasis;
+        }
+
+
+        function sumQuantityFromPersistedTransactions(existingTrxs, isSourcePosition) {
+
+            var totalQuantity = 0;
+
+            for (var t = 0; t < existingTrxs.length; t++) {
+                if (existingTrxs[t].transactionEvent.trim() == "B")
+                    totalQuantity += existingTrxs[t].units;
+
+                if(existingTrxs[t].transactionEvent.trim() == "S") {
+                    totalQuantity -= existingTrxs[t].units;
+                }
+
+                if (existingTrxs[t].transactionEvent.trim() == "R") {
+                    if (isSourcePosition)
+                        // Source
+                        totalQuantity -= existingTrxs[t].units;
+                    else {
+                        // Target
+                        totalQuantity += existingTrxs[t].units;
+                    }
+                }
+            }
+            return totalQuantity;
+        }
+
+
+        function sumFeesFromPersistedTransactions(existingTrxs) {
+            var totalTrxFees = 0;
+            for (var t = 0; t < existingTrxs.length; t++) {
+                totalTrxFees += existingTrxs[t].fees;
+            }
+            return totalTrxFees;
+        }
         
+
 
         // API
         return {
@@ -464,11 +539,16 @@
             getMatchingAccountTypeId: getMatchingAccountTypeId,
             getPositionFees: getPositionFees,
             getPositionVm: getPositionVm,
+            getTransactionVm: getTransactionVm,
             getPositionModel: getPositionModel,
             processPositionUpdates2: processPositionUpdates2,
             savePosition: savePosition,
             calculatePositionTotalsFromTransactions: calculatePositionTotalsFromTransactions,
-            processPositionSale: processPositionSale
+            processPositionSale: processPositionSale,
+            processPositionRollover: processPositionRollover,
+            sumCostBasisFromPersistedTransactions: sumCostBasisFromPersistedTransactions,
+            sumQuantityFromPersistedTransactions: sumQuantityFromPersistedTransactions,
+            sumFeesFromPersistedTransactions: sumFeesFromPersistedTransactions
         }
 
     }
