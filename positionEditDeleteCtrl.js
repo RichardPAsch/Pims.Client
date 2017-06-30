@@ -693,6 +693,15 @@
         }
 
 
+        vm.postAsyncRolloverPostPut = function(response) {
+            if (response != null)
+                alert("Position rollover processed successfully.");
+            else {
+                alert("Error processing Position rollover.");
+            }
+        }
+
+
 
 
         /* -- WebApi call -- */
@@ -790,8 +799,6 @@
                     targetTrx.Fees = 0;
                     sourceTrx.Units = vm.adjustedQty;
                     targetTrx.Units = vm.adjustedQty; 
-                    sourcePos.TransactionFees = 0;
-                    targetPos.TransactionFees = 0;
                     sourcePos.LoggedInInvestor = vm.positionFrom.investorId;
                     targetPos.LoggedInInvestor = vm.positionFrom.investorId;
                     if (vm.positionFrom.originalQty == vm.adjustedQty) {
@@ -818,6 +825,9 @@
                     targetTrx.UnitCost = transactionsModalSvc.calculateUnitCost(targetTrx.CostBasis, vm.adjustedQty);
                     targetPos.Status = "A";
                     targetPos.Qty = vm.positionTo.originalQty + vm.adjustedQty;
+
+                    sourcePos.TransactionFees = positionCreateSvc.sumFeesFromPersistedTransactions(vm.positionFrom.transactions);
+                    targetPos.TransactionFees = positionCreateSvc.sumFeesFromPersistedTransactions(vm.positionTo.transactions);
                     persistedCostBasisTotal = positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionTo.transactions);
                     persistedQtyTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionTo.transactions, false);
                     targetPos.UnitCost = (persistedCostBasisTotal + targetTrx.CostBasis) / (persistedQtyTotal + vm.adjustedQty);
@@ -828,17 +838,20 @@
                     sourcePos.CreatedPositionId = vm.positionFrom.positionId;
                     targetPos.CreatedPositionId = vm.positionTo.positionId;
                     sourcePos.DateOfPurchase = vm.positionFrom.purchaseDate;
-                    targetPos.DateOfPurchase = vm.positionTo.purchaseDate; // TODO: correct "" value x purchaseDate
+                    targetPos.DateOfPurchase = vm.positionTo.purchaseDate; 
                     sourcePos.DatePositionAdded = vm.positionFrom.positionDate;
                     targetPos.DatePositionAdded = vm.positionFrom.positionDate;
                     sourcePos.PostEditPositionAccount = vm.positionFrom.accountTypeId;
                     targetPos.PostEditPositionAccount = vm.positionTo.accountTypeId;
                     sourcePos.ReferencedAssetId = vm.positionFrom.assetId;
                     targetPos.ReferencedAssetId = vm.positionFrom.assetId;
+
                     rolloverData.push(sourceTrx);
                     rolloverData.push(sourcePos);
                     rolloverData.push(targetTrx);
                     rolloverData.push(targetPos);
+
+                    positionCreateSvc.processPositionRollover(rolloverData, vm);
 
 
                     //this.initializeTransactionVm(false); // line 403
