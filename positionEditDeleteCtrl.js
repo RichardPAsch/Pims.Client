@@ -13,13 +13,10 @@
     function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants, $modal, $location, $interval, transactionsModalSvc) {
 
         var vm = this;
-        var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
+        var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();  // TODO: re-evaluate
         var today = new Date();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
         vm.trxDataEdits = transactionsModalSvc.createTransactionVm();
-        vm.trxsSubTotalsForNewPosition = [];
-
-
         
 
         // Encapsulate individual preEdit & postEdit position changes--where applicable--in one or both temp objects.
@@ -98,7 +95,7 @@
         vm.matchingAccountTypes = positionCreateSvc.getMatchingAccounts(vm.ticker, allPositions);
         vm.selectedAccountType = vm.matchingAccountTypes[positionCreateSvc.getMatchingAccountTypeIndex(vm.matchingAccountTypes, vm.selectedAccountType)];
         vm.adjustedFees = 0;
-        // Existing fees as currently recorded for this Position/Acount Type.
+        // Existing fees as currently recorded for this Position/Account Type.
         vm.currentFees = positionCreateSvc.getPositionFees(allPositions, vm.ticker.trim(), vm.selectedAccountType.trim());
 
 
@@ -120,6 +117,7 @@
         vm.positionFrom.assetId = currentPositionGuids.assetId;
         vm.positionFrom.investorId = currentPositionGuids.investorId;
         vm.positionFrom.tickerSymbol = vm.ticker.trim().toUpperCase();
+        transactionsModalSvc.getAllTransactionsPostEdit(vm.positionFrom.positionId, vm, true);
 
 
        
@@ -134,12 +132,15 @@
         /* -- UI processing & event handling -- */
         function updateDisplayUponPositionChange(targetAccount) {
 
-            // Updates for data bindings & position objects.
+            // Update data bindings & position objects upon account type/position change.
             allPositionsForAsset = positionCreateSvc.getInvestorMatchingAccounts();
             
             for (var pos = 0; pos <= allPositionsForAsset.length; pos++) {
                 if (allPositionsForAsset[pos].preEditPositionAccount.toUpperCase().trim() == targetAccount.toUpperCase().trim() &&
                     allPositionsForAsset[pos].referencedTickerSymbol.toUpperCase().trim() == vm.ticker.toUpperCase().trim()) {
+                        // Though not currently displayed, we'll use the opportunity to update positionId for 'update' scenarios.
+                        vm.positionTo.positionId = allPositionsForAsset[pos].positionId;
+                        transactionsModalSvc.getAllTransactionsPostEdit(vm.positionTo.positionId, vm, false);
                         vm.positionTo.accountType = targetAccount;
                         vm.positionTo.originalQty = allPositionsForAsset[pos].qty;
                         vm.positionTo.currentQty = allPositionsForAsset[pos].qty;
@@ -147,9 +148,6 @@
                         vm.positionDate = vm.positionTo.positionDate;
                         vm.positionTo.purchaseDate = allPositionsForAsset[pos].dateOfPurchase;
                         vm.currentQty = vm.positionTo.originalQty;
-                        vm.calculateCostBasis("positionChange");
-                        // Though not currently displayed, we'll use the opportunity to update positionId for 'update' scenarios.
-                        vm.positionTo.positionId = allPositionsForAsset[pos].positionId;
                         vm.positionFrom.accountTypeId = currentPositionGuids.accountTypeId;
                         var newPositionGuids = positionCreateSvc.getGuidsForPosition(allPositions, vm.positionTo.positionId);
                         vm.positionTo.accountTypeId = newPositionGuids.accountTypeId;
@@ -258,6 +256,7 @@
             if (vm.adjustedOption == 'rollover') {
                 // Obtain currently persisted transactions; useful in calculating source & target position 
                 // total values, as necessary via updatePosition().
+                // TODO: check if vm.positionFrom.transactions not already initialized (~line 123)
                 transactionsModalSvc.getAllTransactionsPostEdit(vm.positionFrom.positionId, vm, true);
                 transactionsModalSvc.getAllTransactionsPostEdit(vm.positionTo.positionId, vm, false);
             }
@@ -298,7 +297,7 @@
 
             var existingAccountTypeIdx = positionCreateSvc.getMatchingAccountTypeIndex(vm.matchingAccountTypes, vm.newAccount);
             if (existingAccountTypeIdx >= 0) {
-                alert("Error: Duplicate account found for : " + vm.newAccount + ".\nPlease enter a different account type.");
+                alert("Error: Existing account already found for : " + vm.newAccount + ".\nPlease enter a different account type.");
                 vm.newAccount = "";
                 return null;
             }
@@ -312,6 +311,8 @@
             vm.valuation = 0;
             vm.gainLoss = 0;
             vm.positionDate = "";
+            vm.currentFees = 0;
+            vm.unitCost = 0;
 
             return null;
         }
@@ -324,31 +325,57 @@
         }
 
 
-        vm.calculateCostBasis = function (scenario, qty, adjOption) {
-            dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
+        vm.refreshUiValuesFromPosAndTrxs = function (scenario, qty, adjOption) {
+
+            // Position 'Current' UI values reflect saved *aggregate* Transaction data, resulting from latest transaction(s).
+
+            dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData(); // TODO: re-evaluate !
+           
             // Utilize varying useage scenarios for calculations.
             switch(scenario) {
                 case "initialPageLoad":
+                    vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(vm.positionFrom.currentQty, vm.positionFrom.mktPrice)).toFixed(2);
                     dataReceptacle.numberOfUnits = vm.positionFrom.originalQty;
                     dataReceptacle.totalTransactionFees = vm.currentFees;
                     dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                    vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                    vm.unitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
+                    vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
+                    vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, vm.positionFrom.originalQty)).toFixed(3);
                     vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
                     vm.positionFrom.originalMktPrice = vm.adjustedMktPrice;
-                    vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.costBasis);
+                    vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
+                    //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.costBasis); 
                     break;
                 case "positionChange":
                     // New account, or selection from existing 'Matching accounts'.
-                    vm.costBasis = (vm.positionTo.unitCost * vm.positionTo.currentQty).toFixed(2);
+                    vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(vm.positionTo.currentQty, vm.positionFrom.mktPrice)).toFixed(2);
+                    vm.currentFees = parseFloat(positionCreateSvc.sumFeesFromPersistedTransactions(vm.positionTo.transactions)).toFixed(2);
+                    vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionTo.transactions)).toFixed(2);
+                    vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, vm.positionTo.currentQty)).toFixed(3);
+                    vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
                     vm.calculateProfitLossAndValuation(vm.positionTo.currentQty, vm.costBasis);
                     break;
                 case "postDbUpdate":
+                    // Refresh vm.positionFrom.transactions.
+                    incomeMgmtSvc.getAllTransactions(vm.positionFrom.positionId, vm);
+
                     if (adjOption == "sell") {
                         vm.costBasis = qty > 0 ? (vm.positionFrom.unitCost * qty).toFixed(2) : 0;
                         vm.calculateProfitLossAndValuation(qty, vm.costBasis);
                         break;
                     } else {
+                        vm.currentQty = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionFrom.transactions, true);
+                        vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(vm.currentQty, vm.positionFrom.mktPrice)).toFixed(2);
+                        vm.currentFees = parseFloat(positionCreateSvc.sumFeesFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
+                        vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
+                        vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, vm.currentQty)).toFixed(3);
+                        vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
+                        // tested Ok. 7.6.17
+
+                        //qtySubTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionFrom.transactions, true);
+                        //vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(qtySubTotal + vm.adjustedQty, vm.positionFrom.mktPrice)).toFixed(2);
+                        //vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
+                        //vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, qtySubTotal)).toFixed(3);
+                        //vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
                         // Edit-Buy
                         //dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
                         //dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
@@ -496,12 +523,14 @@
 
         vm.postAyncProfileFetch = function (profileData) {
             vm.positionFrom.mktPrice = parseFloat(profileData.price).toFixed(2);
-            vm.calculateCostBasis("initialPageLoad");
+            vm.refreshUiValuesFromPosAndTrxs("initialPageLoad");
         }
 
 
         vm.postAsyncPositionUpdates = function (results, actionsRequested) {
+
             if (results.$resolved) {
+
                 // For Position changes only.
                 // actionsRequested : "fromPosition + toPosition" regarding
                 // successful db record action(s) to be taken.
@@ -520,10 +549,12 @@
                 //        break;
                 //}
 
+                vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0);
                 alert("Position updated successfully.");
 
                 // TODO: update with new fixes 5.15.17
-                updateDisplayPostDbUpdate(positionInfo);
+                //updateDisplayPostDbUpdate(positionInfo);
+
 
                 // Clear UI for display, as needed.
                 if (positionInfo.dbActionNew == "na")
@@ -651,11 +682,15 @@
 
 
         vm.postAsyncGetAllTransactions = function (allCurrentPosTrxs) {
-            
+
+            // TODO: how does this differ from transactionModalSvc.getAllTransactionsPostEdit() ?
             var updatedPositionVm = positionCreateSvc.calculatePositionTotalsFromTransactions(allCurrentPosTrxs, vm.trxDataEdits);
 
             if (vm.adjustedOption == "buy")
                 updatedPositionVm.Status = "A";
+
+            // Refresh cache post Transaction insert/update.
+            vm.positionFrom.transactions = allCurrentPosTrxs;
 
             positionCreateSvc.processPositionUpdates2(updatedPositionVm, vm);
            
@@ -689,6 +724,8 @@
                 vm.positionFrom.transactions = currentTrxs;
             else {
                 vm.positionTo.transactions = currentTrxs;
+                vm.refreshUiValuesFromPosAndTrxs("positionChange");
+                alert("New position/account type successfully recorded.");
             }
         }
 
@@ -1025,7 +1062,8 @@
                         //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
                     }
                     positionInfo.adjustedOption = vm.adjustedOption;
-                    postUpdateRefreshUi();
+                    //postUpdateRefreshUi();
+                    vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0, "buy"); // do in postAsync method
                     break;
                 case 'sell':
                     if (parseInt(vm.adjustedQty) == 0 || parseInt(vm.adjustedQty) < 0 ) {
