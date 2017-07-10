@@ -72,6 +72,7 @@
 
 
         // UI data-binding & flags.
+        vm.dbUpdateOk = false;
         vm.matchingAccountChanged = false;
         vm.newAccountAdded = false;
         vm.showNewAccountInput = false;
@@ -238,8 +239,8 @@
 
             // Enable inline editing of Position transaction(s).
             if (vm.adjustedOption == 'edit') {
-                var origPosDate = $filter('date')(vm.positionFrom.positionDate, 'M/d/yyyy');
-                var adjustedPosDate = $filter('date')(vm.positionAdjDate, 'M/d/yyyy');
+                var origPosDate = $filter('date')(vm.positionFrom.positionDate, 'M/dd/yyyy');
+                var adjustedPosDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
                 // Unadjusted Position date indicates process for transaction edit(s).
                 // TODO: 1st 3 params may now not be needed after addition of currentPositionParam?
                 if (origPosDate == adjustedPosDate) {
@@ -529,7 +530,7 @@
 
         vm.postAsyncPositionUpdates = function (results, actionsRequested) {
 
-            if (results.$resolved) {
+            if (results.$resolved && !vm.dbUpdateOk) {
 
                 // For Position changes only.
                 // actionsRequested : "fromPosition + toPosition" regarding
@@ -550,7 +551,10 @@
                 //}
 
                 vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0);
+
                 alert("Position updated successfully.");
+                // Temp fix: avoid infinite loop; due to  nested async calls ?
+                vm.dbUpdateOk = true;
 
                 // TODO: update with new fixes 5.15.17
                 //updateDisplayPostDbUpdate(positionInfo);
@@ -559,7 +563,9 @@
                 // Clear UI for display, as needed.
                 if (positionInfo.dbActionNew == "na")
                     positionInfo.toPosId = "na";
+
             }
+            
         }
 
 
@@ -1063,7 +1069,7 @@
                     }
                     positionInfo.adjustedOption = vm.adjustedOption;
                     //postUpdateRefreshUi();
-                    vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0, "buy"); // do in postAsync method
+                    vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0, "buy"); 
                     break;
                 case 'sell':
                     if (parseInt(vm.adjustedQty) == 0 || parseInt(vm.adjustedQty) < 0 ) {
@@ -1102,6 +1108,7 @@
 
                     // Now send trx to be persisted; afterward, Position values should be assigned.
                     transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
+                    // 7.7.17 - tested ok.
 
                     //vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
                     //vm.trxDataEdits.PositionFees = vm.trxDataEdits.Fees;
