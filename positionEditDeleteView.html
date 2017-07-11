@@ -167,7 +167,7 @@
                     <div class="col-sm-2">
                         <span class="ui-select">
                             <select class="form-control" id="accountType" 
-                                    data-ng-change="vm.toggleNewAccountCheckBox()"
+                                    data-ng-blur="vm.toggleNewAccountCheckBox()"
                                     data-ng-disabled="vm.matchingAccountsDisabled"
                                     data-ng-model="vm.selectedAccountType" 
                                     data-ng-options="acctType for acctType in vm.matchingAccountTypes track by acctType">
@@ -227,7 +227,7 @@
                                 Mkt.Price ($): <input id="inputMktPrice" data-ng-model="vm.adjustedMktPrice" type="text" data-ng-disabled="vm.mktPriceDisabled">
                             </div>
                             <div class="col-sm-3" id="divFees">
-                                Fees: [+/-]&nbsp; <input id="inputAdjFees" data-ng-model="vm.adjustedFees" type="number" style="width: 100px" data-ng-blur="vm.adjustFees(vm.adjustedOption)">
+                                Fees: [+/-]&nbsp; <input id="inputAdjFees" data-ng-model="vm.adjustedFees" type="number" style="width: 100px" >
                             </div>
                             <div class="col-sm-1">
                                 Pos.Date
