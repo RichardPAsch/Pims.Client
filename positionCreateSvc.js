@@ -247,42 +247,6 @@
         }
 
 
-        function processPositionUpdates(newAndOrEditedPositions, ctrl) {
-
-            var actionsTaken = "";
-            var positionCreateUpdateUrl;
-            var resourceObj;
-
-            switch (newAndOrEditedPositions.dbActionOrig, newAndOrEditedPositions.dbActionNew) {
-                case "update", "update":
-                    actionsTaken = "update-update";
-                    break;
-                case "update", "insert":
-                    actionsTaken = "update-insert";
-                    break;
-                case "update", "na":
-                    actionsTaken = "update-na";
-                    break;
-                case "insert", "na":
-                    actionsTaken = "insert-na";
-                    break;
-            }
-
-            positionCreateUpdateUrl = appSettings.serverPath + "/Pims.Web.Api/api/Positions/UpdateCreate";
-            resourceObj = $resource(positionCreateUpdateUrl,
-                            null,
-                            {
-                                'update': { method: 'PATCH' }
-                            });
-
-            resourceObj.update(null, newAndOrEditedPositions).$promise.then(function (response) {
-                ctrl.postAsyncPositionUpdates(response, actionsTaken);
-            }, function (ex) {
-                ctrl.postAsyncPositionUpdatesError(ex.statusText);
-            });
-        }
-
-
         function getMatchingAccountTypeId(accountTypes, searchAccountType) {
             
             for (var acct = 0; acct < accountTypes.length; acct++) {
@@ -535,7 +499,6 @@
             setInvestorMatchingAccounts: setInvestorMatchingAccounts,
             getInvestorMatchingAccounts: getInvestorMatchingAccounts,
             getGuidsForPosition: getGuidsForPosition,
-            processPositionUpdates: processPositionUpdates,
             getMatchingAccountTypeId: getMatchingAccountTypeId,
             getPositionFees: getPositionFees,
             getPositionVm: getPositionVm,
