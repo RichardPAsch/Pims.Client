@@ -10,10 +10,10 @@
                                       'uiGridConstants', '$modal', '$location', '$interval', 'transactionsModalSvc'];
 
 
-    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants, $modal, $location, $interval, transactionsModalSvc) {
+    function positionEditDeleteCtrl($state, $filter, positionCreateSvc, allPositions, incomeMgmtSvc, incomeCreateSvc, uiGridConstants,
+                                    $modal, $location, $interval, transactionsModalSvc) {
 
         var vm = this;
-        var dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();  // TODO: re-evaluate
         var today = new Date();
         vm.ticker = $state.params.positionSelectionObj.TickerSymbol;
         vm.trxDataEdits = transactionsModalSvc.createTransactionVm();
@@ -25,7 +25,6 @@
         vm.positionFrom = {
             mktPrice: positionCreateSvc.getCurrentMarketUnitPrice(vm, vm.ticker.toUpperCase().trim()),
             originalMktPrice: 0,    // Cached Profile price before adjustment
-            dBAction: "",
             accountType: $state.params.positionSelectionObj.AcctType,
             originalQty: $state.params.positionSelectionObj.Qty,
             adjustedQty: 0,         // units to increment/decrement
@@ -39,10 +38,7 @@
             purchaseDate: "",
             accountTypeId: "",
             originalFees: 0,        // currently recorded
-            adjustedTotalFees: 0,    // original + adjustments
             costBasis: 0,
-            gainLoss: 0,
-            valuation: 0,
             transactions: []
         };
 
@@ -63,10 +59,7 @@
             purchaseDate: "",
             accountTypeId: "",
             originalFees: 0,
-            adjustedTotalFees: 0,
             costBasis: 0,
-            gainLoss: 0,
-            valuation: 0,
             transactions: []
         };
 
@@ -82,8 +75,6 @@
         vm.adjDateDisabled = false;
         vm.updateBtnDisabled = true;
         vm.accountPlaceHolder = "Enter a new Position account for " + vm.ticker.toUpperCase().trim() + "...";
-        vm.originalPositionDbAction = "";
-        vm.newPositionDbAction = "";
         vm.adjustedOption = "";
         vm.selectedAccountType = $state.params.positionSelectionObj.AcctType;
         vm.currentQty = $state.params.positionSelectionObj.Qty;
@@ -92,7 +83,6 @@
         vm.positionDate = $state.params.positionSelectionObj.PositionAddDate;
         vm.positionAdjDate = $filter('date')(vm.positionDate, 'M/dd/yyyy');
         vm.lastUpdate = incomeMgmtSvc.formatDate($state.params.positionSelectionObj.LastUpdate);
-        vm.allValidAccountTypes = [];
         vm.matchingAccountTypes = positionCreateSvc.getMatchingAccounts(vm.ticker, allPositions);
         vm.selectedAccountType = vm.matchingAccountTypes[positionCreateSvc.getMatchingAccountTypeIndex(vm.matchingAccountTypes, vm.selectedAccountType)];
         vm.adjustedFees = 0;
@@ -110,7 +100,7 @@
         vm.positionFrom.purchaseDate = $state.params.positionSelectionObj.PurchDate;
         vm.positionTo.purchaseDate = "";
         vm.positionFrom.originalFees = vm.currentFees;
-        // Asset, account, & investor Guids.
+        // Capture Asset, Account, & Investor Guids.
         var currentPositionGuids = positionCreateSvc.getGuidsForPosition(allPositions, vm.positionFrom.positionId);
         vm.positionFrom.accountTypeId = currentPositionGuids.accountTypeId;
         vm.positionFrom.originalFees = vm.currentFees;
@@ -157,56 +147,6 @@
             }
         }
 
-
-        function updateDisplayPostDbUpdate(positionVm) {
-
-            // Most buy or sell selections will not include "toXXX" Vm attributes, except
-            // for adding shares to a NEW account w/o involving a rollover.
-            //alert("in updateDisplayPostDbUpdate(positionVm)");
-            //switch (positionVm.adjustedOption) {
-            //    case "buy":
-            //        if (positionVm.dbActionNew == "insert") {
-            //            vm.positionTo.currentQty = positionVm.toQty;
-            //            vm.positionTo.unitCost = positionVm.toUnitCost;
-            //            vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
-            //            vm.positionDate = positionVm.toPositionDate;
-            //        } else {
-            //            // update existing Position.
-            //            //vm.currentFees += vm.adjustedTotalFees;
-            //            vm.positionFrom.mktPrice = positionVm.fromUnitCost;
-            //            vm.currentQty = positionVm.fromQty;
-            //            vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
-            //            vm.positionDate = positionVm.fromPositionDate;
-            //        }
-            //        break;
-            //    case "rollover":
-            //            vm.positionTo.currentQty = positionVm.toQty;
-            //            vm.currentQty = positionVm.toQty;
-            //            vm.positionTo.unitCost = positionVm.toUnitCost;
-            //            vm.calculateCostBasis("positionChange", vm.currentQty, positionVm.adjustedOption);
-            //            vm.positionDate = positionVm.toPositionDate;
-            //        break;
-            //    case "edit":
-            //    case "sell":
-            //        vm.calculateCostBasis("postDbUpdate", vm.currentQty, positionVm.adjustedOption);
-            //        vm.positionFrom.unitCost = vm.unitCost;
-            //        vm.currentQty = vm.positionFrom.originalQty + vm.adjustedQty;
-            //        vm.currentFees = vm.currentFees + vm.adjustedFees;
-            //        vm.positionFrom.adjustedTotalFees = vm.currentFees;
-            //        break;
-            //}
-  
-        }
-
-
-        function postUpdateRefreshUi() {
-            vm.currentQty = vm.newAccountAdded ? vm.positionTo.currentQty : vm.positionFrom.currentQty;
-            vm.currentFees = vm.newAccountAdded ? vm.positionTo.currentFees : vm.positionFrom.currentFees;
-            vm.unitCost = vm.newAccountAdded ? vm.positionTo.unitCost : vm.positionFrom.unitCost;
-            vm.positionDate = vm.newAccountAdded ? vm.positionTo.positionDate : vm.positionFrom.positionDate;
-            vm.costBasis = vm.newAccountAdded ? vm.positionTo.costBasis : vm.positionFrom.costBasis;
-        }
-        
 
         function checkIsValidAdjustmentOption() {
             if ((!vm.matchingAccountChanged && !vm.newAccountAdded && vm.adjustedOption == 'rollover') ||
@@ -329,22 +269,15 @@
         vm.refreshUiValuesFromPosAndTrxs = function (scenario, qty, adjOption) {
 
             // Position 'Current' UI values reflect saved *aggregate* Transaction data, resulting from latest transaction(s).
-
-            dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData(); // TODO: re-evaluate !
-           
             // Utilize varying useage scenarios for calculations.
             switch(scenario) {
                 case "initialPageLoad":
                     vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(vm.positionFrom.currentQty, vm.positionFrom.mktPrice)).toFixed(2);
-                    dataReceptacle.numberOfUnits = vm.positionFrom.originalQty;
-                    dataReceptacle.totalTransactionFees = vm.currentFees;
-                    dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
                     vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
                     vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, vm.positionFrom.originalQty)).toFixed(3);
-                    vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
+                    vm.adjustedMktPrice = vm.positionFrom.mktPrice;
                     vm.positionFrom.originalMktPrice = vm.adjustedMktPrice;
                     vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
-                    //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.costBasis); 
                     break;
                 case "positionChange":
                     // New account, or selection from existing 'Matching accounts'.
@@ -370,37 +303,14 @@
                         vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
                         vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, vm.currentQty)).toFixed(3);
                         vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
-                        // tested Ok. 7.6.17
-
-                        //qtySubTotal = positionCreateSvc.sumQuantityFromPersistedTransactions(vm.positionFrom.transactions, true);
-                        //vm.valuation = parseFloat(transactionsModalSvc.calculateValuation(qtySubTotal + vm.adjustedQty, vm.positionFrom.mktPrice)).toFixed(2);
-                        //vm.costBasis = parseFloat(positionCreateSvc.sumCostBasisFromPersistedTransactions(vm.positionFrom.transactions)).toFixed(2);
-                        //vm.unitCost = parseFloat(transactionsModalSvc.calculateUnitCost(vm.costBasis, qtySubTotal)).toFixed(3);
-                        //vm.gainLoss = parseFloat(vm.valuation - vm.costBasis).toFixed(2);
-                        // Edit-Buy
-                        //dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
-                        //dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
-                        //dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                        //vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                        //vm.unitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                        //vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
-                        //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.costBasis);
                         break;
                     }
             }
         }
 
-
-        vm.positionEditContainsAccountChange = function () {
-            return vm.selectedAccountType.toUpperCase().trim() == vm.positionFrom.accountType.toUpperCase().trim() && vm.showNewAccountInput == false
-                ? false
-                : true;
-        }
         
 
-        // TODO: Re-eval.
         vm.adjustUnitCost = function (optionSelected) {
-            //alert("adjustUnitCost() in use.");
 
             if ((optionSelected == 'rollover' || optionSelected == 'sell')) {
                 if (vm.adjustedQty > vm.positionFrom.originalQty) {
@@ -416,26 +326,8 @@
                 vm.mktPriceDisabled = true;
                 vm.positionTo.adjustedQty = vm.adjustedQty;
             }
-            //var today = new Date();
-            //vm.positionAdjDate = incomeMgmtSvc.formatDate(today);
+
             return null;
-        }
-
-
-        // TODO: Re-eval need here.
-        vm.adjustFees = function (optionSelected) {
-            //alert("adjustFees() in use.");
-
-            // Update dynamically upon each 'vm.adjustedFees' lost focus.
-            switch(optionSelected) {
-                case "edit":
-                //case  "buy":
-                //    vm.positionFrom.adjustedTotalFees = vm.adjustedFees != 0
-                //                            ? parseFloat(vm.currentFees + vm.adjustedFees)
-                //                            : parseFloat(vm.currentFees);
-                //    break;
-            }
-
         }
 
 
@@ -528,7 +420,7 @@
         }
 
 
-        vm.postAsyncPositionUpdates = function (results, actionsRequested) {
+        vm.postAsyncPositionUpdates = function (results) {
 
             if (results.$resolved && !vm.dbUpdateOk) {
 
@@ -731,7 +623,6 @@
             else {
                 vm.positionTo.transactions = currentTrxs;
                 vm.refreshUiValuesFromPosAndTrxs("positionChange");
-                alert("New position/account type successfully recorded.");
             }
         }
 
@@ -766,7 +657,7 @@
             // Check for new account entry.
             if (vm.matchingAccountsDisabled) {
                 if (vm.adjustedQty <= 0) {
-                    alert("Invalid quantity entered; \nminimum required entry = 1.");
+                    alert("Invalid quantity entered; \nminimum required entry : 1.");
                     return null;
                 }
                 vm.newAccountAdded = true;
@@ -789,13 +680,7 @@
                 }
             }
 
-            if (vm.newAccountAdded) {
-                vm.positionTo.dBAction = "insert";
-            } else {
-                vm.positionFrom.dBAction = "update";
-            }
-            
-
+           
             // Initialize static vm attributes.
             positionInfo.fromPosId = vm.positionFrom.positionId;
             positionInfo.positionFromAccountId = vm.positionFrom.accountTypeId;
@@ -805,8 +690,6 @@
             positionInfo.fromPurchaseDate = vm.positionFrom.purchaseDate;
             positionInfo.fromPositionDate = $filter('date')(vm.positionFrom.positionDate, 'M/dd/yyyy');
             positionInfo.toPositionDate = $filter('date')(vm.positionTo.positionDate, 'M/dd/yyyy');
-
-            dataReceptacle = incomeMgmtSvc.createCostBasisAndUnitCostData();
 
             switch (vm.adjustedOption) {
                 case 'rollover':
@@ -895,63 +778,6 @@
                     rolloverData.push(targetPos);
 
                     positionCreateSvc.processPositionRollover(rolloverData, vm);
-
-
-                    //this.initializeTransactionVm(false); // line 403
-                    //vm.trxDataEdits.TransactionEvent = "R";
-                    //vm.trxDataEdits.PositionId = vm.positionFrom.positionId;
-                    //vm.trxDataEdits.Units = vm.positionFrom.originalQty - vm.adjustedQty;
-                    //// No fees associated with a conversion - per ML. 
-                    ////TODO: Validate no fees entered in UI.
-                    //vm.trxDataEdits.Fees = vm.adjustedFees;
-                    //// TODO: Verify these 3 calculations as correct for Rollover full/partial conversion scenarios.
-                    //if (vm.trxDataEdits.Units == 0) {
-                    //    // Full conversion.
-                    //    vm.trxDataEdits.PositionStatus = "I";
-                    //    vm.trxDataEdits.Valuation = 0;
-                    //    vm.trxDataEdits.CostBasis = 0;
-                    //    vm.trxDataEdits.UnitCost = 0;
-                    //} else {
-                    //    // Partial conversion.
-                    //    vm.trxDataEdits.PositionStatus = "A";
-                    //    vm.trxDataEdits.Valuation = transactionsModalSvc.calculateValuation(vm.trxDataEdits.Units, vm.trxDataEdits.MktPrice);
-                    //    vm.trxDataEdits.CostBasis = transactionsModalSvc.calculateCostBasis(vm.trxDataEdits.Valuation, vm.trxDataEdits.Fees);
-                    //    vm.trxDataEdits.UnitCost = transactionsModalSvc.calculateUnitCost(vm.trxDataEdits.CostBasis, vm.trxDataEdits.Units);
-                    //}
-
-                    //vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
-                    //vm.trxDataEdits.PositionId = vm.trxDataEdits.PositionId;
-                    //vm.trxDataEdits.Fees = vm.trxDataEdits.Fees;
-                    //vm.trxDataEdits.PositionUnitCost = vm.trxDataEdits.UnitCost;
-                    //vm.trxDataEdits.PositionStatus = vm.trxDataEdits.PositionStatus;
-                    //vm.trxDataEdits.positionLastUpdate = $filter('date')(today, 'M/dd/yyyy');
-
-                    //transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
-
-                    // Target trx.
-                    //vm.positionFrom.currentQty = vm.positionFrom.originalQty - vm.adjustedQty;
-                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    //positionInfo.toUnitCost = vm.positionFrom.mktPrice;
-                    //positionInfo.fromUnitCost = vm.positionFrom.unitCost;
-                    //positionInfo.dbActionNew = vm.positionTo.dBAction;
-                    //positionInfo.fromPositionStatus = vm.positionFrom.originalQty - vm.adjustedQty == 0 ? "I" : "A";
-                    //positionInfo.adjustedOption = vm.adjustedOption;
-                    //positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
-                    //positionInfo.fromQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
-                    //positionInfo.toPositionStatus = vm.positionTo.currentQty > 0 && vm.adjustedOption == 'rollover' ? "A" : "I";
-
-
-                    //if (vm.positionTo.dBAction == "update") {
-                    //    positionInfo.toQty = parseInt(vm.positionTo.currentQty) + parseInt(vm.positionTo.adjustedQty);
-                    //    positionInfo.toPosId = vm.positionTo.positionId; 
-                    //} else {
-                    //    // Insert
-                    //    positionInfo.toQty = parseInt(vm.positionTo.adjustedQty);
-                    //    positionInfo.toPositionStatus = "A";  // Override
-                    //    positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-                    //    positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                    //}
                     break;
                 case 'buy':
                     if (vm.positionTo.dBAction == 'insert') {
@@ -980,35 +806,6 @@
                         */
                         var initializedPositionVm = this.intializePositionVm();
                         positionCreateSvc.savePosition(initializedPositionVm, vm);
-                        
-
-                        /* on hold until done with Position insert
-                        this.initializeTransactionVm();
-                        vm.trxDataEdits.PositionId = incomeMgmtSvc.createGuid();
-                        vm.trxDataEdits.PositionAcctTypeId = vm.positionTo.accountTypeId;
-                        vm.trxDataEdits.PositionDate = $filter('date')(today, 'M/dd/yyyy');
-                        vm.trxDataEdits.PositionStatus = "A";
-
-                        transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
-                        */
-
-
-                        //positionInfo.positionFromAccountId = incomeMgmtSvc.createGuid();
-                        //positionInfo.positionToAccountId = vm.positionTo.accountTypeId;
-                        //positionInfo.dbActionOrig = "na";
-                        //positionInfo.toQty = parseInt(vm.adjustedQty);
-                        //vm.currentQty = positionInfo.toQty;
-                        //positionInfo.toUnitCost = vm.positionFrom.mktPrice;
-                        //positionInfo.toPositionStatus = "A";
-                        //positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-                        //positionInfo.dbActionNew = "insert";
-                        //positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                        //positionInfo.fromPositionStatus = "na";
-                        //positionInfo.fromUnitCost = 0;
-                        //positionInfo.fromQty = 0;
-                        //positionInfo.fromFees = vm.adjustedTotalFees != 0
-                        //       ? parseFloat(vm.currentFees + vm.adjustedTotalFees)
-                        //       : parseFloat(vm.currentFees);
                     } else {
                         // Adding shares to an EXISTING account w/o involving a 'rollover'.
                         if (parseInt(vm.adjustedQty) == 0) {
@@ -1019,56 +816,8 @@
                         // 5.9.17 - Revision due to new transactions functionality.
                         this.initializeTransactionVm(false);
                         transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
-                        
-                        //positionInfo.adjustedOption = vm.adjustedOption;
-                        //positionInfo.dbActionNew = "na";
-                        //positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                        //positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                        //vm.positionFrom.dBAction = 'update';
-                        //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                        //vm.positionTo.dBAction = 'na';
-                        //positionInfo.fromPositionStatus = "A";
-                        //positionInfo.toPositionStatus = "na";
-
-                        ////vm.calculateCostBasis("postDbUpdate", 0, "buy");
-                        //dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
-                        //dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
-                        //dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                        //positionInfo.fromQty = dataReceptacle.numberOfUnits;
-                        //vm.positionFrom.originalQty = vm.currentQty;
-                        //vm.positionFrom.currentQty = positionInfo.fromQty;
-                        //if (positionInfo.fromQty <= 0) {
-                        //    alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
-                        //    return null;
-                        //}
-                        //positionInfo.toQty = 0;
-                        //vm.positionTo.currentQty = 0;
-
-                        //positionInfo.fromFees = dataReceptacle.totalTransactionFees;
-                        //positionInfo.toFees = 0.00;
-                        //vm.positionFrom.currentFees = positionInfo.fromFees;
-                        //vm.positionTo.currentFees = 0.00;
-
-                        //vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                        //vm.positionFrom.costBasis = vm.costBasis;
-                        //vm.positionTo.costBasis = 0.0;
-                        
-                        //positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                        //positionInfo.toUnitCost = 0;
-                        //vm.positionFrom.unitCost = positionInfo.fromUnitCost;
-                        //vm.positionTo.unitCost = 0.0;
-
-                        //positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                        //positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                        //vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                        //vm.positionTo.positionDate = "n/a";
-                        
-                        //vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
-
-                        //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
                     }
                     positionInfo.adjustedOption = vm.adjustedOption;
-                    //postUpdateRefreshUi();
                     vm.refreshUiValuesFromPosAndTrxs("postDbUpdate", 0, "buy"); 
                     break;
                 case 'sell':
@@ -1108,118 +857,10 @@
 
                     // Now send trx to be persisted; afterward, Position values should be assigned.
                     transactionsModalSvc.insertTransactionTable(vm.trxDataEdits, vm);
-                    // 7.7.17 - tested ok.
-
-                    //vm.trxDataEdits.PositionQty = vm.trxDataEdits.Units;
-                    //vm.trxDataEdits.PositionFees = vm.trxDataEdits.Fees;
-                    //vm.trxDataEdits.PositionCostBasis = 0;
-                  
-
-                    //vm.positionFrom.originalQty = vm.currentQty;
-                    //vm.positionFrom.currentQty = vm.positionFrom.originalQty - parseInt(vm.adjustedQty);
-                    //positionInfo.fromQty = vm.positionFrom.currentQty;
-                    //positionInfo.fromUnitCost = vm.positionFrom.mktPrice;
-                    //positionInfo.fromPositionStatus = vm.positionFrom.currentQty == 0 ? "I" : "A";
-                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    //positionInfo.adjustedOption = vm.adjustedOption;
-                    //positionInfo.toPositionDate = "na";
-                    //positionInfo.positionToAccountId = "na";
-                    //positionInfo.toPositionStatus = "na";
-                    //positionInfo.toUnitCost = 0;
-                    //positionInfo.toQty = 0;
-                    //positionInfo.toPosId = "na";
-                    //positionInfo.dbActionNew = "na";
-                    break;
-                case 'edit':
-                    // TODO: 4.7.17 - cancelled functionality; will provide editing via new Position trx table & grid. - DONE.
-                    //positionInfo.adjustedOption = vm.adjustedOption;
-                    //positionInfo.dbActionNew = "na";
-                    //positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                    //positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                    //vm.positionFrom.dBAction = 'update';
-                    //positionInfo.dbActionOrig = vm.positionFrom.dBAction;
-                    //vm.positionTo.dBAction = 'na';
-                    //positionInfo.fromPositionStatus = "A";
-                    //positionInfo.toPositionStatus = "na";
-                    //if (vm.adjustedQty != 0 || vm.adjustedMktPrice != vm.positionFrom.originalMktPrice || vm.adjustedFees != 0) {
-                    //    dataReceptacle.numberOfUnits = vm.positionFrom.originalQty + vm.adjustedQty;
-                    //    dataReceptacle.totalTransactionFees = vm.currentFees + vm.adjustedFees;
-                    //    dataReceptacle.currentMktPrice = vm.positionFrom.mktPrice;
-                    //    positionInfo.fromQty = dataReceptacle.numberOfUnits;
-                    //    vm.positionFrom.originalQty = vm.currentQty;
-                    //    vm.positionFrom.currentQty = positionInfo.fromQty;
-                    //    if (positionInfo.fromQty <= 0) {
-                    //        alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
-                    //        return null;
-                    //    }
-                    //    positionInfo.toQty = 0;
-                    //    vm.positionTo.currentQty = 0;
-
-                    //    positionInfo.fromFees = dataReceptacle.totalTransactionFees;
-                    //    positionInfo.toFees = 0.00;
-                    //    vm.positionFrom.currentFees = positionInfo.fromFees;
-                    //    vm.positionTo.currentFees = 0.00;
-
-                    //    vm.costBasis = incomeMgmtSvc.calculateCostBasis(dataReceptacle);
-                    //    vm.positionFrom.costBasis = vm.costBasis;
-                    //    vm.positionTo.costBasis = 0.0;
-
-                    //    positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                    //    positionInfo.toUnitCost = 0;
-                    //    vm.positionFrom.unitCost = positionInfo.fromUnitCost;
-                    //    vm.positionTo.unitCost = 0.0;
-
-                    //    if (vm.positionAdjDate != vm.positionDate) {
-                    //        positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                    //        positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                    //        vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                    //        vm.positionTo.positionDate = "n/a";
-                    //    }
-                    //} else {
-                    //    positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                    //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');  // initialization needed for WebApi state validation
-                    //    vm.positionFrom.positionDate = positionInfo.fromPositionDate;
-                    //    vm.positionTo.positionDate = "n/a";
-                    //}
-                    //vm.adjustedMktPrice = dataReceptacle.currentMktPrice;
-
-                    //vm.calculateProfitLossAndValuation(dataReceptacle.numberOfUnits, vm.positionFrom.costBasis);
-
-                    //positionInfo.dbActionOrig = "update";
-                    //positionInfo.fromPositionStatus = "A";
-                    //positionInfo.toPositionStatus = "na";
-                    //vm.calculateCostBasis("postDbUpdate", 0, "edit");
-                    //positionInfo.fromQty = dataReceptacle.numberOfUnits;
-                    //if (positionInfo.fromQty <= 0) {
-                    //    alert("Invalid quantity adjustment; \nresulting calculated quantity: " + parseInt(positionInfo.fromQty));
-                    //    return null;
-                    //}
-                    //positionInfo.toQty = 0;
-                    //positionInfo.fromFees = dataReceptacle.totalTransactionFees;
-                    //positionInfo.toFees = 0.00;
-                    //positionInfo.fromUnitCost = parseFloat(vm.costBasis / dataReceptacle.numberOfUnits).toFixed(3);
-                    //positionInfo.toUnitCost = 0;
-                    //positionInfo.fromPositionDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
-                    //vm.positionDate = positionInfo.fromPositionDate;
-                    //positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-                    //positionInfo.positionToAccountId = "na";
-                    //positionInfo.adjustedOption = vm.adjustedOption;
-                    //positionInfo.dbActionNew = "na";
-                    //positionInfo.toPosId = incomeMgmtSvc.createGuid();
-                    //positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-                    //positionInfo.fromUnitCost = vm.unitCost;
                     break;
             }
 
-            // 6.15.17 - Obsolete ??
-            // Initialize to satisfy WebApi model-state validation. 
-            //if (positionInfo.toPosId == "na" && positionInfo.dbActionNew == "na") {
-            //    positionInfo.toPosId = incomeMgmtSvc.createGuid();
-            //    positionInfo.positionToAccountId = incomeMgmtSvc.createGuid();
-            //    positionInfo.toPositionDate = $filter('date')(today, 'M/dd/yyyy');
-            //}
-                
-
+           
             /* Debug info */
             //alert("positionInfo VM confirmation results: "
             //   + "\n----------------------------------"
@@ -1245,9 +886,6 @@
             //   + "\nfromFees: " + positionInfo.fromFees
             //   + "\ntoFees: " + positionInfo.toFees
             //   );
-
-            // temp debug
-            //positionCreateSvc.processPositionUpdates(positionInfo, vm);
 
             return null;
         }
