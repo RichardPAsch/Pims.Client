@@ -84,6 +84,18 @@
                       "ReferencedAccount": {
                           "AccountTypeDesc": "", // ex: IRA
                           "Url": ""
+                      },
+                      "ReferencedTransaction": {
+                          "PositionId": "",
+                          "TransactionId": "",
+                          "TransactionEvent": "",
+                          "Units": 0,
+                          "MktPrice": 0,
+                          "Fees": 0,
+                          "UnitCost": 0,
+                          "CostBasis": 0,
+                          "Valuation": 0,
+                          "DateCreated": ""
                       }
                   }
                 ],
@@ -138,6 +150,18 @@
                             "AccountTypeDesc": "",           // ex: IRA
                             "Url": ""
                         },
+                        "ReferencedTransaction": {           // 1:1 - Position:Transaction during Asset creation.
+                            "PositionId": "",
+                            "TransactionId": "",
+                            "TransactionEvent": "",
+                            "Units": 0,
+                            "MktPrice": 0,
+                            "Fees": 0,
+                            "UnitCost": 0,
+                            "CostBasis": 0,
+                            "Valuation": 0,
+                            "DateCreated": ""
+                        }, 
                         "ReferencedTickerSymbol": "",
                         "DatePositionAdded": "",
                         "Status": "A",                        // (A)ctive 
@@ -358,11 +382,5 @@
     };
 
 
-
-
-
-    
-
-
-
+   
 }());
