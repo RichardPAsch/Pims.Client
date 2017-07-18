@@ -1,14 +1,15 @@
 ﻿
     
     <style>
-    #purchaseDate, #accountType, #tickerSymbol, #inputPurchaseDate, #qty, #costBasis, #lastUpdate, #unitPrice, #inputFees {
+    #purchaseDate, #accountType, #tickerSymbol, #inputPurchaseDate, #qty, #costBasis, #lastUpdate, #costBasis, #inputFees, #unitCosts {
         background-color: lightgoldenrodyellow;
     }
     #tickerSymbol {
         width: 60%;
     }
-    #costBasis,  #unitPrice, #inputFees {
+    #costBasis,  #unitCosts, #inputFees {
         width: 70%;
+        text-align: right;
     }
     #qty {
         width: 40%;
@@ -92,7 +93,7 @@
                    </div>
                     <label class="col-sm-2 control-label" for="inputFees">Fees ($):</label>
                     <div class="col-sm-2">
-                        <input type="text" class="form-control" id="inputFees" data-ng-model="vm.transactionFees" maxlength="10" data-ng-blur="vm.calculateCostBasis()">
+                        <input type="text" class="form-control" id="inputFees" data-ng-model="vm.transactionFees" maxlength="10" data-ng-blur="vm.initializeCostBasisAndUnitCost()">
                     </div>
                     <!--Obsolete; keep for possible future use:-->
                    <span id="dateValidationMsg" data-ng-show="vm.showPurchaseDateValidationMsg" style="color:orangered">Invalid entry; please check date</span>
@@ -101,16 +102,16 @@
                 <div class="form-group">
                     <label id="lblQty" class="col-sm-2 control-label" for="qty">Units:</label>
                     <div id="divQty" class="col-sm-2">
-                        <input class="col-sm-1 form-control" id="qty" data-ng-model="vm.positionQty" data-ng-blur="vm.calculateCostBasis()" > 
+                        <input class="col-sm-1 form-control" id="qty" data-ng-model="vm.positionQty" data-ng-blur="vm.initializeCostBasisAndUnitCost()" > 
                         <span class="col-sm-2" data-ng-show="vm.showQtyValidationMsg" style="color:orangered">Invalid entry</span>
                     </div>
-                    <label id="lblUnitPrice" class="col-sm-2 control-label" for="unitPrice">Unit Cost ($):</label>
+                    <label id="lblCostBasis" class="col-sm-2 control-label" for="costBasis">Cost Basis ($):</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="unitPrice" data-ng-model="vm.positionUnitPrice" readonly="">
+                        <input class="form-control" id="costBasis" data-ng-model="vm.costBasis" readonly="">
                     </div>
-                    <label id="lblValuation" class="col-sm-2 control-label" for="costBasis">Cost Basis ($) :</label>
+                    <label id="lblUnitCosts" class="col-sm-2 control-label" for="unitCosts">Unit Costs ($) :</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="costBasis" data-ng-model="vm.costBasis" maxlength="10" readonly="" >
+                        <input class="form-control" id="unitCosts" data-ng-model="vm.unitCosts" maxlength="10" readonly="" >
                     </div>
                 </div>
 
