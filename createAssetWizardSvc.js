@@ -311,8 +311,8 @@
             $resource(assetUrl).save(newAsset, function () {
                 ctrl.postAsyncSaveAsset(true);  // success
             }, function (err) {
-                var debugData = err.data.message;
-                ctrl.postAsyncSaveAsset(false, debugData);  // error
+                var debugData = err;
+                ctrl.postAsyncSaveAsset(false, debugData.statusText);  // error
             }); 
 
         }
