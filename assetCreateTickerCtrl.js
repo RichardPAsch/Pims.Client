@@ -76,7 +76,7 @@
                 var assetBuild = createAssetWizardSvc.processAsset(); // fetch template
                 assetBuild.AssetTicker = vm.assetModel.AssetTicker;
                 assetBuild.AssetDescription = vm.assetModel.AssetDescription;
-                assetBuild.AssetClassification = vm.assetModel.AssetClassification.description;
+                assetBuild.AssetClassification = vm.assetModel.AssetClassification.code;
                 vm.initializedAsset = assetBuild;
 
                 // Duplicate check before caching new Asset-- via service.
