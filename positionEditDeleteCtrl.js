@@ -307,8 +307,7 @@
                     }
             }
         }
-
-        
+                
 
         vm.adjustUnitCost = function (optionSelected) {
 
@@ -489,6 +488,7 @@
 
 
         vm.postCheckRevenueDuplicate = function (duplicateFound) {
+            // TODO: why is this fx here ?
 
             if (duplicateFound) {
                 vm.isDuplicateIncome = duplicateFound;
@@ -518,7 +518,7 @@
 
             if (vm.preEditAmtRecorded != vm.incomeAmtRecorded || vm.preEditDateReceived != vm.incomeDateReceived) {
 
-                var today = new Date();
+                //var today = new Date();
                 var modifiedInfo2 = {
                     amountRecvd: vm.incomeAmtRecorded,
                     dateReceived: $filter('date')(vm.incomeDateReceived, 'M/dd/yyyy'),
@@ -702,7 +702,7 @@
                     if (vm.positionFrom.transactions.length == 0 || vm.positionTo.transactions.length == 0) {
                         alert("Error: Unable to fetch source and/or target transactions for Positions: \n" +
                             vm.positionFrom.positionId + "\n" + vm.positionTo.positionId);
-                        return null
+                        return null;
                     }
 
                     var rolloverData = [];
