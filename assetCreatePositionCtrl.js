@@ -181,15 +181,17 @@
                                                                          + "/Position/Account/"
                                                                          + vm.accountTypeSelected.accountTypeDesc; // use Guid instead ?
 
+
             // Initialize child Transaction object.
-            positionBuild.ReferencedTransaction.TransactionId = incomeMgmtSvc.createGrid();
+            positionBuild.ReferencedTransaction.TransactionId = incomeMgmtSvc.createGuid();
+            positionBuild.ReferencedTransaction.PositionId = incomeMgmtSvc.createGuid();
             positionBuild.ReferencedTransaction.TransactionEvent = "B";
             positionBuild.ReferencedTransaction.Units = vm.positionQty;
             positionBuild.ReferencedTransaction.MktPrice = vm.currentUnitMktPrice;
-            positionBuild.ReferencedTransaction.Fees = vm.transactionFees.toFixed(2);
+            positionBuild.ReferencedTransaction.Fees = vm.transactionFees;
             positionBuild.ReferencedTransaction.UnitCost = vm.unitCosts;
             positionBuild.ReferencedTransaction.CostBasis = vm.costBasis;
-            positionBuild.ReferencedTransaction.Valuation = (vm.positionQty * vm.currentUnitMktPrice).toFixed(2);
+            positionBuild.ReferencedTransaction.Valuation = (vm.positionQty * vm.currentUnitMktPrice);
             positionBuild.ReferencedTransaction.DateCreated = $filter('date')(today, 'M/dd/yyyy hh:mm');
 
             vm.currentAsset.PositionsCreated.push(positionBuild);
