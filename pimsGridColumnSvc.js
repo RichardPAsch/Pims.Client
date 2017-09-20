@@ -26,6 +26,7 @@
 
 
         function initializeActivitySummaryColDefs(responseDataColKeys) {
+            vm.colDefinitions = [];
             for (var key = 0; key < responseDataColKeys.length; key++) {
                 if (responseDataColKeys[key] == "monthRecvd") {
                                     vm.columnObj = {
@@ -66,7 +67,7 @@
         
 
         function initializeRevenueColDefs(responseDataColKeys, stateContext) {
- 
+            vm.colDefinitions = [];
             for (var key = 0; key < responseDataColKeys.length; key++) {
 
                 switch (stateContext) {
@@ -254,7 +255,7 @@
         
 
         function initializeProfileProjectionColDefs(columnKeys) {
-
+            vm.colDefinitions = [];
             for (var key = 0; key < columnKeys.length; key++) {
                 if (columnKeys[key] == "ticker" || columnKeys[key] == "capital") {
                     vm.columnObj = {
@@ -342,7 +343,7 @@
 
 
         function initializePositionEditColDefs(columnKeys) {
-
+            vm.colDefinitions = [];
             for (var key = 0; key < columnKeys.length; key++) {
                 if (columnKeys[key] == "referencedTickerSymbol" ) {
                     vm.columnObj = {
@@ -445,7 +446,7 @@
 
 
         function initializePositionSummaryColDefs(columnKeys) {
-
+            vm.colDefinitions = [];
             for (var key = 0; key < columnKeys.length; key++) {
                 if (columnKeys[key] == "positionSummaryTickerSymbol") {
                     vm.columnObj = {
@@ -514,6 +515,7 @@
 
 
         function initializeAssetSummaryColDefs(responseDataColKeys) {
+            vm.colDefinitions = [];
             for (var key = 0; key < responseDataColKeys.length; key++) {
                 if (responseDataColKeys[key] == "tickerSymbol") {
                     vm.columnObj = {
