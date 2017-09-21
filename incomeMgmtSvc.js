@@ -38,9 +38,9 @@
 
         function isValidCurrencyFormat(currencyToCheck) {
             if (currencyToCheck > 0) {
-                return currencyToCheck.match(vm.currencyPattern) == null || currencyToCheck.length > 9
-                                                                  ? false
-                                                                  : true;
+                return vm.currencyPattern.test(currencyToCheck) == true && currencyToCheck.length < 9
+                                                                  ? true
+                                                                  : false;
             }
 
             return false;
