@@ -257,13 +257,25 @@
         function initializeProfileProjectionColDefs(columnKeys) {
             vm.colDefinitions = [];
             for (var key = 0; key < columnKeys.length; key++) {
-                if (columnKeys[key] == "ticker" || columnKeys[key] == "capital") {
+                if (columnKeys[key] == "ticker" ) {
                     vm.columnObj = {
                         field: columnKeys[key],
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: true,
-                        width: '10%'
+                        headerTooltip: 'Enter asset ticker symbol.',
+                        width: '8%'
+                    };
+                }
+                if (columnKeys[key] == "capital") {
+                    vm.columnObj = {
+                        field: columnKeys[key],
+                        displayName: 'Capital ($)',
+                        cellClass: 'cell-align',
+                        headerCellClass: 'myGridHeaders',
+                        headerTooltip: 'Enter investment amount for projection.',
+                        enableCellEdit: true,
+                        width: '11%'
                     };
                 }
                 if (columnKeys[key] == "price") { 
@@ -272,6 +284,7 @@
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 3',
+                        headerTooltip: ' Displays current market share price. ',
                         width: '9%'
                     };
                 }
@@ -282,6 +295,7 @@
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
+                        headerTooltip: ' Displays current price/earnings ratio. ',
                         width: '8%'
                     };
                 }
@@ -292,6 +306,7 @@
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 3',
+                        headerTooltip: ' Displays annual or TTM yield. ',
                         width: '10%'
                     };
                 }
@@ -302,7 +317,7 @@
                         headerCellClass: 'myGridHeaders',
                         cellClass: 'cell-align',
                         cellFilter: 'date: "M/dd/yyyy"',
-                        headerTooltip: 'Date dividend is to be paid',
+                        headerTooltip: 'Displays date dividend is to be paid',
                         width: '12%'
                     };
                 }
@@ -313,20 +328,20 @@
                         displayName: 'Div.Rate-freq',
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
-                        headerTooltip: ' May be edited with ANNUALIZED rate & frequency (A,S,Q, or M), e.g. 2.782-Q, for greater accuracy. ',
+                        headerTooltip: ' Enter ANNUALIZED dividend rate & expected distribution frequency (A,S,Q, or M), e.g. "2.782-Q" ',
                         width: '14%'
                     };
                 }
                 if (columnKeys[key] == "projectedRevenue") {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        displayName: 'Projected Revenue [month]',
+                        displayName: 'Projected Revenue / month',
                         aggregationType: uiGridConstants.aggregationTypes.sum,
                         footerCellTemplate: vm.totalFooterCellTemplate,
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
-                        headerTooltip: 'Projected monthly figures are approximations.',
+                        headerTooltip: 'Displays approximate projected monthly revenue.',
                         width: '20%'
                     };
                 }
