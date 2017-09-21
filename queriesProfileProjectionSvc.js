@@ -20,7 +20,7 @@
        
 
         function isValidTickerOrCapitalEdit(currentCol, valueToCheck) {
-           
+
             if (currentCol == "ticker") {
                 if (valueToCheck.length == 0)
                     return false;
@@ -29,9 +29,10 @@
             } else {
                 return incomeMgmtSvc.isValidCurrencyFormat(valueToCheck);
             }
-
         }
 
+
+        
 
         function getProfiles(tickersAndCapitalData, ctrl) {
             vm.recvdTickersAndCapital = tickersAndCapitalData;
@@ -81,6 +82,8 @@
                         var monthlyDivRate = (parseFloat(divRateInput) / 12);
 
                         vm.initializedProfiles[row].projectedRevenue = (vm.initializedProfiles[row].capital / vm.initializedProfiles[row].price) * monthlyDivRate;
+                        vm.initializedProfiles[row].projectedRevenue = vm.initializedProfiles[row].projectedRevenue.toFixed(2);
+
                         switch (frequencyInput) {
                             case "M":
                                 vm.initializedProfiles[row].divRate = monthlyDivRate.toString().substring(0,6) + "-M";
