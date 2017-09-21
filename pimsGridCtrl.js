@@ -28,6 +28,7 @@
         var vm = this;
         // Contexts based on current routing 'state' & their URLs.
         var currentContext = getCurrentContextFromUrl($location.$$url);
+        var isValidCapitalEntry = false;
 
         vm.gridTitle = "";
         vm.showRefreshBtn = false;
@@ -53,12 +54,13 @@
             data: [{ ".": "." }],
             onRegisterApi: function (gridApi) {
                 vm.gridApi = gridApi;
+                
                 gridApi.edit.on.afterCellEdit(null, function (rowEntity, colDef, newValue, oldValue) {
                     if (colDef.name == 'ticker') {
-                        vm.disableProfilesBtn = !queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
+                        vm.disableProfilesBtn = queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
                     }
                     if (colDef.name == 'capital') {
-                        vm.disableProjectionsBtn = !queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
+                        isValidCapitalEntry = queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
                     }
                     if (colDef.name == 'divRate') {
                         var exprMatch = new RegExp("[.0-9-ASQM]", "g");
@@ -67,6 +69,10 @@
                             alert("Invalid dividend rate entry; \ncheck format example via column heading tooltip.");
                             rowEntity.divRate = oldValue != "0" ? "0" : oldValue;
                         }
+                        // Enable 'Projection(s)' button only if capital & dividend rate entries are ok.
+                        if (isValidCapitalEntry)
+                            vm.disableProjectionsBtn = false;
+                        
                     }
                 });
                 // Revenue Edit.
