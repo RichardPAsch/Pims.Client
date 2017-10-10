@@ -143,11 +143,17 @@
             case "RE":
             case "P":
                 vm.criteriaEntries = queriesIncomeSvc.buildCriteriaEntries();
-                vm.templatePath = $location.$$protocol +
-                                    "://" + $location.$$host +
-                                    ":" + $location.$$port +
-                                    "/app/Queries/Criteria.Dialog/criteriaView.html";
-                open();
+                if ($location.$$port === 5969) {
+                    // VS IDE runtime.
+                    vm.templatePath = $location.$$protocol +
+                                        "://" + $location.$$host +
+                                        ":" + $location.$$port +
+                                        "/app/Queries/Criteria.Dialog/criteriaView.html";
+                } else {
+                    // Browser runtime via virtual directory.
+                    vm.templatePath = 'http://localhost/Pims.Client/App/Queries/Criteria.Dialog/criteriaView.html';
+                }
+                open(); 
                 break;
             case "PP":
                 vm.showProfilesBtn = true;
@@ -231,7 +237,7 @@
                 },
                 function (ex) {
                     if (ex != "cancel")
-                        alert("Error obtaining query criteria.");
+                        alert("Missing, or error processing query criteria.");
 
                 });
         };
