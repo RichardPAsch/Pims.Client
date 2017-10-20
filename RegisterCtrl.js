@@ -32,6 +32,7 @@
             // NO automatic login; require investor to login-- if desired.
             // Use customized service.
             investorRegisterloginSvc.registration.registerInvestor(vm.registrationData,
+
                 // Success callback.
                 function (responseData) {
                     vm.message = "Registration successful...";
@@ -45,7 +46,7 @@
                     vm.isRegistered = false;
                     vm.message = response.statusText + "\r\n";
                     if (response.data.exceptionMessage)
-                        vm.message += "Exception error - " + response.data.exceptionMessage;
+                        vm.message += "Registration error, due to - " + response.data.exceptionMessage;
 
                     if(response.data.modelState)
                         vm.message += "Invalid model state - " +  response.data.modelState[key] + "\r\n";
