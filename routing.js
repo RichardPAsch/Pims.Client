@@ -44,6 +44,13 @@
                     templateUrl: "../Layout/welcomeView.html"
                 })
 
+                .state("importData", {
+                    url: "/",
+                    templateUrl: "../DataImport/importDataView.html",
+                    controller: "dataImportCtrl",
+                    controllerAs : "vm"
+                })
+
 
                 // Parent state for 'Asset Creation'; contains panel & tabs.
                 // Nested child states (4) will share controller from the parent.
