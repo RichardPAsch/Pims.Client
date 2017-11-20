@@ -14,8 +14,6 @@
         var vm = this;
         vm.assetTickerSymbol = "";
 
-
-
         vm.getProfile = function () {
 
             var submittedTicker = vm.assetTickerSymbol;
@@ -24,7 +22,7 @@
 
             referencedProfile.get({ tickerSymbol: submittedTicker}, function(response) {
                 // success
-                vm.assetDivRate = response.dividendRate == "N/A"
+                vm.assetDivRate = response.dividendRate === "N/A"
                     ? 0
                     : response.dividendRate;
                 vm.assetDivYield = response.dividendYield;
@@ -32,10 +30,10 @@
                 vm.assetPeRatio = response.pE_Ratio == null ? 0 : response.pE_Ratio;
                 vm.assetEPS = response.earningsPerShare;
                 vm.assetUnitPrice = response.price;
-                vm.assetDivPayDate = response.dividendPayDate.indexOf("1900") == 0
+                vm.assetDivPayDate = response.dividendPayDate.indexOf("1900") === 0
                     ? "Not available"
                     : $filter('date')(response.dividendPayDate, 'M/dd/yyyy');
-                vm.assetExDivDate = response.exDividendDate.indexOf("1900") == 0
+                vm.assetExDivDate = response.exDividendDate.indexOf("1900") === 0
                     ? "Not available"
                     : $filter('date')(response.exDividendDate, 'M/dd/yyyy');
                 vm.assetDescription = response.tickerDescription;
