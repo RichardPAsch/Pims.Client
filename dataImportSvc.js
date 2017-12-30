@@ -7,19 +7,29 @@
         .module("incomeMgmt.core")
         .factory("dataImportSvc", dataImportSvc);
 
-    dataImportSvc.$inject = [];
+    dataImportSvc.$inject = ["$resource", 'appSettings'];
 
 
-    function dataImportSvc() {
+    function dataImportSvc($resource, appSettings) {
 
         var vm = this;
-       
-
+        vm.importFileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/ImportFile";
 
         
-        function parseImportFile(importFile) {
+        function processImportFileModel(importFileDataModel, ctrl) {
+            var test = 2;
+            // TODO: ok to this point. Double quotes on file path ok? 12.29.17
+            // TODO: sample file used: C:/Downloads/FidelityXLS/Portfolio_RevenueTEST_1_Fidelity.xlsx
 
-            console.log("Received file: " + importFile);
+
+            $resource(vm.importFileControllerUrl).save(importFileDataModel.ImportFilePath.trim()).$promise.then(function () {
+                    ctrl.postAsyncProcessImportFile("ok");
+                },
+                    function() {
+                        // to be implmented
+                    });
+
+
             //var incomeUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/" + incomeToSave.TickerSymbol + "/Income";
 
             //if (!incomeMgmtSvc.isValidIncomeDateVsPositionAndTodayDate(incomeToSave.DateReceived, incomeToSave.PositionAddDate)) {
@@ -47,7 +57,7 @@
 
         // API
         return {
-            parseImportFile: parseImportFile
+            processImportFileModel: processImportFileModel
            
         }
 
