@@ -214,13 +214,13 @@
 
 
         function checkIsValidAccountChange(oldAccount, newAccount) {
-            // TODO: 'ML-CMA' should be 'CMA' to allow for generic non-ML use.
             // Includes check for no change in Position account type.
+            // 12.1.17 - changed ml-cma to cma
             if ( (oldAccount.toUpperCase().trim() == "IRA" && newAccount.toUpperCase().trim() == "ROTH-IRA") ||
                  (oldAccount.toUpperCase().trim() == newAccount.toUpperCase().trim()) ||
                  (oldAccount.toUpperCase().trim() == "401(k)" && newAccount.toUpperCase().trim() == "IRA") || 
-                 (oldAccount.toUpperCase().trim() == "ML-CMA" && newAccount.toUpperCase().trim() == "ROTH-IRA") ||
-                 (oldAccount.toUpperCase().trim() == "ML-CMA" && newAccount.toUpperCase().trim() == "IRA") ||
+                 (oldAccount.toUpperCase().trim() == "CMA" && newAccount.toUpperCase().trim() == "ROTH-IRA") ||
+                 (oldAccount.toUpperCase().trim() == "CMA" && newAccount.toUpperCase().trim() == "IRA") ||
                  (oldAccount.toUpperCase().trim() == "SEP" && newAccount.toUpperCase().trim() == "ROTH-IRA") ||
                  (oldAccount.toUpperCase().trim() == "SEP" && newAccount.toUpperCase().trim() == "IRA") ||
                  (oldAccount.toUpperCase().trim() == "SIMPLE IRA" && newAccount.toUpperCase().trim() == "ROTH-IRA") ||
