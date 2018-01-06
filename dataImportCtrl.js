@@ -11,31 +11,29 @@
     function dataImportCtrl(dataImportSvc) {
 
         var vm = this;
+        // [Ex valid path: C:\Downloads\FidelityXLS\Portfolio_RevenueTEST_1_Fidelity.xlsx]
         var filePathRegExpr = "^(([a-zA-Z]\\:)|(\\\\))(\\\\{1}|((\\\\{1})[^\\\\]([^/:*?<>\"|]*))+)$";
-        vm.importFilePath = ""; // test file: C:\Downloads\FidelityXLS\2017SEPT_RevenueTemplate.csv
+        vm.importFilePath = ""; 
         vm.importDataType = "";
         vm.importFileModel = {
-            ImportFilePath: "",
-            IsRevenueData: true
+                ImportFilePath: "",
+                IsRevenueData: true
         }
         
 
         vm.processImportFile = function () {
             if (vm.importDataType === "") {
-                alert("Please select an import file type.");
+                alert("Data import terminated; please select an import file type.");
                 return;
             }
-               
-            // TODO: recheck regexpr for file path - 12/29/17
-            //if (vm.importFilePath.match(filePathRegExpr)) {
-                //alert("file path is: " + vm.importFilePath + " \nand is valid.");
-                vm.importFilePath = JSON.stringify(vm.importFilePath);
+
+            if (vm.importFilePath.match(filePathRegExpr)) {
                 vm.importFileModel.ImportFilePath = vm.importFilePath;
                 vm.importFileModel.IsRevenueData = vm.importDataType === "revenue" ? true : false;
                 var result = dataImportSvc.processImportFileModel(vm.importFileModel, this);
-            //} else {
-            //    alert("Invalid file path submitted for import file.");
-            //}
+            } else {
+                alert("Invalid file path submitted for import file location.");
+            }
         }
         
 
@@ -85,18 +83,8 @@
         }
 
 
-        vm.postAsyncProcessImportFile = function (isSaved) {
-
-            // TODO: Modify to display appropriate response messages from the server. 12.29.17
-            if (!vm.isDuplicateIncome) {
-                if (isSaved) {
-                    vm.incomeIsSaved = isSaved;
-                    alert("Successfully saved  $" + vm.incomeAmtReceived + "\nfor " + vm.selectedTicker + "\n on account " + vm.selectedAccountType);
-                } else {
-                    if (!vm.incomeIsSaved)
-                        alert("Error saving income.");
-                }
-            }
+        vm.postAsyncProcessImportFile = function (responseModel) {
+            alert(responseModel.responseMsg);
         }
 
 
