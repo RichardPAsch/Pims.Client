@@ -11,7 +11,7 @@
     function dataImportCtrl(dataImportSvc) {
 
         var vm = this;
-        // [Ex valid path: C:\Downloads\FidelityXLS\Portfolio_RevenueTEST_1_Fidelity.xlsx]
+        // [Ex: valid local path: C:\Downloads\FidelityXLS\Portfolio_RevenueTEST_1_Fidelity.xlsx]
         var filePathRegExpr = "^(([a-zA-Z]\\:)|(\\\\))(\\\\{1}|((\\\\{1})[^\\\\]([^/:*?<>\"|]*))+)$";
         vm.importFilePath = ""; 
         vm.importDataType = "";
@@ -32,7 +32,7 @@
                 vm.importFileModel.IsRevenueData = vm.importDataType === "revenue" ? true : false;
                 var result = dataImportSvc.processImportFileModel(vm.importFileModel, this);
             } else {
-                alert("Invalid file path submitted for import file location.");
+                alert("Invalid file path submitted for import file.");
             }
         }
         
