@@ -23,8 +23,8 @@
                     var respObj = responseMsg;
                     ctrl.postAsyncProcessImportFile(responseMsg);
                 },
-                function () {
-                    // error to be implemented.
+                function (err) {
+                    alert("Error processing XLS import file; please check for correct file type and/or column info.");
                 }
              );
         }
