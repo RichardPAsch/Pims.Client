@@ -14,37 +14,35 @@
         var vm = this;
         vm.assetTickerSymbol = "";
 
+
         vm.getProfile = function () {
 
-            var submittedTicker = vm.assetTickerSymbol;
-            // $resource(url, [paramDefaults], [actions], options);
-            var referencedProfile = $resource(appSettings.serverPath + "/Pims.Web.Api/api/Profile/:tickerSymbol");
+            vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
 
-            referencedProfile.get({ tickerSymbol: submittedTicker}, function(response) {
-                // success
-                vm.assetDivRate = response.dividendRate === "N/A"
-                    ? 0
-                    : response.dividendRate;
-                vm.assetDivYield = response.dividendYield;
-                vm.assetDivFreq = createAssetWizardSvc.isValidDividendFrequency(response.dividendFreq) ? response.dividendFreq.trim() : "TBD";
-                vm.assetPeRatio = response.pE_Ratio == null ? 0 : response.pE_Ratio;
-                vm.assetEPS = response.earningsPerShare;
-                vm.assetUnitPrice = response.price;
-                vm.assetDivPayDate = response.dividendPayDate.indexOf("1900") === 0
-                    ? "Not available"
-                    : $filter('date')(response.dividendPayDate, 'M/dd/yyyy');
-                vm.assetExDivDate = response.exDividendDate.indexOf("1900") === 0
-                    ? "Not available"
-                    : $filter('date')(response.exDividendDate, 'M/dd/yyyy');
-                vm.assetDescription = response.tickerDescription;
-                vm.refreshDateTime = $filter('date')(new Date(), 'MM/d/yyyy-hh:mm:ss a');
-                vm.showDateTime = true;
-            }, function(err) {
-                // error
-                alert("Error retreiving Profile for " + submittedTicker + " due to "  + err.message);
-            });
+            $resource(vm.profileControllerUrl).get().$promise.then(
+                function (profileResponse) {
+                    vm.assetDivRate = profileResponse.dividendRate;
+                    vm.assetDivYield = profileResponse.dividendYield;
+                    vm.assetDescription = profileResponse.tickerDescription;
+                    vm.assetDivFreq = profileResponse.dividendFreq === null ? "TBD" : createAssetWizardSvc.isValidDividendFrequency(profileResponse.dividendFreq)
+                    vm.assetPeRatio = profileResponse.pE_Ratio;
+                    vm.assetEPS = profileResponse.earningsPerShare;
+                    vm.assetUnitPrice = profileResponse.price;
+                    vm.assetDivPayDate = profileResponse.DividendPayDate === null ? "N/A" : $filter("date")(profileResponse.dividendPayDate, "M/dd/yyyy");
+                    vm.assetExDivDate = profileResponse.exDividendDate === null ? "N/A" : $filter("date")(profileResponse.exDividendDate, "M/dd/yyyy");
+                    
+                    vm.refreshDateTime = $filter('date')(new Date(), "MM/d/yyyy-hh:mm:ss a");
+                    vm.showDateTime = true;
+                },
+                function () {
+                    alert("Unable to fetch Profile data for : \n" + vm.assetTickerSymbol + ".\nCheck ticker symbol validity.");
+                }
+            );
+           
+        } // end fx
 
-        }
+
+        
         
     }
 
