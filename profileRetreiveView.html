@@ -27,6 +27,10 @@
     #uiView {
         margin-top: 110px;
     }
+    #btnNewProfile {
+        margin-left: 10px;
+        width: 150px;
+    }
 </style>
 
 
@@ -47,48 +51,49 @@
                     </div>
                     <label class="col-sm-2 control-label" for="divRate">Dividend rate ($):</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="divRate" data-ng-model="vm.assetDivRate" readonly="readonly"> 
+                        <input class="form-control" id="divRate" data-ng-model="vm.assetDivRate" data-ng-readOnly="vm.isReadOnlyInput"> 
                     </div>
                     <label class="col-sm-2 control-label" for="divYield">Dividend yield (%):</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="divYield" data-ng-model="vm.assetDivYield" readonly="readonly">
+                        <input class="form-control" id="divYield" data-ng-model="vm.assetDivYield" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="tickerSymbol">Ticker description:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="tickerDesc" data-ng-model="vm.assetDescription" readonly="readonly" placeholder="NYSE description">
+                        <input class="form-control" id="tickerDesc" data-ng-model="vm.assetDescription" data-ng-readOnly="vm.isReadOnlyInput" maxlength="50"
+                                                    placeholder="NYSE description - 50 characters max.">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="divFreq">Dividend frequency:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="divFreq" data-ng-model="vm.assetDivFreq" readonly="readonly">
+                        <input class="form-control" id="divFreq" data-ng-model="vm.assetDivFreq" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                     <label class="col-sm-2 control-label" for="peRatio">Price/Earnings:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="peRatio" data-ng-model="vm.assetPeRatio" readonly="readonly">
+                        <input class="form-control" id="peRatio" data-ng-model="vm.assetPeRatio" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                     <label class="col-sm-2 control-label" for="eps">Earnings/Share ($):</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="eps" data-ng-model="vm.assetEPS" readonly="readonly">
+                        <input class="form-control" id="eps" data-ng-model="vm.assetEPS" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="unitPrice">Unit Price ($):</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="unitPrice" data-ng-model="vm.assetUnitPrice" readonly="readonly">
+                        <input class="form-control" id="unitPrice" data-ng-model="vm.assetUnitPrice" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                     <label class="col-sm-2 control-label" for="divPayDate">Dividend pay date:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="divPayDate" readonly="readonly" data-ng-model="vm.assetDivPayDate" >
+                        <input class="form-control" id="divPayDate" data-ng-readOnly="vm.isReadOnlyInput" data-ng-model="vm.assetDivPayDate" >
                     </div>
                     <label class="col-sm-2 control-label" for="ExDivDate">Ex-dividend date:</label>
                     <div class="col-sm-2">
-                        <input class="form-control" id="ExDivDate" data-ng-model="vm.assetExDivDate" readonly="readonly">
+                        <input class="form-control" id="ExDivDate" data-ng-model="vm.assetExDivDate" data-ng-readOnly="vm.isReadOnlyInput">
                     </div>
                 </div>
                 
@@ -97,6 +102,9 @@
                         <span>
                             <button class="btn btn-w-md btn-gap-v btn-info" type="button" style="width: 130px;" data-ng-click="vm.getProfile()">
                                 Get Profile data
+                            </button>
+                            <button id="btnNewProfile" data-ng-disabled="vm.createProfileBtnDisabled" class="btn btn-w-md btn-gap-v btn-info" type="button" data-ng-click="vm.createProfile()">
+                                Save new Profile
                             </button>
                         </span>
                         
