@@ -48,10 +48,15 @@
 
 
         function isValidDistributionFrequency(frequencyToCheck) {
-            return frequencyToCheck.match(vm.frequencyDistributionPattern) == null
-                ? false
-                : true;
 
+            if (frequencyToCheck.toUpperCase() === "TBA" ||
+                frequencyToCheck.toUpperCase() === "A" ||
+                frequencyToCheck.toUpperCase() === "S" ||
+                frequencyToCheck.toUpperCase() === "Q" ||
+                frequencyToCheck.toUpperCase() === "M")
+                return true;
+
+            return false;
         }
                 
 
@@ -253,6 +258,20 @@
         }
 
 
+        function validateDate(dateToCheck) {
+
+            var monthfield = dateToCheck.split("/")[0];
+            var dayfield = dateToCheck.split("/")[1];
+            var yearfield = dateToCheck.split("/")[2];
+            var dateObj = new Date(yearfield, monthfield - 1, dayfield);
+
+            if ((dateObj.getMonth() + 1 !== Number(monthfield)) || (dateObj.getDate() !== Number(dayfield)) || (dateObj.getFullYear() !== Number(yearfield)))
+                return false;
+
+            return true;
+        }
+
+
        
         
 
@@ -274,7 +293,8 @@
             createCostBasisAndUnitCostData: createCostBasisAndUnitCostData,
             calculateCostBasis: calculateCostBasis,
             getAllTransactions: getAllTransactions,
-            removeArrayDuplicates: removeArrayDuplicates
+            removeArrayDuplicates: removeArrayDuplicates,
+            validateDate: validateDate
            
 
         }
