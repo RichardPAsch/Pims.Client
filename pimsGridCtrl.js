@@ -130,7 +130,7 @@
                       queryResults = responseData;
                       buildGridColDefs();
                 }, function(err) {
-                    alert("Unable to fetch Activity Summary data due to: \n" + err.data.message);
+                    alert("Unable to fetch Activity Summary data for YTD " + today.getFullYear() +  " : \n" + err.data.message);
                     $state.go("home");
                 });
                 break;
