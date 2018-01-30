@@ -6,10 +6,10 @@
         .module("incomeMgmt.profileRetreive")
         .controller("profileRetreiveCtrl", profileRetreiveCtrl);
 
-    profileRetreiveCtrl.$inject = ['createAssetWizardSvc', '$state', '$filter', '$resource', 'appSettings', 'profileCreateSvc'];
+    profileRetreiveCtrl.$inject = ["createAssetWizardSvc", "$state", "$filter", "$resource", "appSettings", "profileCreateSvc", "$window"];
 
 
-    function profileRetreiveCtrl(createAssetWizardSvc, $state, $filter, $resource, appSettings, profileCreateSvc) {
+    function profileRetreiveCtrl(createAssetWizardSvc, $state, $filter, $resource, appSettings, profileCreateSvc, $window) {
 
         var vm = this;
         vm.assetTickerSymbol = "";
@@ -27,9 +27,13 @@
         vm.profileControllerUrl = "";
 
 
+        vm.setCtrlFocus = function(controlId) {
+            var ctrl = $window.document.getElementById(controlId);
+            ctrl.focus();
+        }
+
 
         vm.getProfile = function () {
-
             vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
 
             $resource(vm.profileControllerUrl).get().$promise.then(
@@ -43,12 +47,12 @@
                 function () {
                     if (!vm.fetchPersistedProfile()) {
                         vm.createProfileBtnDisabled = false;
-                       
                         vm.isReadOnlyInput = false;
+                        vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
                     }
                 }
             );
-        } // end fx
+        } // end getProfile()
 
 
         vm.createProfile = function() {
@@ -57,8 +61,6 @@
             var exceptions = profileCreateSvc.validateProfileVm(profileToSave);
             if (exceptions === "") {
                 vm.assetTickerSymbol = profileToSave.TickerSymbol;
-                alert("Profile validations Ok, ready to save " + vm.assetTickerSymbol.toUpperCase());
-                // TODO: now persist Profile
                 profileCreateSvc.saveProfile(profileToSave, vm);
             }
             else
@@ -102,7 +104,7 @@
                     alert("Custom Profile retreived - available for edit(s).");
                 },
                 function (err) {
-                    alert("No Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create customized Profile.");
+                    alert("No Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create custom Profile.");
                     return false;
                 }
             );
