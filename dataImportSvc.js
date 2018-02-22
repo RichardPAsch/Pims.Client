@@ -24,7 +24,7 @@
                     ctrl.postAsyncProcessImportFile(responseMsg);
                 },
                 function (err) {
-                    alert("Unable to process XLS import file; please check: \n1) submitted file type, and/or \n2) column data, e.g., duplicates, ticker.");
+                    alert("Unable to process XLS import file; please check: \n1) submitted file type, and/or \n2) duplicate data,e.g, position-account.");
                 }
              );
         }
