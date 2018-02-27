@@ -11,7 +11,7 @@
     }
     #panelSection {  /* adjust panel height*/
         margin-top: 70px;
-        height: 277px;
+        height: 313px;
     }
     #lblFilePath, #lblDataType {
         text-align: left;
@@ -31,7 +31,8 @@
         padding-left: 25px;
     }
     #btnImport {
-        margin-left: 15px;
+        margin-left: 13px;
+        width: 143px;
     }
     #btnCancel {
         width: 80px;
@@ -39,8 +40,12 @@
     }
     #divDataTypes {
         width: 225px;
-        margin-left: 4px;
+        margin-left: 2px;
         margin-top: 8px;
+    }
+    ul {
+        list-style-type: none;
+        padding-left: 1px;
     }
     
     
@@ -59,14 +64,18 @@
 
                 <div class="form-group">
                     <div id="notation" class="col-md-12 col-md-offset-0">
-                        <p>Enter the file location of an XLS spreadsheet containing revenue, or new portfolio asset data.</p>
+                        <ul>
+                            <li>Enter the file location of an XLSX spreadsheet containing either revenue, or portfolio asset data.</li>
+                            <li> * Importing of revenue requires the existence of a Position (Asset) with an affiliated Account for each income record to be recorded.</li>
+                            <li> * If necessary, any missing information must <em>first</em> be added via the 'Asset [new]' option.</li>
+                        </ul>
                     </div>
                 </div>
               
                 <div class="form-group">
                     <label id="lblDataType" class="col-sm-2 control-label">Import data type:</label>
                     <div id="divDataTypes" class="col-md-5"> 
-                        <input type="radio" data-ng-model="vm.importDataType" value="revenue" checked="checked" />&nbsp;Revenue&nbsp;&nbsp;
+                        <input type="radio" data-ng-model="vm.importDataType" value="revenue" />&nbsp;Revenue&nbsp;&nbsp;
                         <input type="radio" data-ng-model="vm.importDataType" value="asset" />&nbsp;Asset [ new ]&nbsp;&nbsp; 
                     </div>
                 </div>
