@@ -14,7 +14,7 @@
         // [Ex: valid local path: C:\Downloads\FidelityXLS\Portfolio_RevenueTEST_1_Fidelity.xlsx]
         var filePathRegExpr = "^(([a-zA-Z]\\:)|(\\\\))(\\\\{1}|((\\\\{1})[^\\\\]([^/:*?<>\"|]*))+)$";
         vm.importFilePath = ""; 
-        vm.importDataType = "";
+        vm.importDataType = "revenue";
         vm.importFileModel = {
                 ImportFilePath: "",
                 IsRevenueData: true
