@@ -15,7 +15,7 @@
         vm.assetTickerSymbol = "";
         vm.assetDivRate = 0;
         vm.assetDivYield = 0;
-        vm.assetDivFreq = "M"
+        vm.assetDivFreq = "";// "M"
         vm.assetPeRatio = 0;
         vm.assetEPS = 0;
         vm.assetUnitPrice = 0;
@@ -64,7 +64,7 @@
                 profileCreateSvc.saveProfile(profileToSave, vm);
             }
             else
-                alert("Unable to save Profile; invalid data found for : \n" + exceptions);
+                alert("Unable to save Profile; invalid data found for fields : \n" + exceptions);
         }
 
 
