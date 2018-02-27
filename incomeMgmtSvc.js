@@ -29,8 +29,8 @@
             vm.currentTicker = ticker;
             return ticker == undefined ||
                              ticker.match(vm.tickerRegExpr) == null ||
-                             ticker.length > 5 ||
-                             ticker == ""
+                             ticker.length > 8 ||
+                             ticker === ""
                 ? false
                 : true;
         }
