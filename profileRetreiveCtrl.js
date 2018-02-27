@@ -101,7 +101,7 @@
             $resource(vm.profileControllerUrl).get().$promise.then(
                 function (profileResponse) {
                     vm.initializeUI(profileResponse);
-                    alert("Custom Profile retreived - available for edit(s).");
+                    alert("Custom Profile retreived for edit(s).");
                 },
                 function (err) {
                     alert("No Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create custom Profile.");
