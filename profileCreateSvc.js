@@ -12,7 +12,7 @@
     function profileCreateSvc(incomeMgmtSvc, $filter, appSettings, $resource) {
 
         var vm = this;
-        var tickerRegEx = "^[a-zA-Z0-9-/_ ]+$"; // letters,numbers,hyphens,spaces, or underscores allowed for both symbol and desc.
+        var tickerRegEx = "^[a-zA-Z0-9-/_% ]+$"; // letters,numbers,hyphens,spaces, or underscores allowed for both symbol and desc.
         var validationExceptions = "";
 
 
@@ -37,10 +37,10 @@
             if(!incomeMgmtSvc.isValidDistributionFrequency(profileToValidate.DividendFreq) || profileToValidate.DividendFreq === "")
                 buildExceptionString("div freq");
 
-            if(isNaN(profileToValidate.Price) || profileToValidate.Price === "") 
+            if(isNaN(profileToValidate.Price) || profileToValidate.Price === "" || profileToValidate.Price === 0) 
                 buildExceptionString("price");
 
-            if(isNaN(profileToValidate.DividendRate) || profileToValidate.DividendRate === "") 
+            if(isNaN(profileToValidate.DividendRate) || profileToValidate.DividendRate === "" || profileToValidate.DividendRate === 0) 
                 buildExceptionString("div rate");
 
             if(isNaN(profileToValidate.DividendYield) || profileToValidate.DividendYield === "") 
