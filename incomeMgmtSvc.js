@@ -260,6 +260,9 @@
 
         function validateDate(dateToCheck) {
 
+            if (dateToCheck === "N/A" || dateToCheck === "" || dateToCheck === null)
+                return false;
+
             var monthfield = dateToCheck.split("/")[0];
             var dayfield = dateToCheck.split("/")[1];
             var yearfield = dateToCheck.split("/")[2];
