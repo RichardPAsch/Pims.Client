@@ -12,7 +12,7 @@
     function profileCreateSvc(incomeMgmtSvc, $filter, appSettings, $resource) {
 
         var vm = this;
-        var tickerRegEx = "^[a-zA-Z0-9-/_% ]+$"; // letters,numbers,hyphens,spaces, or underscores allowed for both symbol and desc.
+        var tickerRegEx = "^[a-zA-Z0-9-/_%. ]+$"; // letters,numbers,hyphens,spaces, or underscores allowed for both symbol and desc.
         var validationExceptions = "";
 
 
@@ -29,7 +29,7 @@
 
 
             if (profileToValidate.TickerDescription == undefined ||
-                profileToValidate.TickerDescription.match(tickerRegEx) == null ||
+                profileToValidate.TickerDescription.match(tickerRegEx) == null || 
                 profileToValidate.TickerDescription.length > 50 ||
                 profileToValidate.TickerDescription === "")
                 buildExceptionString("ticker description");
