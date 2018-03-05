@@ -24,7 +24,7 @@
                     ctrl.postAsyncProcessImportFile(responseMsg);
                 },
                 function (err) {
-                    alert("Unable to process XLS import file; please check: \n1) submitted file type, and/or \n2) duplicate data,e.g, position-account.");
+                    alert("Unable to process XLSX import file for ticker symbol(s) :\n" + err.data.message + "\nValidate that : \n1) submitted file type is correct, and/or \n2) there are no duplicate or missing POSITION-ACCOUNT(S).");
                 }
              );
         }
