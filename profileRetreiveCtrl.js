@@ -24,6 +24,8 @@
 
         vm.createProfileBtnDisabled = true;
         vm.isReadOnlyInput = true;
+        vm.isReadOnlyInputPrice = true;
+        vm.isReadOnlyInputDivRate = true;
         vm.profileControllerUrl = "";
 
 
@@ -34,21 +36,31 @@
 
 
         vm.getProfile = function () {
-            vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
 
+            vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
             $resource(vm.profileControllerUrl).get().$promise.then(
                 function (profileResponse) {
-                    vm.createProfileBtnDisabled = true;
-                    vm.isReadOnlyInput = true;
-                    vm.initializeUI(profileResponse);
-                    vm.refreshDateTime = $filter("date")(new Date(), "MM/d/yyyy-hh:mm:ss a");
-                    vm.showDateTime = true;
+                    if (profileResponse.tickerSymbol !== "" && profileResponse.tickerDescription !== "") {
+                        vm.isReadOnlyInput = false;
+                        vm.initializeUI(profileResponse);
+                        vm.refreshDateTime = $filter("date")(new Date(), "MM/d/yyyy-hh:mm:ss a");
+                        vm.showDateTime = true;
+                        if (profileResponse.dividendRate > 0 && profileResponse.price > 0)
+                            vm.createProfileBtnDisabled = true;
+                        else {
+                            if (profileResponse.price === 0) vm.isReadOnlyInputPrice = false;
+                            if (profileResponse.dividendRate === 0) vm.isReadOnlyInputDivRate = false;
+                            vm.createProfileBtnDisabled = false;
+                            vm.isReadOnlyInput = false;
+                        }
+                    } else 
+                        vm.fetchPersistedProfile();
                 },
                 function () {
                     if (!vm.fetchPersistedProfile()) {
                         vm.createProfileBtnDisabled = false;
                         vm.isReadOnlyInput = false;
-                        vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
+                        //vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
                     }
                 }
             );
@@ -76,8 +88,8 @@
             if(createAssetWizardSvc.isValidDividendFrequency(profileResponse.dividendFreq))
                 vm.assetDivFreq = profileResponse.dividendFreq;
             else 
-                vm.assetDivFreq = "TBA";
-            
+                vm.assetDivFreq = "";
+
             vm.assetPeRatio = profileResponse.pE_Ratio;
             vm.assetEPS = profileResponse.earningsPerShare;
             vm.assetUnitPrice = profileResponse.price;
@@ -99,16 +111,22 @@
         {
             vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/persisted/" + vm.assetTickerSymbol.trim().toUpperCase();
             $resource(vm.profileControllerUrl).get().$promise.then(
-                function (profileResponse) {
-                    vm.initializeUI(profileResponse);
+                function (savedProfileResponse) {
+                    vm.initializeUI(savedProfileResponse);
                     alert("Custom Profile retreived for edit(s).");
+                    vm.isReadOnlyInputPrice = false;
+                    vm.isReadOnlyInputDivRate = false;
+                    vm.createProfileBtnDisabled = false;
                 },
                 function (err) {
-                    alert("No Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create custom Profile.");
-                    return false;
+                    alert("No saved Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create custom Profile.");
+                    vm.isReadOnlyInputPrice = false;
+                    vm.isReadOnlyInputDivRate = false;
+                    vm.createProfileBtnDisabled = false;
+                    vm.isReadOnlyInput = false;
+                    return null;
                 }
             );
-
         }
 
 
