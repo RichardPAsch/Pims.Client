@@ -40,7 +40,7 @@
             vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
             $resource(vm.profileControllerUrl).get().$promise.then(
                 function (profileResponse) {
-                    if (profileResponse.tickerSymbol !== "" && profileResponse.tickerDescription !== "") {
+                    if (profileResponse.tickerSymbol !== "" && profileResponse.tickerDescription !== "" && profileResponse.tickerSymbol !== null ) {
                         vm.isReadOnlyInput = false;
                         vm.initializeUI(profileResponse);
                         vm.refreshDateTime = $filter("date")(new Date(), "MM/d/yyyy-hh:mm:ss a");
@@ -119,7 +119,8 @@
                     vm.createProfileBtnDisabled = false;
                 },
                 function (err) {
-                    alert("No saved Profile found for : \n" + vm.assetTickerSymbol.toUpperCase() + ".\nCheck ticker symbol validity, or create custom Profile.");
+                    alert("No Profile found, either saved or via web, for : \n" + vm.assetTickerSymbol.toUpperCase() 
+                        + ".\nPlease check ticker symbol validity, or create a custom Profile.");
                     vm.isReadOnlyInputPrice = false;
                     vm.isReadOnlyInputDivRate = false;
                     vm.createProfileBtnDisabled = false;
@@ -129,7 +130,7 @@
             );
         }
 
-
+        
 
         function buildProfileVm() {
             
