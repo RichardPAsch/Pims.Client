@@ -368,10 +368,10 @@
                 if (gridData.grid.rows[row].entity.ticker != "Enter ticker") {
                     var tickerAndCapital = {
                                                 tickerSymbol: gridData.grid.rows[row].entity.ticker,
-                                                dividendRateInput: gridData.grid.rows[row].entity.divRate != "0"
+                                                dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
                                                                         ? gridData.grid.rows[row].entity.divRate
                                                                         : "0",
-                                                capitalToInvest: includeProjections == true
+                                                capitalToInvest: includeProjections === true
                                                                  ? gridData.grid.rows[row].entity.capital
                                                                  : 0
                                             };
