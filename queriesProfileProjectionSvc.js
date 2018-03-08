@@ -14,8 +14,8 @@
 
         var vm = this;
         vm.queryBaseUrl = appSettings.serverPath + "/Pims.Web.Api/api/";
-        vm.recvdTickersAndCapital = [];
-        vm.initializedProfiles = [];
+        vm.recvdInput = [];
+        vm.recvdProfilesWithProjections = [];
 
        
 
@@ -30,91 +30,95 @@
                 return incomeMgmtSvc.isValidCurrencyFormat(valueToCheck);
             }
         }
-
-
+        
         
 
         function getProfiles(tickersAndCapitalData, ctrl) {
-            vm.recvdTickersAndCapital = tickersAndCapitalData;
+            vm.recvdInput = tickersAndCapitalData;
             var queryFinalUrl = vm.queryBaseUrl + "Profiles" + buildUrl();
             var profilesReference = $resource(queryFinalUrl);
 
             profilesReference.query(function (response) {
-                vm.initializedProfiles = response;
+                vm.recvdProfilesWithProjections = response;
                 initializeWithProjections();
-                ctrl.postAsyncInitializeProfileProjectionGrid(vm.initializedProfiles);
+                ctrl.postAsyncInitializeProfileProjectionGrid(vm.recvdProfilesWithProjections);
             },function(err) {
-                alert(err.data.message);
+                alert(err.statusText);
             });
         }
 
 
         function buildUrl() {
             var tickerParams = "";
-            for (var i = 0; i < vm.recvdTickersAndCapital.length; i++) {
-                tickerParams += "/" + vm.recvdTickersAndCapital[i].tickerSymbol;
+            for (var i = 0; i < vm.recvdInput.length; i++) {
+                tickerParams += "/" + vm.recvdInput[i].tickerSymbol;
             }
             return tickerParams;
         }
 
 
+        function calculateRevenueProjectionPerMonth(divRate, unitPrice, distributionFreq, capitalInvested)
+        {
+            if(divRate <= 0 || unitPrice <= 0 || distributionFreq === null || distributionFreq === "" || distributionFreq === undefined)
+                return 0;
+
+            var projectedMonthlyRevenue = 0;
+            switch (distributionFreq.toUpperCase()) {
+                case "M":
+                   projectedMonthlyRevenue = (capitalInvested / unitPrice) * divRate;
+                   break;
+                case "Q":
+                    projectedMonthlyRevenue = ((capitalInvested / unitPrice) * divRate) / 3;
+                    break;
+                case "S":
+                    projectedMonthlyRevenue = ((capitalInvested / unitPrice) * divRate) / 6;
+                    break;
+                case "A":
+                    projectedMonthlyRevenue = ((capitalInvested / unitPrice) * divRate) / 12;
+                    break;
+            }
+            return projectedMonthlyRevenue;
+        }
+
+
+        function parseInputForDistributionFreq(divRateAndFreq) {
+            // Ex: divRateAndFreq -> "0.09732-Q".
+            return divRateAndFreq.substring(divRateAndFreq.indexOf("-") + 1).toString();
+        }
+        
+       
         function initializeWithProjections() {
 
-            // Synchronize 'recvdTickersAndCapital' sorting with received Profiles, as returned via $resource WebApi LINQ call.
-            if (vm.recvdTickersAndCapital.length > 1)
-                vm.recvdTickersAndCapital = vm.recvdTickersAndCapital.sort(sortTickers);
+            // Synchronize 'recvdInput' sorting with received Profile(s).
+            if (vm.recvdInput.length > 1)
+                vm.recvdInput = vm.recvdInput.sort(sortTickers);
 
-           for (var row = 0; row < vm.initializedProfiles.length; row++) {
-                // Strip delimiting quotes on ticker.
-                vm.initializedProfiles[row].ticker = vm.initializedProfiles[row].ticker.substring(1, vm.initializedProfiles[row].ticker.length - 1);
-                // ReSharper disable once UsageOfPossiblyUnassignedValue
-                if (vm.initializedProfiles[row].ticker == vm.recvdTickersAndCapital[row].tickerSymbol && parseFloat(vm.recvdTickersAndCapital[row].capitalToInvest) >= 1) {
-                    vm.initializedProfiles[row].capital = vm.recvdTickersAndCapital[row].capitalToInvest;
+           for (var row = 0; row < vm.recvdProfilesWithProjections.length; row++) {
+               vm.recvdProfilesWithProjections[row].capital = parseFloat(vm.recvdInput[row].capitalToInvest);
+               vm.recvdProfilesWithProjections[row].divDate = "";
+               vm.recvdProfilesWithProjections[row].divRate = vm.recvdProfilesWithProjections[row].divRate > 0
+                   ? vm.recvdProfilesWithProjections[row].divRate
+                   : 0;
+               vm.recvdProfilesWithProjections[row].divYield = vm.recvdProfilesWithProjections[row].divYield !== null
+                   ? vm.recvdProfilesWithProjections[row].divYield
+                   : 0;
+               vm.recvdProfilesWithProjections[row].pE_Ratio = vm.recvdProfilesWithProjections[row].pE_Ratio !== null
+                   ? vm.recvdProfilesWithProjections[row].pE_Ratio
+                   : 0;
+               vm.recvdProfilesWithProjections[row].price = vm.recvdProfilesWithProjections[row].price > 0
+                   ? vm.recvdProfilesWithProjections[row].price
+                   : 0;
+               var distributionFreq = parseInputForDistributionFreq(vm.recvdInput[row].dividendRateInput);
+               vm.recvdProfilesWithProjections[row].projectedRevenue = calculateRevenueProjectionPerMonth(
+                                                                           vm.recvdProfilesWithProjections[row].divRate,
+                                                                           vm.recvdProfilesWithProjections[row].price,
+                                                                           distributionFreq,
+                                                                           vm.recvdProfilesWithProjections[row].capital);
+           }
 
-                    // For error correction or greater accuracy, dividend rates maybe overriden via user input that includes
-                    // an ANNUALIZED rate appended with frequency expectation, e.g., "0.9743-Q". The returned figure will 
-                    // represent a MONYHLY rate, matching calculated monthly projections.
-                    if (vm.recvdTickersAndCapital[row].dividendRateInput.indexOf("-") >= 0) {
-                        // Process user inputs. Designated frequency will determine which divisor to use.
-                        var divRateAsString = vm.recvdTickersAndCapital[row].dividendRateInput;
-                        var frequencyInput = divRateAsString.substr(divRateAsString.indexOf("-") + 1, 1);
-                        var divRateInput = divRateAsString.substring(0, divRateAsString.indexOf("-"));
-                        var monthlyDivRate = (parseFloat(divRateInput) / 12);
-
-                        vm.initializedProfiles[row].projectedRevenue = (vm.initializedProfiles[row].capital / vm.initializedProfiles[row].price) * monthlyDivRate;
-                        vm.initializedProfiles[row].projectedRevenue = vm.initializedProfiles[row].projectedRevenue.toFixed(2);
-
-                        switch (frequencyInput) {
-                            case "M":
-                                vm.initializedProfiles[row].divRate = monthlyDivRate.toString().substring(0,6) + "-M";
-                                break;
-                            case "Q":
-                                vm.initializedProfiles[row].divRate = monthlyDivRate.toString().substring(0, 6) + "-Q";
-                                break;
-                            case "S":
-                                vm.initializedProfiles[row].divRate = monthlyDivRate.toString().substring(0, 6) + "-S";
-                                break;
-                            case "A":
-                                vm.initializedProfiles[row].divRate = monthlyDivRate.toString().substring(0, 6) + "-A";
-                                break;
-                            default:
-                        }
-                    } else {
-                        // TODO: 1. Thresholds should be data-driven, 2. semi-annual & annual cases.
-                        if (parseFloat(vm.initializedProfiles[row].divRate) <= 0.5) {  
-                            vm.initializedProfiles[row].projectedRevenue = (vm.initializedProfiles[row].capital / vm.initializedProfiles[row].price) * parseFloat(vm.initializedProfiles[row].divRate);
-                            vm.initializedProfiles[row].divRate = vm.initializedProfiles[row].divRate.toString() +  "-M";  // monthly
-                        }
-                        if (parseFloat(vm.initializedProfiles[row].divRate) >= 0.6) {
-                            vm.initializedProfiles[row].projectedRevenue = (vm.initializedProfiles[row].capital / vm.initializedProfiles[row].price) * (parseFloat(vm.initializedProfiles[row].divRate) / 12);
-                            vm.initializedProfiles[row].divRate = vm.initializedProfiles[row].divRate.toString() + "-Q";   // quarterly
-                        }
-                    }
-               }
-            }
-
-            return vm.initializedProfiles;
+            return vm.recvdProfilesWithProjections;
         }
+
 
 
         function sortTickers(obj1, obj2) {
@@ -133,8 +137,9 @@
         // API
         return {
             getProfiles: getProfiles,
-            isValidTickerOrCapitalEdit: isValidTickerOrCapitalEdit
-
+            isValidTickerOrCapitalEdit: isValidTickerOrCapitalEdit,
+            calculateRevenueProjectionPerMonth:  calculateRevenueProjectionPerMonth,
+            parseInputForDistributionFreq: parseInputForDistributionFreq
         }
 
 
