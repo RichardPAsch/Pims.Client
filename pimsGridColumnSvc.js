@@ -257,7 +257,7 @@
         function initializeProfileProjectionColDefs(columnKeys) {
             vm.colDefinitions = [];
             for (var key = 0; key < columnKeys.length; key++) {
-                if (columnKeys[key] == "ticker" ) {
+                if (columnKeys[key] === "ticker" ) {
                     vm.columnObj = {
                         field: columnKeys[key],
                         cellClass: 'cell-align',
@@ -267,7 +267,7 @@
                         width: '8%'
                     };
                 }
-                if (columnKeys[key] == "capital") {
+                if (columnKeys[key] === "capital") {
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Capital ($)',
@@ -278,7 +278,7 @@
                         width: '11%'
                     };
                 }
-                if (columnKeys[key] == "price") { 
+                if (columnKeys[key] === "price") { 
                     vm.columnObj = {
                         field: columnKeys[key],
                         cellClass: 'cell-align',
@@ -288,18 +288,30 @@
                         width: '9%'
                     };
                 }
-                if (columnKeys[key] == "pE_Ratio") {
+                // Deferred for possible future use.
+                //if (columnKeys[key] == "pE_Ratio") {
+                //    vm.columnObj = {
+                //        field: columnKeys[key],
+                //        displayName: 'P/E',
+                //        cellClass: 'cell-align',
+                //        headerCellClass: 'myGridHeaders',
+                //        cellFilter: 'number: 2',
+                //        headerTooltip: ' Displays current price/earnings ratio. ',
+                //        width: '8%'
+                //    };
+                //}
+                if (columnKeys[key] === "divFreq") {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        displayName: 'P/E',
+                        displayName: ' Div.Freq ',
+                        enableCellEdit: true,
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
-                        cellFilter: 'number: 2',
-                        headerTooltip: ' Displays current price/earnings ratio. ',
-                        width: '8%'
+                        headerTooltip: "Enter dividend distribution frequency. ",
+                        width: "9%"
                     };
                 }
-                if (columnKeys[key] == "divYield" ) {
+                if (columnKeys[key] === "divYield" ) {
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Div.Yield',
@@ -310,7 +322,7 @@
                         width: '10%'
                     };
                 }
-                if (columnKeys[key] == "divDate") {
+                if (columnKeys[key] === "divDate") {
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Div.Date',
@@ -321,21 +333,21 @@
                         width: '12%'
                     };
                 }
-                if (columnKeys[key] == "divRate" ) {
+                if (columnKeys[key] === "divRate" ) {
                     vm.columnObj = {
                         field: columnKeys[key],
                         enableCellEdit: true,
-                        displayName: 'Div.Rate-freq',
+                        displayName: "Div.Rate",
                         cellClass: 'cell-align',
                         headerCellClass: 'myGridHeaders',
-                        headerTooltip: ' Enter ANNUALIZED dividend rate & expected distribution frequency (A,S,Q, or M), e.g. "2.782-Q" ',
-                        width: '14%'
+                        headerTooltip: "Enter available dividend rate",
+                        width: '11%'
                     };
                 }
-                if (columnKeys[key] == "projectedRevenue") {
+                if (columnKeys[key] === "projectedRevenue") {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        displayName: 'Projected Revenue / month',
+                        displayName: "Monthly income (projected)",
                         aggregationType: uiGridConstants.aggregationTypes.sum,
                         footerCellTemplate: vm.totalFooterCellTemplate,
                         cellClass: 'cell-align',
