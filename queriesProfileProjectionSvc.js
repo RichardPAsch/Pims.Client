@@ -80,16 +80,10 @@
             return projectedMonthlyRevenue;
         }
 
-
-        function parseInputForDistributionFreq(divRateAndFreq) {
-            // Ex: divRateAndFreq -> "0.09732-Q".
-            return divRateAndFreq.substring(divRateAndFreq.indexOf("-") + 1).toString();
-        }
-        
        
         function initializeWithProjections() {
 
-            // Synchronize 'recvdInput' sorting with received Profile(s).
+            // Synchronize 'recvdInput' sorting with received Profile(s) data.
             if (vm.recvdInput.length > 1)
                 vm.recvdInput = vm.recvdInput.sort(sortTickers);
 
@@ -102,17 +96,16 @@
                vm.recvdProfilesWithProjections[row].divYield = vm.recvdProfilesWithProjections[row].divYield !== null
                    ? vm.recvdProfilesWithProjections[row].divYield
                    : 0;
-               vm.recvdProfilesWithProjections[row].pE_Ratio = vm.recvdProfilesWithProjections[row].pE_Ratio !== null
-                   ? vm.recvdProfilesWithProjections[row].pE_Ratio
-                   : 0;
+               vm.recvdProfilesWithProjections[row].divFreq = vm.recvdInput[row].divFreq !== null
+                   ? vm.recvdInput[row].divFreq
+                   : "NA";
                vm.recvdProfilesWithProjections[row].price = vm.recvdProfilesWithProjections[row].price > 0
                    ? vm.recvdProfilesWithProjections[row].price
                    : 0;
-               var distributionFreq = parseInputForDistributionFreq(vm.recvdInput[row].dividendRateInput);
                vm.recvdProfilesWithProjections[row].projectedRevenue = calculateRevenueProjectionPerMonth(
                                                                            vm.recvdProfilesWithProjections[row].divRate,
                                                                            vm.recvdProfilesWithProjections[row].price,
-                                                                           distributionFreq,
+                                                                           vm.recvdProfilesWithProjections[row].divFreq,
                                                                            vm.recvdProfilesWithProjections[row].capital);
            }
 
@@ -138,8 +131,7 @@
         return {
             getProfiles: getProfiles,
             isValidTickerOrCapitalEdit: isValidTickerOrCapitalEdit,
-            calculateRevenueProjectionPerMonth:  calculateRevenueProjectionPerMonth,
-            parseInputForDistributionFreq: parseInputForDistributionFreq
+            calculateRevenueProjectionPerMonth:  calculateRevenueProjectionPerMonth
         }
 
 
