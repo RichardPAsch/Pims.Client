@@ -63,11 +63,11 @@
                         isValidCapitalEntry = queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
                     }
                     if (colDef.name == 'divRate') {
-                        var exprMatch = new RegExp("[.0-9-ASQM]", "g");
-                        var hyphenPos = parseInt(newValue.indexOf("-"));
-                        if (hyphenPos == -1 || hyphenPos + 1 != parseInt(newValue.match(exprMatch).length) - 1) {
-                            alert("Invalid dividend rate entry; \ncheck format example via column heading tooltip.");
+                        if (isNaN(newValue)) {
+                            alert("Invalid entry; dividend rate must be greater than 0");
                             rowEntity.divRate = oldValue != "0" ? "0" : oldValue;
+                            // TODO: Deferred - reset focus to 'divRate' cell. Not working. We'll validate upon 'Projection(s)' click event for now.
+                            //gridApi.cellNav.scrollToFocus(vm.gridOptions.data[0], vm.gridOptions.columnDefs[3]);
                         }
                         // Enable 'Projection(s)' button only if capital & dividend rate entries are ok.
                         if (isValidCapitalEntry)
@@ -303,13 +303,14 @@
                     break;
                 case "PP":
                     if (vm.isUnInitializedProfileProjection) {
-                        // Template only; pre-ticker symbol entry.
-                        queryResultKeys = ["ticker", "capital", "price", "divRate", "divYield", "divDate", "pE_Ratio", "projectedRevenue"];
+                        queryResultKeys = ["ticker", "capital", "price", "divRate",  "divFreq", "divYield", "divDate", "projectedRevenue"];
                         colDefs = pimsGridColumnSvc.initializeProfileProjectionColDefs(queryResultKeys);
                         vm.gridOptions.data = [
-                                { ticker: "Enter ticker", capital: "(optional)", divRate: "0" }, { ticker: "Enter ticker", capital: "(optional)", divRate: "0" },
-                                { ticker: "Enter ticker", capital: "(optional)", divRate: "0" }, { ticker: "Enter ticker", capital: "(optional)", divRate: "0" },
-                                { ticker: "Enter ticker", capital: "(optional)", divRate: "0" }];
+                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" }];
                     } 
                     break;
                 case "P":
@@ -364,22 +365,28 @@
 
         // 'Profiles', 'Projections' button event handler.
         vm.preAsyncInitializeProfileProjectionGrid = function (includeProjections, gridData) {
+
+            var divFreqExpr = new RegExp("[ASQM]", "g");
             for (var row = 0; row < 5; row++) {
-                if (gridData.grid.rows[row].entity.ticker != "Enter ticker") {
+                var isValidDivFreq = gridData.grid.rows[row].entity.divFreq.match(divFreqExpr);
+
+                if (gridData.grid.rows[row].entity.ticker !== "Enter ticker" && gridData.grid.rows[row].entity.capital > 0 && isValidDivFreq !== null) {
                     var tickerAndCapital = {
-                                                tickerSymbol: gridData.grid.rows[row].entity.ticker,
-                                                dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
-                                                                        ? gridData.grid.rows[row].entity.divRate
-                                                                        : "0",
-                                                capitalToInvest: includeProjections === true
-                                                                 ? gridData.grid.rows[row].entity.capital
-                                                                 : 0
-                                            };
+                        tickerSymbol: gridData.grid.rows[row].entity.ticker,
+                        dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
+                            ? gridData.grid.rows[row].entity.divRate
+                            : "0",
+                        capitalToInvest: includeProjections === true
+                            ? gridData.grid.rows[row].entity.capital
+                            : 0,
+                        divFreq: gridData.grid.rows[row].entity.divFreq
+                    };
 
                     vm.enteredGridTickersCapital.push(tickerAndCapital);
-                }
+                } 
+                   
             }
-            
+
            queriesProfileProjectionSvc.getProfiles(vm.enteredGridTickersCapital, vm);
         }
 
