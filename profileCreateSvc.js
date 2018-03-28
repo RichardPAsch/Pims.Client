@@ -33,7 +33,7 @@
                 profileToValidate.TickerDescription.length > 50 ||
                 profileToValidate.TickerDescription === "")
                 buildExceptionString("ticker description");
-            
+
             if(!incomeMgmtSvc.isValidDistributionFrequency(profileToValidate.DividendFreq) || profileToValidate.DividendFreq === "")
                 buildExceptionString("div freq");
 
@@ -76,23 +76,36 @@
             
         
         function saveProfile(profileToSave, ctrl) {
-
+            
             // http://localhost/Pims.Web.Api/api/Profile
             var profileUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile";
 
-            $resource(profileUrl).save(profileToSave).$promise.then(function () {
+            $resource(profileUrl).save(profileToSave).$promise.then(function() {
                 ctrl.postAsyncSave(true);
-            }, function () {
-                ctrl.postAsyncSave(false);
+            }, function (responseMsg) {
+                ctrl.postAsyncSave(false, responseMsg);
             });
         }
 
+
+        function updateProfile(profileToUpdate, ctrl) {
+            
+            // http://localhost/Pims.Web.Api/api/Asset/{ticker}/Profile
+            var profileUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/" + profileToUpdate.TickerSymbol.toUpperCase() + "/Profile";
+
+            $resource(profileUrl).save(profileToUpdate).$promise.then(function() {
+                ctrl.postAsyncSave(true);
+            }, function (responseMsg) {
+                ctrl.postAsyncSave(false, responseMsg);
+            });
+        }
 
 
         // API
         return {
             validateProfileVm: validateProfileVm,
-            saveProfile: saveProfile
+            saveProfile: saveProfile,
+            updateProfile: updateProfile
 
         }
 
