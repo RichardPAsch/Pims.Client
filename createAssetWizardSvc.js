@@ -80,7 +80,7 @@
                       "DateOfPurchase": "1/1/1900",
                       "LastUpdate": "1/1/1900",
                       "Url": "",
-                      "LoggedInInvestor": "", // rpasch2@rpclassics.net
+                      "LoggedInInvestor": "", // maryblow@yahoo.com
                       "ReferencedAccount": {
                           "AccountTypeDesc": "", // ex: IRA
                           "Url": ""
@@ -117,7 +117,9 @@
         function getBaseProfile() {
             
             return {
+                "ProfileId": "",
                 "TickerSymbol": "",
+                "CreatedBy": "",
                 "TickerDescription": "",
                 "DividendFreq": "",
                 "Price": 0.0,
@@ -281,6 +283,8 @@
 
 
         function isValidDividendFrequency(freqToCheck) {
+            if (freqToCheck === null)
+                return false;
 
             var acceptableFrequencies = ["A", "S", "Q", "M"];
             for (var idx = 0; idx < acceptableFrequencies.length; idx++) {
@@ -349,7 +353,6 @@
             return d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
         }
 
-       
 
         
        
