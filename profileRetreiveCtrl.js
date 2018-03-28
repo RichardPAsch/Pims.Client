@@ -27,6 +27,8 @@
         vm.isReadOnlyInputPrice = true;
         vm.isReadOnlyInputDivRate = true;
         vm.profileControllerUrl = "";
+        vm.createdBy = "";
+        vm.profileId = "";
 
 
         vm.setCtrlFocus = function(controlId) {
@@ -36,32 +38,32 @@
 
 
         vm.getProfile = function () {
-
             vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/" + vm.assetTickerSymbol.trim();
             $resource(vm.profileControllerUrl).get().$promise.then(
                 function (profileResponse) {
                     if (profileResponse.tickerSymbol !== "" && profileResponse.tickerDescription !== "" && profileResponse.tickerSymbol !== null ) {
                         vm.isReadOnlyInput = false;
+                        vm.createdBy = profileResponse.createdBy;
+                        vm.profileId = profileResponse.profileId;
                         vm.initializeUI(profileResponse);
                         vm.refreshDateTime = $filter("date")(new Date(), "MM/d/yyyy-hh:mm:ss a");
                         vm.showDateTime = true;
-                        if (profileResponse.dividendRate > 0 && profileResponse.price > 0)
-                            vm.createProfileBtnDisabled = true;
+                        if (profileResponse.createdBy != null) {
+                            alert("Custom Profile retreived; available for editing");
+                            vm.createProfileBtnDisabled = false;
+                        }
                         else {
                             if (profileResponse.price === 0) vm.isReadOnlyInputPrice = false;
                             if (profileResponse.dividendRate === 0) vm.isReadOnlyInputDivRate = false;
-                            vm.createProfileBtnDisabled = false;
-                            vm.isReadOnlyInput = false;
+                            vm.createProfileBtnDisabled = true;
+                            vm.isReadOnlyInput = true;
                         }
                     } else 
                         vm.fetchPersistedProfile();
                 },
-                function () {
-                    if (!vm.fetchPersistedProfile()) {
-                        vm.createProfileBtnDisabled = false;
-                        vm.isReadOnlyInput = false;
-                        //vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
-                    }
+                function (responseMsg) {
+                    alert(responseMsg.data.message);
+                    //    //vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
                 }
             );
         } // end getProfile()
@@ -73,7 +75,12 @@
             var exceptions = profileCreateSvc.validateProfileVm(profileToSave);
             if (exceptions === "") {
                 vm.assetTickerSymbol = profileToSave.TickerSymbol;
-                profileCreateSvc.saveProfile(profileToSave, vm);
+                if (vm.createdBy != null || vm.createdBy != "") {
+                    profileCreateSvc.updateProfile(profileToSave, vm);
+                } else {
+                    profileCreateSvc.saveProfile(profileToSave, vm);
+                }
+                
             }
             else
                 alert("Unable to save Profile; invalid data found for fields : \n" + exceptions);
@@ -98,12 +105,12 @@
         }
 
 
-        vm.postAsyncSave = function(isOkResponse) {
+        vm.postAsyncSave = function(isOkResponse, errorMsg) {
 
             if (isOkResponse)
-                alert("Profile successfully saved for: " + vm.assetTickerSymbol.toUpperCase());
+                alert("Profile successfully saved/updated for: " + vm.assetTickerSymbol.toUpperCase());
             else
-                alert("Error saving Profile for: " + vm.assetTickerSymbol.toUpperCase());
+                alert("Error saving Profile for: " + vm.assetTickerSymbol.toUpperCase() + ".\n" + errorMsg.data.message);
         }
 
 
@@ -137,16 +144,18 @@
             // Fetched Profile schema maps to WebApi 'ProfileVm'.
             var baseProfile = createAssetWizardSvc.getBaseProfile();
             var currentDate = new Date();
-            var test = $filter("date")(currentDate, "M/d/yyyy hh:mm a");
+            //var test = $filter("date")(currentDate, "M/d/yyyy hh:mm a");
 
             // + Minimum required data.
             baseProfile.TickerSymbol = vm.assetTickerSymbol;
             baseProfile.TickerDescription = vm.assetDescription;
+            baseProfile.CreatedBy = vm.createdBy;
             baseProfile.Price = vm.assetUnitPrice;
             baseProfile.LastUpdate = $filter("date")(currentDate, "M/d/yyyy hh:mm a");
             baseProfile.Url = createAssetWizardSvc.getBasePath + "Profile/" + vm.assetTickerSymbol.trim();
             // -
 
+            baseProfile.ProfileId = vm.profileId;
             baseProfile.DividendRate = vm.assetDivRate;
             baseProfile.DividendFreq = vm.assetDivFreq; 
             baseProfile.DividendYield = vm.assetDivYield;
