@@ -62,7 +62,9 @@
                         vm.fetchPersistedProfile();
                 },
                 function (responseMsg) {
-                    alert(responseMsg.data.message);
+                    //var msg = responseMsg.data.message; // deferred, if needed later.
+                    // Check locally, if unable to find ticker via web.
+                    vm.fetchPersistedProfile();
                     //    //vm.setCtrlFocus("btnNewProfile"); // TODO: 1.29.18 - not working
                 }
             );
@@ -70,17 +72,16 @@
 
 
         vm.createProfile = function() {
-
+            
             var profileToSave = buildProfileVm();
             var exceptions = profileCreateSvc.validateProfileVm(profileToSave);
             if (exceptions === "") {
                 vm.assetTickerSymbol = profileToSave.TickerSymbol;
-                if (vm.createdBy != null || vm.createdBy != "") {
+                if (profileToSave.CreatedBy !== null && profileToSave.CreatedBy !== "") {
                     profileCreateSvc.updateProfile(profileToSave, vm);
                 } else {
                     profileCreateSvc.saveProfile(profileToSave, vm);
                 }
-                
             }
             else
                 alert("Unable to save Profile; invalid data found for fields : \n" + exceptions);
@@ -108,14 +109,15 @@
         vm.postAsyncSave = function(isOkResponse, errorMsg) {
 
             if (isOkResponse)
-                alert("Profile successfully saved/updated for: " + vm.assetTickerSymbol.toUpperCase());
+                alert("Profile successfully created/updated for: " + vm.assetTickerSymbol.toUpperCase());
             else
-                alert("Error saving Profile for: " + vm.assetTickerSymbol.toUpperCase() + ".\n" + errorMsg.data.message);
+                alert("Error creating Profile for: " + vm.assetTickerSymbol.toUpperCase() + ".\n" + errorMsg.data.message);
         }
 
 
         vm.fetchPersistedProfile = function()
         {
+            var cachedTickerSymbol = vm.assetTickerSymbol.trim().toUpperCase();
             vm.profileControllerUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile/persisted/" + vm.assetTickerSymbol.trim().toUpperCase();
             $resource(vm.profileControllerUrl).get().$promise.then(
                 function (savedProfileResponse) {
@@ -125,9 +127,10 @@
                     vm.isReadOnlyInputDivRate = false;
                     vm.createProfileBtnDisabled = false;
                 },
-                function (err) {
+                function () {
                     alert("No Profile found, either saved or via web, for : \n" + vm.assetTickerSymbol.toUpperCase() 
                         + ".\nPlease check ticker symbol validity, or create a custom Profile.");
+                    vm.assetTickerSymbol = cachedTickerSymbol;
                     vm.isReadOnlyInputPrice = false;
                     vm.isReadOnlyInputDivRate = false;
                     vm.createProfileBtnDisabled = false;
