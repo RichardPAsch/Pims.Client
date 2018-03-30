@@ -76,9 +76,11 @@
             
         
         function saveProfile(profileToSave, ctrl) {
-            
-            // http://localhost/Pims.Web.Api/api/Profile
+
+            // http://localhost/Pims.Web.Api/api/Profile/<loggedInvestor?>
             var profileUrl = appSettings.serverPath + "/Pims.Web.Api/api/Profile";
+
+            profileToSave.ProfileId = incomeMgmtSvc.createGuid();
 
             $resource(profileUrl).save(profileToSave).$promise.then(function() {
                 ctrl.postAsyncSave(true);
