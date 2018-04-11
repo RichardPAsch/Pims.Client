@@ -32,7 +32,7 @@
                                     vm.columnObj = {
                                         field: responseDataColKeys[key],
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: 'cell-align',
+                                        cellClass: "grid-align",
                                         width: '20%'
                                     };
                                 }
@@ -40,7 +40,7 @@
                                     vm.columnObj = {
                                         field: responseDataColKeys[key],
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: 'cell-align',
+                                        cellClass: "grid-align",
                                         cellFilter: 'number: 2',  // limit to 2 decimal places
                                         aggregationType: uiGridConstants.aggregationTypes.sum,
                                         footerCellTemplate: vm.totalFooterCellTemplate,
@@ -52,7 +52,7 @@
                                         field: responseDataColKeys[key],
                                         cellFilter: 'number: 2',
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: 'cell-align',
+                                        cellClass: "grid-align",
                                         width: '20%'
                                     };
                 }
@@ -77,7 +77,7 @@
                                     vm.columnObj = {
                                         field: responseDataColKeys[key],
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: 'cell-align',
+                                        cellClass: "grid-align",
                                         cellFilter: 'date: "M/dd/yyyy"',
                                         width: '20%'
                                     };
@@ -90,7 +90,7 @@
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'number: 2',
                                 footerCellTemplate: vm.totalFooterCellTemplate,
                                 width: '20%'
@@ -100,7 +100,7 @@
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'date: "M/dd/yyyy"',
                                 width: '20%'
                             };
@@ -108,7 +108,7 @@
                         if (responseDataColKeys[key] == "ticker" || responseDataColKeys[key] == "accountType") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '20%'
                             };
@@ -121,7 +121,7 @@
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
                                 footerCellTemplate: vm.totalFooterCellTemplate,
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'number: 2',
                                 width: '20%'
                             };
@@ -129,7 +129,7 @@
                         if (responseDataColKeys[key] == "yearReceived" || responseDataColKeys[key] == "monthReceived") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '16%'
                             };
@@ -137,7 +137,7 @@
                         if (responseDataColKeys[key] == "assetCount") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 displayName: 'Contributing Asset Count',
                                 width: '25%'
@@ -151,7 +151,7 @@
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
                                 footerCellTemplate: vm.totalFooterCellTemplate,
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'number: 2',
                                 width: '20%'
                             };
@@ -159,7 +159,7 @@
                         if (responseDataColKeys[key] == "frequency" || responseDataColKeys[key] == "tickerSymbol") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '15%'
                             };
@@ -168,7 +168,7 @@
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'date: "M/dd/yyyy"',
                                 width: '20%'
                             };
@@ -178,7 +178,7 @@
                         if (responseDataColKeys[key] == "year" || responseDataColKeys[key] == "period") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '20%'
                             };
@@ -189,7 +189,7 @@
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
                                 footerCellTemplate: vm.totalFooterCellTemplate,
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'number: 2',
                                 width: '20%'
                             };
@@ -201,7 +201,7 @@
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'number: 2',
                                 footerCellTemplate: vm.totalFooterCellTemplate,
                                 width: '15%',
@@ -211,7 +211,7 @@
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 cellFilter: 'date: "M/dd/yyyy"',
                                 width: '14%'
                             };
@@ -219,7 +219,7 @@
                         if (responseDataColKeys[key] == "ticker" || responseDataColKeys[key] == "accountType") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '15%'
                             };
@@ -228,7 +228,7 @@
                             vm.columnObj = {
                                 visible: false,
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '15%'
                             };
@@ -237,7 +237,7 @@
                             vm.columnObj = {
                                 visible: false,
                                 field: responseDataColKeys[key],
-                                cellClass: 'cell-align',
+                                cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
                                 width: '15%'
                             };
@@ -260,7 +260,7 @@
                 if (columnKeys[key] === "ticker" ) {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: true,
                         headerTooltip: 'Enter asset ticker symbol.',
@@ -271,7 +271,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Capital ($)',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         headerTooltip: 'Enter investment amount for projection.',
                         enableCellEdit: true,
@@ -281,7 +281,7 @@
                 if (columnKeys[key] === "price") { 
                     vm.columnObj = {
                         field: columnKeys[key],
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 3',
                         headerTooltip: ' Displays current market share price. ',
@@ -293,7 +293,7 @@
                 //    vm.columnObj = {
                 //        field: columnKeys[key],
                 //        displayName: 'P/E',
-                //        cellClass: 'cell-align',
+                //        cellClass: "grid-align",
                 //        headerCellClass: 'myGridHeaders',
                 //        cellFilter: 'number: 2',
                 //        headerTooltip: ' Displays current price/earnings ratio. ',
@@ -305,7 +305,7 @@
                         field: columnKeys[key],
                         displayName: ' Div.Freq ',
                         enableCellEdit: true,
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         headerTooltip: "Enter dividend distribution frequency. ",
                         width: "9%"
@@ -315,7 +315,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Div.Yield',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 3',
                         headerTooltip: ' Displays annual or TTM yield. ',
@@ -327,7 +327,7 @@
                         field: columnKeys[key],
                         displayName: 'Div.Date',
                         headerCellClass: 'myGridHeaders',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         cellFilter: 'date: "M/dd/yyyy"',
                         headerTooltip: 'Displays date dividend is to be paid',
                         width: '12%'
@@ -338,7 +338,7 @@
                         field: columnKeys[key],
                         enableCellEdit: true,
                         displayName: "Div.Rate",
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         headerTooltip: "Enter available dividend rate",
                         width: '11%'
@@ -350,7 +350,7 @@
                         displayName: "Monthly income (projected)",
                         aggregationType: uiGridConstants.aggregationTypes.sum,
                         footerCellTemplate: vm.totalFooterCellTemplate,
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
                         headerTooltip: 'Displays approximate projected monthly revenue.',
@@ -376,7 +376,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Ticker',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: false,
                         width: '10%'
@@ -386,7 +386,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Account',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: false,
                         width: '12%'
@@ -395,7 +395,7 @@
                 if (columnKeys[key] == "qty") {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         displayName: 'Qty',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 0',
@@ -407,7 +407,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Unit Cost',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
                         enableCellEdit: false,
@@ -418,7 +418,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Buy Date',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'date: "M/dd/yyyy"',
                         headerTooltip: 'Date asset purchased',
@@ -431,7 +431,7 @@
                         field: columnKeys[key],
                         displayName: 'Pos.Add Date',
                         headerCellClass: 'myGridHeaders',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         cellFilter: 'date: "M/dd/yyyy"',
                         headerTooltip: 'Date position added',
                         enableCellEdit: false,
@@ -444,7 +444,7 @@
                         enableCellEdit: false,
                         cellFilter: 'date: "M/dd/yyyy"',
                         displayName: 'Last update',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         headerTooltip: ' Date position was last updated',
                         width: '16%'
@@ -454,7 +454,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         visible: false,
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         width: '14%'
                     };
@@ -479,7 +479,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Ticker',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: false,
                         width: '10%'
@@ -489,7 +489,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: 'Account',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         enableCellEdit: false,
                         width: '15%'
@@ -498,7 +498,7 @@
                 if (columnKeys[key] == "positionSummaryQty") {
                     vm.columnObj = {
                         field: columnKeys[key],
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         displayName: 'Units',
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 0',
@@ -510,7 +510,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: '($) Valuation',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
                         headerTooltip: 'Approximate Position value',
@@ -522,7 +522,7 @@
                     vm.columnObj = {
                         field: columnKeys[key],
                         displayName: '($) Gain / Loss',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
                         headerTooltip: 'Approximate profit/loss since inception',
@@ -548,18 +548,18 @@
                     vm.columnObj = {
                         field: responseDataColKeys[key],
                         headerCellClass: 'myGridHeaders',
-                        cellClass: 'cell-align',
+                        cellClass: "grid-align",
                         displayName: 'Ticker Symbol',
-                        width: '18%'
+                        width: '13%'
                     };
                 }
                 if (responseDataColKeys[key] == "tickerDescription") {
                     vm.columnObj = {
                         field: responseDataColKeys[key],
                         headerCellClass: 'myGridHeaders',
-                        cellClass: 'cell-align',
+                        cellClass: 'grid-align',
                         displayName: 'Description',
-                        width: '35%'
+                        width: '55%'
                     };
                 }
                 if (responseDataColKeys[key] == "assetClassification") {
@@ -567,8 +567,8 @@
                         field: responseDataColKeys[key],
                         displayName: 'Asset class',
                         headerCellClass: 'myGridHeaders',
-                        cellClass: 'cell-align',
-                        width: '25%'
+                        cellClass: "grid-align",
+                        width: '20%'
                     };
                 }
                 
