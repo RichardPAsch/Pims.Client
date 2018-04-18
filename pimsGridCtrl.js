@@ -113,7 +113,9 @@
         };
 
 
-
+        vm.availableAssetTypes = [];
+        vm.investorAssetsSummary = [];
+        
         var modalCriteriaInstance = {};
         var queryResults = [];
         var today = new Date();
@@ -262,9 +264,16 @@
         }
 
 
-        vm.postAsyncGetAssetSummaryData = function (initializedSummary) {
-            queryResults = initializedSummary;
+        vm.postAsyncGetAvailableAssetTypes = function (fetchedAssetTypes) {
+            vm.availableAssetTypes = fetchedAssetTypes;
             buildGridColDefs();
+        }
+
+
+        vm.postAsyncGetAssetSummaryData = function (initializedSummary) {
+            vm.investorAssetsSummary = initializedSummary;
+            queriesAssetSvc.getAvailableAssetTypes(vm);
+
             vm.showRefreshBtn = true;
             vm.showRefreshGridBtn = false;
         }
@@ -273,8 +282,8 @@
         function buildGridColDefs() {
             // Template ref for columnDefs: [  { field: 'revenueMonth', headerCellClass: 'myGridHeaders' }, ...]
             var queryResultKeys = [];
-            if (currentContext != "PP") {
-                queryResultKeys = Object.keys(queryResults[0]).toString().split(",");  // column headers
+            if (currentContext !== "PP" && currentContext !== "AA") {
+                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(",");  // column headers
             }
             
             var colDefs = [];
@@ -339,22 +348,34 @@
                     queryResultKeys[1] = "tickerDescription";
                     queryResultKeys[2] = "assetClassification";
 
-                    colDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys);
+                    colDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys, vm.availableAssetTypes);
                     break; 
             }
 
-
-
             vm.gridOptions.columnDefs = colDefs;
-            if (currentContext == "R1")
+            if (currentContext === "R1")
                 queryResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(queryResults[0].revenueAmount);
 
 
-
             if (!vm.isUnInitializedProfileProjection)
-                vm.gridOptions.data = queryResults;
-
+                vm.gridOptions.data = vm.investorAssetsSummary; 
         }
+
+
+        
+
+
+        //function mapAssetTypes(investorData) {
+            
+        //    angular.forEach(investorData, function(value, key) {
+        //        console.log(key + ": " + value.assetClassification.trim());
+
+        //    });
+
+        //    //for (var i = 0; i < dataFromSvc.length; i++) {
+        //    //    dataFromSvc[i].assetClassification = vm.availableAssetTypes[1].Type; // each display = 'Preferred stock'
+        //    //}
+        //}
         
 
         vm.toggleFiltering = function () {
@@ -397,14 +418,14 @@
             vm.disableProjectionsBtn = true;
 
         }
-
-
+        
 
 
         vm.refreshGrid = function () {
             // Also clears browser cache ?
             location.reload(true);
         }
+
 
         // TODO: Duplicate found in positionEditDeleteCtrl; consolidate into service?
         vm.clearPosition = function () {
