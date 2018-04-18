@@ -7,7 +7,7 @@
         .controller("assetClassCtrl", assetClassCtrl);
 
 
-    assetClassCtrl.$inject = ['assetClassifications'];
+    assetClassCtrl.$inject = ["assetClassifications"];
     
 
     function assetClassCtrl(assetClassifications) {
