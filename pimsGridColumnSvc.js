@@ -22,8 +22,7 @@
         vm.columnObj = [];
         vm.totalFooterCellTemplate = '<div class="ui-grid-cell-contents" style="text-align:right; color: chocolate"><em>Total:</em>&nbsp;&nbsp;' +
                                      '${{col.getAggregationValue() | number:2}}</div>';
-        
-
+       
 
         function initializeActivitySummaryColDefs(responseDataColKeys) {
             vm.colDefinitions = [];
@@ -541,10 +540,15 @@
         }
 
 
-        function initializeAssetSummaryColDefs(responseDataColKeys) {
+        function initializeAssetSummaryColDefs(responseDataColKeys, availableAssetTypes) {
+
+            // Parse data for just needed 'description' info only, e.g., Mutual fund.
+            if (availableAssetTypes.length > 0)
+                var assetTypes = buildParsedAssetTypes(availableAssetTypes);
+
             vm.colDefinitions = [];
             for (var key = 0; key < responseDataColKeys.length; key++) {
-                if (responseDataColKeys[key] == "tickerSymbol") {
+                if (responseDataColKeys[key] === "tickerSymbol") {
                     vm.columnObj = {
                         field: responseDataColKeys[key],
                         headerCellClass: 'myGridHeaders',
@@ -553,7 +557,7 @@
                         width: '13%'
                     };
                 }
-                if (responseDataColKeys[key] == "tickerDescription") {
+                if (responseDataColKeys[key] === "tickerDescription") {
                     vm.columnObj = {
                         field: responseDataColKeys[key],
                         headerCellClass: 'myGridHeaders',
@@ -562,13 +566,18 @@
                         width: '55%'
                     };
                 }
-                if (responseDataColKeys[key] == "assetClassification") {
+                if (responseDataColKeys[key] === "assetClassification") {
                     vm.columnObj = {
                         field: responseDataColKeys[key],
-                        displayName: 'Asset class',
+                        enableCellEdit: true,
+                        displayName: "Asset Type",
                         headerCellClass: 'myGridHeaders',
                         cellClass: "grid-align",
-                        width: '20%'
+                        width: '20%',
+                        editableCellTemplate: "ui-grid/dropdownEditor",
+                        editDropdownOptionsArray: assetTypes != null ? assetTypes : null,
+                        editDropdownIdLabel: "Type",
+                        editDropdownValueLabel: "Type"
                     };
                 }
                 
@@ -577,6 +586,18 @@
             }
 
             return vm.colDefinitions;
+        }
+
+
+        function buildParsedAssetTypes(sourceTypes) {
+            var types = [];
+
+            for (var i = 0; i < sourceTypes.length; i++) {
+                types[i] = { Type: sourceTypes[i].description };
+            }
+
+            types.splice(0, 1);  // Removes 'Select...' option.
+            return types;
         }
 
 
