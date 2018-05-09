@@ -39,7 +39,7 @@
                                     vm.columnObj = {
                                         field: responseDataColKeys[key],
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: "grid-align",
+                                        cellClass: "cell-align",
                                         cellFilter: 'number: 2',  // limit to 2 decimal places
                                         aggregationType: uiGridConstants.aggregationTypes.sum,
                                         footerCellTemplate: vm.totalFooterCellTemplate,
@@ -51,7 +51,7 @@
                                         field: responseDataColKeys[key],
                                         cellFilter: 'number: 2',
                                         headerCellClass: 'myGridHeaders',
-                                        cellClass: "grid-align",
+                                        cellClass: "cell-align",
                                         width: '20%'
                                     };
                 }
@@ -608,7 +608,8 @@
             initializeProfileProjectionColDefs: initializeProfileProjectionColDefs,
             initializePositionEditColDefs: initializePositionEditColDefs,
             initializePositionSummaryColDefs: initializePositionSummaryColDefs,
-            initializeAssetSummaryColDefs: initializeAssetSummaryColDefs
+            initializeAssetSummaryColDefs: initializeAssetSummaryColDefs,
+            buildParsedAssetTypes : buildParsedAssetTypes
         }
 
 
