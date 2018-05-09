@@ -29,6 +29,8 @@
         // Contexts based on current routing 'state' & their URLs.
         var currentContext = getCurrentContextFromUrl($location.$$url);
         var isValidCapitalEntry = false;
+        var editedAssetTypes = [];
+        var today = new Date();
 
         vm.gridTitle = "";
         vm.showRefreshBtn = false;
@@ -52,64 +54,85 @@
             exporterMenuPdf: false, // for possible future use.
             // 'data' MUST be initialized for filtering to work--at this time. Bug or async call & grid display, design timing issue? Revisit ?
             data: [{ ".": "." }],
-            onRegisterApi: function (gridApi) {
+            onRegisterApi: function(gridApi) {
                 vm.gridApi = gridApi;
-                
-                gridApi.edit.on.afterCellEdit(null, function (rowEntity, colDef, newValue, oldValue) {
-                    if (colDef.name == 'ticker') {
-                        vm.disableProfilesBtn = queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
-                    }
-                    if (colDef.name == 'capital') {
-                        isValidCapitalEntry = queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
-                    }
-                    if (colDef.name == 'divRate') {
-                        if (isNaN(newValue)) {
-                            alert("Invalid entry; dividend rate must be greater than 0");
-                            rowEntity.divRate = oldValue != "0" ? "0" : oldValue;
-                            // TODO: Deferred - reset focus to 'divRate' cell. Not working. We'll validate upon 'Projection(s)' click event for now.
-                            //gridApi.cellNav.scrollToFocus(vm.gridOptions.data[0], vm.gridOptions.columnDefs[3]);
+
+                gridApi.edit.on.afterCellEdit(null,
+                    function(rowEntity, colDef, newValue, oldValue) {
+                        if (colDef.name === 'ticker') {
+                            vm.disableProfilesBtn =
+                                queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
                         }
-                        // Enable 'Projection(s)' button only if capital & dividend rate entries are ok.
-                        if (isValidCapitalEntry)
-                            vm.disableProjectionsBtn = false;
-                        
-                    }
-                });
-                // Revenue Edit.
-                if (currentContext == "RE") {
-                    vm.gridOptions.multiSelect = false;
-                    gridApi.selection.on.rowSelectionChanged(null, function (row) {
-                        var revenueSelected = {
-                            TickerSymbol: row.entity.ticker,
-                            AcctType: row.entity.accountType,
-                            Revenue: row.entity.amountReceived,
-                            RevenueDate: row.entity.dateReceived,
-                            RevenuePositionId: row.entity.revenuePositionId,
-                            RevenueId: row.entity.revenueId
+                        if (colDef.name == 'capital') {
+                            isValidCapitalEntry =
+                                queriesProfileProjectionSvc.isValidTickerOrCapitalEdit(colDef.name, newValue);
                         }
-                        $state.go("income_edit", { revenueSelectionObj: revenueSelected });
+                        if (colDef.name === 'divRate') {
+                            if (isNaN(newValue)) {
+                                alert("Invalid entry; dividend rate must be greater than 0");
+                                rowEntity.divRate = oldValue != "0" ? "0" : oldValue;
+                                // TODO: Deferred - reset focus to 'divRate' cell. Not working. We'll validate upon 'Projection(s)' click event for now.
+                                //gridApi.cellNav.scrollToFocus(vm.gridOptions.data[0], vm.gridOptions.columnDefs[3]);
+                            }
+                            // Enable 'Projection(s)' button only if capital & dividend rate entries are ok.
+                            if (isValidCapitalEntry)
+                                vm.disableProjectionsBtn = false;
+
+                        }
                     });
+                // Revenue Edit.
+                if (currentContext === "RE") {
+                    vm.gridOptions.multiSelect = false;
+                    gridApi.selection.on.rowSelectionChanged(null,
+                        function(row) {
+                            var revenueSelected = {
+                                TickerSymbol: row.entity.ticker,
+                                AcctType: row.entity.accountType,
+                                Revenue: row.entity.amountReceived,
+                                RevenueDate: row.entity.dateReceived,
+                                RevenuePositionId: row.entity.revenuePositionId,
+                                RevenueId: row.entity.revenueId
+                            }
+                            $state.go("income_edit", { revenueSelectionObj: revenueSelected });
+                        });
                 }
                 // Position(s) Edit.
-                if (currentContext == "P") {
+                if (currentContext === "P") {
                     vm.gridOptions.multiSelect = false;
-                    gridApi.selection.on.rowSelectionChanged(null, function (row) {
-                        // Row data columns used for mapping defined via 
-                        // WebApi call from positionCreateSvc.getPositionsForTicker().
-                        var positionSelected = {
-                            TickerSymbol: row.entity.referencedTickerSymbol,
-                            AcctType: row.entity.preEditPositionAccount,
-                            Qty: row.entity.qty,
-                            UnitCost: row.entity.unitCost,
-                            PurchDate: row.entity.dateOfPurchase,
-                            PositionAddDate: row.entity.datePositionAdded,
-                            LastUpdate: row.entity.lastUpdate,
-                            PositionId: row.entity.positionId
-                        }
-                        $state.go("position_edit", { positionSelectionObj: positionSelected });
-                    });
+                    gridApi.selection.on.rowSelectionChanged(null,
+                        function(row) {
+                            // Row data columns used for mapping defined via 
+                            // WebApi call from positionCreateSvc.getPositionsForTicker().
+                            var positionSelected = {
+                                TickerSymbol: row.entity.referencedTickerSymbol,
+                                AcctType: row.entity.preEditPositionAccount,
+                                Qty: row.entity.qty,
+                                UnitCost: row.entity.unitCost,
+                                PurchDate: row.entity.dateOfPurchase,
+                                PositionAddDate: row.entity.datePositionAdded,
+                                LastUpdate: row.entity.lastUpdate,
+                                PositionId: row.entity.positionId
+                            }
+                            $state.go("position_edit", { positionSelectionObj: positionSelected });
+                        });
                 }
-            }
+                // Asset Summary - asset type edit(s), e.g., common stock -> preferred stock, - DEFERRED !
+                if (currentContext === "AA") {
+                    gridApi.edit.on.afterCellEdit(null, function(rowEntity, colDef, newValue, oldValue) {
+                        var editedItem = queriesAssetSvc.getAssetTypeEditsVm();
+                        editedItem.tickerSymbol = rowEntity.tickerSymbol.trim();
+                        editedItem.assetClassId = getKeyIdForAssetType(newValue.trim());
+                        editedItem.lastUpdate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+                        editedItem.profileId = rowEntity.profileId;
+                        editedItem.investorId = rowEntity.investorId;
+                        editedItem.assetId = rowEntity.assetId;
+
+                        editedAssetTypes.push(editedItem);
+                    });
+
+                };
+
+            } // function(gridApi)
         };
 
 
@@ -118,8 +141,7 @@
         
         var modalCriteriaInstance = {};
         var queryResults = [];
-        var today = new Date();
-
+       
         // Available generic grid heading message container when needed.
         vm.showMsg = false;
 
@@ -129,7 +151,8 @@
                 vm.gridTitle = "YTD Income Activity Summary for  " + today.getFullYear();
 
                 activitySummarySvc.query(function (responseData) {
-                      queryResults = responseData;
+                      //queryResults = responseData;
+                      vm.investorAssetsSummary = responseData;
                       buildGridColDefs();
                 }, function(err) {
                     alert("Unable to fetch Activity Summary data for YTD " + today.getFullYear() +  " : \n" + err.data.message);
@@ -176,7 +199,7 @@
                 break;
             // Asset summary results via 'Queries' menu.
             case "AA":
-                vm.gridTitle = " Portfolio asset summary ";
+                vm.gridTitle = " Portfolio asset summary -  Double click any 'Asset Type' to invoke drop down choices ";
                 queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
                 break;
         }
@@ -276,6 +299,7 @@
 
             vm.showRefreshBtn = true;
             vm.showRefreshGridBtn = false;
+
         }
         
 
@@ -360,22 +384,20 @@
             if (!vm.isUnInitializedProfileProjection)
                 vm.gridOptions.data = vm.investorAssetsSummary; 
         }
-
-
         
 
+        function getKeyIdForAssetType(assetTypeToSearch) {
 
-        //function mapAssetTypes(investorData) {
-            
-        //    angular.forEach(investorData, function(value, key) {
-        //        console.log(key + ": " + value.assetClassification.trim());
+            var matchedAssetTypeId = 0;
+            for (var i = 0; i < vm.availableAssetTypes.length; i++) {
+                if (vm.availableAssetTypes[i].description.trim() === assetTypeToSearch.trim()) {
+                    matchedAssetTypeId = vm.availableAssetTypes[i].keyId;
+                    break;
+                }
+            }
 
-        //    });
-
-        //    //for (var i = 0; i < dataFromSvc.length; i++) {
-        //    //    dataFromSvc[i].assetClassification = vm.availableAssetTypes[1].Type; // each display = 'Preferred stock'
-        //    //}
-        //}
+            return matchedAssetTypeId;
+        }
         
 
         vm.toggleFiltering = function () {
@@ -416,7 +438,6 @@
             vm.gridOptions.data = initializedProfiles;
             vm.disableProfilesBtn = true;
             vm.disableProjectionsBtn = true;
-
         }
         
 
@@ -433,6 +454,55 @@
             history.go(-backlen);
             window.location.href = "http://localhost:5969/App/Layout/Main.html#/grid/P";
 
+        }
+
+
+        vm.updateAssetTypes = function() {
+
+            // **********
+            // CANCELLED functionality - unable to avoid NH deleting ALL associated
+            // Position records when editing an Asset records' asset type. Functionality
+            // to be re-assesed upon adoption of ASPNET.CORE via VS2017.
+            // *********
+
+            //if (editedAssetTypes.length > 1) {
+            //    sortByAssetId();
+            //    editedAssetTypes = removeDuplicateAssetIds(editedAssetTypes);
+            //}
+            
+            //queriesAssetSvc.updateAssetTypes(editedAssetTypes, vm);
+        }
+
+
+        vm.postAsyncAssetTypeUpdates = function(response) {
+            alert("Completed asset type update(s)");
+        }
+
+        // TODO: To be tested, if functionality needed
+        function sortByAssetId() {
+            editedAssetTypes.sort(function (obj1, obj2) {
+                    var assetA = obj1.assetId; 
+                    var assetB = obj2.assetId; 
+                    if (assetA < assetB) {
+                        return -1;
+                    }
+                    if (assetA > assetB) {
+                        return 1;
+                    }
+
+                    return 0;
+                });
+                return editedAssetTypes;
+        }
+
+
+        // TODO: To be tested, if functionality needed
+        function removeDuplicateAssetIds(data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].assetId === data[i - 1].assetId)
+                    data.splice(i, 1);
+            }
+            return data;
         }
 
 
