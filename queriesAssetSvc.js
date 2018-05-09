@@ -13,6 +13,7 @@
         var vm = this;
         vm.assetSummaryData = [];
         vm.assetTypes = [];
+        vm.baseUrl = appSettings.serverPath + "/Pims.Web.Api/api/";
 
 
         function getAssetSummaryData(assetsWithPositionStatus, ctrl) {
@@ -46,11 +47,48 @@
         }
 
 
+        function updateAssetTypes(editedAssetTypes, ctrl) {
+
+            // One or more edited assets to be updated.
+            // Ex: http://localhost/Pims.Web.Api/api/AssetTypeUpdates/Asset
+            var assetsUpdateUrl = vm.baseUrl + "AssetTypeUpdates/Asset";
+            
+            var resourceObj = $resource(assetsUpdateUrl,
+                null,
+                {
+                    'update': { method: "PATCH" }
+                });
+
+
+            resourceObj.update(null, editedAssetTypes).$promise.then(function (response) {
+                ctrl.postAsyncAssetTypeUpdates(response);
+            }, function (ex) {
+                ctrl.postAsyncAssetTypeUpdates(ex.data.messageDetail);
+            });
+
+        }
+
+
+        function getAssetTypeEditsVm() {
+
+            return {
+                tickerSymbol        : "",
+                assetClassId        : "", // to be renamed as 'asset type'
+                lastUpdate          : "",
+                profileId           : "",
+                investorId          : "",
+                assetId             : ""
+            }
+        }
+
+
 
         // API
         return {
             getAssetSummaryData: getAssetSummaryData,
-            getAvailableAssetTypes: getAvailableAssetTypes
+            getAvailableAssetTypes: getAvailableAssetTypes,
+            updateAssetTypes: updateAssetTypes,
+            getAssetTypeEditsVm: getAssetTypeEditsVm
         }
         
 
