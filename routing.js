@@ -241,10 +241,13 @@
                 })
 
                 .state("query_positions", {
-                    url: "/grid/PO",
+                    url: "/grid/AA/:status",
                     templateUrl: "../Common.Templates/pimsGrid.html",
                     controller: "pimsGridCtrl",
-                    controllerAs: "vm"
+                    controllerAs: "vm",
+                    params: {
+                        status: null
+                    }
                 })
 
                 .state("query_assets_abridged", {
