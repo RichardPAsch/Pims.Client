@@ -71,31 +71,39 @@
 
                 switch (stateContext) {
                     case "R1":
-                        if (responseDataColKeys[key] == "beginningDate" || responseDataColKeys[key] == "revenueAmount" ||
-                            responseDataColKeys[key] == "endingDate") {
-                                    vm.columnObj = {
-                                        field: responseDataColKeys[key],
-                                        headerCellClass: 'myGridHeaders',
-                                        cellClass: "grid-align",
-                                        cellFilter: 'date: "M/dd/yyyy"',
-                                        width: '20%'
-                                    };
+                        if (responseDataColKeys[key] === "beginningDate" || responseDataColKeys[key] === "endingDate") {
+                            vm.columnObj = {
+                                field: responseDataColKeys[key],
+                                headerCellClass: "myGridHeaders",
+                                cellClass: "cell-align",
+                                cellFilter: 'date: "M/dd/yyyy"',
+                                width: "20%"
+                            };
+                        }
+                        if (responseDataColKeys[key] === "revenueAmount" ) {
+                            vm.columnObj = {
+                                field: responseDataColKeys[key],
+                                headerCellClass: "myGridHeaders",
+                                cellClass: "cell-align",
+                                cellFilter: "number: 2",
+                                width: "20%"
+                            };
                         }
                         break;
                     case "R2":
                     case "R3":  // combination leverages like-named keys/columns.
-                        if (responseDataColKeys[key] == "amountReceived" ) {
+                        if (responseDataColKeys[key] === "amountReceived" ) {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
-                                cellClass: "grid-align",
+                                cellClass: "cell-align",
                                 cellFilter: 'number: 2',
                                 footerCellTemplate: vm.totalFooterCellTemplate,
-                                width: '20%'
+                                width: '15%'
                             };
                         }
-                        if (responseDataColKeys[key] == "dateReceived") {
+                        if (responseDataColKeys[key] === "dateReceived") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
@@ -104,28 +112,28 @@
                                 width: '20%'
                             };
                         }
-                        if (responseDataColKeys[key] == "ticker" || responseDataColKeys[key] == "accountType") {
+                        if (responseDataColKeys[key] === "ticker" || responseDataColKeys[key] === "accountType") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 cellClass: "grid-align",
                                 headerCellClass: 'myGridHeaders',
-                                width: '20%'
+                                width: '15%'
                             };
                         }
                         break;
                     case "R4":
-                        if (responseDataColKeys[key] == "totalReceived") {
+                        if (responseDataColKeys[key] === "totalReceived") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
                                 aggregationType: uiGridConstants.aggregationTypes.sum,
                                 footerCellTemplate: vm.totalFooterCellTemplate,
-                                cellClass: "grid-align",
+                                cellClass: "cell-align",
                                 cellFilter: 'number: 2',
-                                width: '20%'
+                                width: '15%'
                             };
                         }
-                        if (responseDataColKeys[key] == "yearReceived" || responseDataColKeys[key] == "monthReceived") {
+                        if (responseDataColKeys[key] === "yearReceived" || responseDataColKeys[key] === "monthReceived") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 cellClass: "grid-align",
@@ -133,18 +141,18 @@
                                 width: '16%'
                             };
                         }
-                        if (responseDataColKeys[key] == "assetCount") {
+                        if (responseDataColKeys[key] === "assetCount") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
-                                cellClass: "grid-align",
+                                cellClass: "cell-align",
                                 headerCellClass: 'myGridHeaders',
-                                displayName: 'Contributing Asset Count',
+                                displayName: 'Contributing Position(s) Count',
                                 width: '25%'
                             };
                         }
                         break;
                     case "R5":
-                        if (responseDataColKeys[key] == "revenue") {
+                        if (responseDataColKeys[key] === "revenue") {
                             vm.columnObj = {
                                 field: responseDataColKeys[key],
                                 headerCellClass: 'myGridHeaders',
@@ -563,7 +571,7 @@
                         headerCellClass: 'myGridHeaders',
                         cellClass: 'grid-align',
                         displayName: 'Description',
-                        width: '55%'
+                        width: '40%'
                     };
                 }
                 if (responseDataColKeys[key] === "assetClassification") {
@@ -573,11 +581,20 @@
                         displayName: "Asset Type",
                         headerCellClass: 'myGridHeaders',
                         cellClass: "grid-align",
-                        width: '20%',
+                        width: '15%',
                         editableCellTemplate: "ui-grid/dropdownEditor",
                         editDropdownOptionsArray: assetTypes != null ? assetTypes : null,
                         editDropdownIdLabel: "Type",
                         editDropdownValueLabel: "Type"
+                    };
+                }
+                if (responseDataColKeys[key] === "distFreq") {
+                    vm.columnObj = {
+                        field: responseDataColKeys[key],
+                        headerCellClass: "myGridHeaders",
+                        cellClass: "grid-align",
+                        displayName: "Dist. Freq.",
+                        width: "14%"
                     };
                 }
                 
