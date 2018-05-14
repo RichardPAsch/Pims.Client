@@ -60,7 +60,7 @@
     <section id="panelSection" class="panel panel-default">
 
         <div class="panel-heading"><strong>
-            <span class="glyphicon glyphicon-th"></span>&nbsp;Search portfolio data via: </strong>
+            <span class="glyphicon glyphicon-th"></span>&nbsp;Search portfolio assets via: </strong>
         </div>
 
         <div class="panel-body" >
@@ -70,29 +70,23 @@
                     
                    <accordion close-others="vm.oneAtATime">
                         <p>&nbsp;</p>
-                       <accordion-group heading="Asset ticker(s)">
-                          <ul class="nav nav-tabs nav-stacked navbar-default">
-                                <li><a data-ui-sref="query_assets_abridged({status:'A'})">Show portfolio ticker symbol(s), description(s), and asset class(es).</a></li>
-                                <li><a data-ui-sref="query_assets_abridged({status:'I'})">Show Assets containing Position elimninations , e.g., full sales and/or conversions</a></li>
-                           </ul>
-                        </accordion-group>
-                        <accordion-group heading="Asset Profiles - Projections">
+                        <accordion-group heading="Profiles - Projections">
                              <ul class="nav nav-tabs nav-stacked navbar-default">
-                                <li><a data-ui-sref="query_profile_projection">Show comparative Profiles with/without Projections</a></li>
+                                <li><a data-ui-sref="query_profile_projection">Show comparative Profiles with/without revenue projections</a></li>
                              </ul>
                         </accordion-group>
-                        <accordion-group heading="Asset Position(s)">
+                        <accordion-group heading="Position(s)">
                               <ul class="nav nav-tabs nav-stacked navbar-default">
-                                <li><a data-ui-sref="query_positions">Show Position summaries for all Assets</a></li>
+                                <li><a data-ui-sref="query_positions({status:'A'})">Show summary data for all positions</a></li>
                              </ul>
                         </accordion-group>
-                        <accordion-group heading="Asset Revenue">
+                        <accordion-group heading="Revenue">
                               <ul class="nav nav-tabs nav-stacked navbar-default">
                                 <li><a data-ui-sref="query_revenue_1">Show Revenue total by date range</a></li>
-                                <li><a data-ui-sref="query_revenue_2">Show Revenue total by date range & Asset</a></li>
-                                <li><a data-ui-sref="query_revenue_3">Show Revenue history by date range</a></li>
+                                <li><a data-ui-sref="query_revenue_2">Show Revenue total by date range & position</a></li>
+                                <li><a data-ui-sref="query_revenue_3">Show revenue history by date range-for affected positions</a></li>
                                 <li><a data-ui-sref="query_revenue_4">Show Revenue totals for each month by date range</a></li>
-                                <li><a data-ui-sref="query_revenue_5">Show Revenue based on income distribution frequency & date range</a></li>
+                                <li><a data-ui-sref="query_revenue_5">Show Revenue based via distribution frequency & date range</a></li>
                                 <li><a data-ui-sref="query_revenue_6">Show Revenue totals based on comparative reporting period(s) & date range</a></li>
                              </ul>
                         </accordion-group>
