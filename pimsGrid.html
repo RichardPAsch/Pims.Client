@@ -52,6 +52,9 @@
     #refreshAssetsSummary {
         margin-left: -20px;
     }
+    #updateTypes {
+        margin-left: 4px;
+    }
    
     
 </style>
@@ -68,7 +71,7 @@
 
         <div class="panel-body"  data-ng-show="true">
             <form id="formMain" class="form-horizontal ng-valid" role="form">
-                 
+
                 <span id="gridMsg" data-ng-show="vm.showMsg">{{vm.gridMsg}}</span>
 
                 <div id="menuDiv" class="form-group col-md-5 col-md-offset-7">
@@ -77,8 +80,9 @@
                     <button id='toggleFiltering' data-ng-show="vm.showToggle" data-ng-click="vm.toggleFiltering()" class="btn btn-info">Toggle Filtering</button>&nbsp;
                     <button id='fetchProfiles' data-ng-disabled="vm.disableProfilesBtn" data-ng-show="vm.showProfilesBtn" data-ng-click="vm.preAsyncInitializeProfileProjectionGrid(false, vm.gridApi)" class="btn btn-info">Profile(s)</button>&nbsp;
                     <button id='fetchProjections' data-ng-disabled="vm.disableProjectionsBtn"  data-ng-show="vm.showProjectionsBtn" data-ng-click="vm.preAsyncInitializeProfileProjectionGrid(true, vm.gridApi)" class="btn btn-info">Projection(s)</button>&nbsp;
-                    <button id='refreshGrid' data-ng-show=vm.showRefreshGridBtn data-ng-click="vm.refreshGrid()" class="btn btn-info">New Search</button>&nbsp;
-                    <button id='refreshAssetsSummary' data-ng-show=vm.showRefreshBtn data-ng-click="vm.refreshGrid()" class="btn btn-info">Refresh</button>&nbsp;
+                    <button id='refreshGrid' data-ng-show="vm.showRefreshGridBtn" data-ng-click="vm.refreshGrid()" class="btn btn-info">Refresh</button>&nbsp;
+                    <button id='refreshAssetsSummary' data-ng-show="vm.showRefreshBtn" data-ng-click="vm.refreshGrid()" class="btn btn-info">Refresh</button>&nbsp;
+                    <!--<button id="updateTypes" data-ng-click="vm.updateAssetTypes()" class="btn btn-info">Update</button>&nbsp; *DEFERRED* -->
                     
                     
                     
