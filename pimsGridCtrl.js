@@ -11,7 +11,7 @@
                             'queriesProfileProjectionSvc', '$state', 'positionCreateSvc',
                             'queriesPositionsSvc','queriesAssetSvc', '$stateParams'];
     
-
+    
     /* Customization considerations/parameters for upcoming gridDirective, per documentation:
        TODO: Sorting:  Sorting can be disabled at the column level by setting 'enableSorting: false' in the column def. 
                        EX: columnDefs: [  { field: 'company', enableSorting: false } }
@@ -116,21 +116,21 @@
                             $state.go("position_edit", { positionSelectionObj: positionSelected });
                         });
                 }
-                // Asset Summary - asset type edit(s), e.g., common stock -> preferred stock, - DEFERRED !
-                if (currentContext === "AA") {
-                    gridApi.edit.on.afterCellEdit(null, function(rowEntity, colDef, newValue, oldValue) {
-                        var editedItem = queriesAssetSvc.getAssetTypeEditsVm();
-                        editedItem.tickerSymbol = rowEntity.tickerSymbol.trim();
-                        editedItem.assetClassId = getKeyIdForAssetType(newValue.trim());
-                        editedItem.lastUpdate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
-                        editedItem.profileId = rowEntity.profileId;
-                        editedItem.investorId = rowEntity.investorId;
-                        editedItem.assetId = rowEntity.assetId;
+                // Asset Summary - asset type edit(s), e.g., common stock -> preferred stock, - **DEFERRED** !
+                //if (currentContext === "AA") {
+                //    gridApi.edit.on.afterCellEdit(null, function(rowEntity, colDef, newValue, oldValue) {
+                //        var editedItem = queriesAssetSvc.getAssetTypeEditsVm();
+                //        editedItem.tickerSymbol = rowEntity.tickerSymbol.trim();
+                //        editedItem.assetClassId = getKeyIdForAssetType(newValue.trim());
+                //        editedItem.lastUpdate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+                //        editedItem.profileId = rowEntity.profileId;
+                //        editedItem.investorId = rowEntity.investorId;
+                //        editedItem.assetId = rowEntity.assetId;
 
-                        editedAssetTypes.push(editedItem);
-                    });
+                //        editedAssetTypes.push(editedItem);
+                //    });
 
-                };
+                //};
 
             } // function(gridApi)
         };
@@ -138,6 +138,7 @@
 
         vm.availableAssetTypes = [];
         vm.investorAssetsSummary = [];
+        vm.revenueResults = [];
         
         var modalCriteriaInstance = {};
         var queryResults = [];
@@ -189,19 +190,29 @@
                 buildGridColDefs();
                 break;
             case "PO":
-                vm.gridTitle = " Portfolio Position Summary for " + today.toDateString();
-                vm.showMsg = true;
-                vm.gridMsg = " *Note - Valuation & Gain/Loss figures are approximations only.";
-                queriesPositionsSvc.query(function(results) {
-                    queryResults = results;
-                    buildGridColDefs();
-                });
-                break;
-            // Asset summary results via 'Queries' menu.
             case "AA":
-                vm.gridTitle = " Portfolio asset summary -  Double click any 'Asset Type' to invoke drop down choices ";
+                vm.gridTitle = " Portfolio asset summary for - "  + today.toDateString();
+                vm.showMsg = true;
+                vm.gridMsg = ""; // any message can go here";
                 queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
                 break;
+            // Asset summary results via 'Queries' menu.
+           
+            // ** 5.10.2018 - Combined above to provide 2 access pts for this functionality. **
+            //case "PO":
+            //    vm.gridTitle = " Portfolio Position Summary for " + today.toDateString();
+            //    vm.showMsg = true;
+            //    vm.gridMsg = " *Note - Valuation & Gain/Loss figures are approximations only.";
+            //    queriesPositionsSvc.query(function(results) {
+            //        queryResults = results;
+            //        buildGridColDefs();
+            //    });
+            //    break;
+            //// Asset summary results via 'Queries' menu.
+            //case "AA":
+            //    vm.gridTitle = " Portfolio asset summary"; // -  Double click any 'Asset Type' to invoke drop down choices ";
+            //    queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
+            //    break;
         }
 
 
@@ -273,6 +284,8 @@
             queryResults = queriesIncomeSvc.getQueryResults(); // 11.22.16 - now includes revenuePositionId
             vm.gridTitle = queriesIncomeSvc.getQuerySelection();
             //vm.gridOptions.data = data; //Bug ? -  Disables filtering 
+            vm.revenueResults = queryResults;    // added 5.11.2018
+            vm.gridOptions.data = vm.revenueResults;  // added 5.11.2018
             buildGridColDefs();
         }
 
@@ -306,8 +319,13 @@
         function buildGridColDefs() {
             // Template ref for columnDefs: [  { field: 'revenueMonth', headerCellClass: 'myGridHeaders' }, ...]
             var queryResultKeys = [];
-            if (currentContext !== "PP" && currentContext !== "AA") {
-                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(",");  // column headers
+
+            if (currentContext.indexOf("R") === 0)
+                queryResultKeys = Object.keys(vm.revenueResults[0]).toString().split(",");
+            else {
+                if (currentContext !== "PP" && currentContext !== "AA") {
+                    queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(",");  // column headers
+                }
             }
             
             var colDefs = [];
@@ -324,7 +342,7 @@
                 case "R6":
                 case "RE":
                     // Reorder columns manually, despite attempt via WebApi: GetAssetRevenueHistoryByDatesWithAcctTypes().
-                    if (currentContext == "RE") {
+                    if (currentContext === "RE") {
                         queryResultKeys[0] = "ticker";
                         queryResultKeys[1] = "accountType";
                         queryResultKeys[2] = "dateReceived";
@@ -371,17 +389,19 @@
                     queryResultKeys[0] = "tickerSymbol";
                     queryResultKeys[1] = "tickerDescription";
                     queryResultKeys[2] = "assetClassification";
+                    queryResultKeys[3] = "distFreq";
 
                     colDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys, vm.availableAssetTypes);
                     break; 
             }
 
             vm.gridOptions.columnDefs = colDefs;
-            if (currentContext === "R1")
-                queryResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(queryResults[0].revenueAmount);
+            if (currentContext === "R1") {
+                //vm.revenueResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(vm.revenueResults[0].revenueAmount); // added 5.11.18
+                //queryResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(queryResults[0].revenueAmount);
+            }
 
-
-            if (!vm.isUnInitializedProfileProjection)
+            if (!vm.isUnInitializedProfileProjection && vm.investorAssetsSummary.length > 0 || currentContext === "AS" )
                 vm.gridOptions.data = vm.investorAssetsSummary; 
         }
         
