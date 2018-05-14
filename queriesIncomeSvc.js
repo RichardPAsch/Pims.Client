@@ -208,7 +208,7 @@
                                           'Group': 'R3'
                                       },
                                       {
-                                          'Description': 'Show revenue history by date range'
+                                          'Description': "Show revenue history by date range-for affected positions"
                                       }
                     ];
                     break;
@@ -222,7 +222,7 @@
                                           'Group': 'R4'
                                       },
                                       {
-                                          'Description': 'Show revenue totals for each month by date range'
+                                          'Description': "Show revenue totals for each month by date range"
                                       }
                     ];
                     break;
