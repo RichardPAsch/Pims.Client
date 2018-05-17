@@ -31,6 +31,7 @@
         var isValidCapitalEntry = false;
         var editedAssetTypes = [];
         var today = new Date();
+        var initializedColDefs = [];
 
         vm.gridTitle = "";
         vm.showRefreshBtn = false;
@@ -116,7 +117,7 @@
                             $state.go("position_edit", { positionSelectionObj: positionSelected });
                         });
                 }
-                // Asset Summary - asset type edit(s), e.g., common stock -> preferred stock, - **DEFERRED** !
+                // ----- Asset Summary - asset type edit(s), e.g., common stock -> preferred stock, - **DEFERRED** !
                 //if (currentContext === "AA") {
                 //    gridApi.edit.on.afterCellEdit(null, function(rowEntity, colDef, newValue, oldValue) {
                 //        var editedItem = queriesAssetSvc.getAssetTypeEditsVm();
@@ -139,24 +140,30 @@
         vm.availableAssetTypes = [];
         vm.investorAssetsSummary = [];
         vm.revenueResults = [];
+        vm.positionResults = [];
+        vm.activitySummaryResults = [];
         
         var modalCriteriaInstance = {};
         var queryResults = [];
+        var queryResultKeys = [];
        
         // Available generic grid heading message container when needed.
         vm.showMsg = false;
 
         switch (currentContext) {
-            case "AS":
+            case "AS": // Ok 5.16.18
                 vm.showToggle = false;
                 vm.gridTitle = "YTD Income Activity Summary for  " + today.getFullYear();
-
                 activitySummarySvc.query(function (responseData) {
-                      //queryResults = responseData;
-                      vm.investorAssetsSummary = responseData;
-                      buildGridColDefs();
+                    vm.activitySummaryResults = responseData;
+                    buildGridColKeys();
+                    initializedColDefs = pimsGridColumnSvc.initializeActivitySummaryColDefs(queryResultKeys);
+                    if (initializedColDefs.length > 0 && vm.activitySummaryResults.length > 0) {
+                        vm.gridOptions.columnDefs = initializedColDefs;
+                        vm.gridOptions.data = vm.activitySummaryResults;
+                    }
                 }, function(err) {
-                    alert("Unable to fetch Activity Summary data for YTD " + today.getFullYear() +  " : \n" + err.data.message);
+                    alert("Unable to fetch Activity Summary data for YTD " + today.getFullYear() +  " due to : \n" + err.data.message);
                     $state.go("home");
                 });
                 break;
@@ -167,19 +174,30 @@
             case "R5":
             case "R6":
             case "RE":
-            case "P":
-                vm.criteriaEntries = queriesIncomeSvc.buildCriteriaEntries();
+            //case "P":
                 if ($location.$$port === 5969) {
-                    // VS IDE runtime.
+                    // VS IDE runtime
                     vm.templatePath = $location.$$protocol +
-                                        "://" + $location.$$host +
-                                        ":" + $location.$$port +
-                                        "/app/Queries/Criteria.Dialog/criteriaView.html";
+                        "://" + $location.$$host +
+                        ":" + $location.$$port +
+                        "/app/Queries/Criteria.Dialog/criteriaView.html";
                 } else {
-                    // Browser runtime via virtual directory.
+                    // Browser runtime via virtual directory. 
+                    // TODO: should not rely on hardcoded localhost.
                     vm.templatePath = 'http://localhost/Pims.Client/App/Queries/Criteria.Dialog/criteriaView.html';
                 }
+                vm.criteriaEntries = queriesIncomeSvc.buildCriteriaEntries();
                 open(); 
+                // Reorder columns manually, despite attempt via WebApi: GetAssetRevenueHistoryByDatesWithAcctTypes().
+                if (currentContext === "RE") {
+                    queryResultKeys[0] = "ticker";
+                    queryResultKeys[1] = "accountType";
+                    queryResultKeys[2] = "dateReceived";
+                    queryResultKeys[3] = "amountReceived";
+                    queryResultKeys[4] = "revenuePositionId"; 
+                    queryResultKeys[5] = "revenueId";        
+                }
+                // Grid column defintions and initializations handled post asynchronously via vm.initializeGrid().
                 break;
             case "PP":
                 vm.showProfilesBtn = true;
@@ -187,7 +205,7 @@
                 vm.showToggle = false;
                 vm.gridTitle = "Asset Profiles - Projections  [ max: 5 ]";
                 vm.isUnInitializedProfileProjection = true;
-                buildGridColDefs();
+                buildGridColKeys();
                 break;
             case "PO":
             case "AA":
@@ -195,6 +213,9 @@
                 vm.showMsg = true;
                 vm.gridMsg = ""; // any message can go here";
                 queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
+                break;
+            case "P":
+                // TODO: to be implemented if necessary
                 break;
             // Asset summary results via 'Queries' menu.
            
@@ -205,7 +226,7 @@
             //    vm.gridMsg = " *Note - Valuation & Gain/Loss figures are approximations only.";
             //    queriesPositionsSvc.query(function(results) {
             //        queryResults = results;
-            //        buildGridColDefs();
+            //        buildGridColKeys();
             //    });
             //    break;
             //// Asset summary results via 'Queries' menu.
@@ -217,8 +238,7 @@
 
 
 
-
-        
+       
         function getCurrentContextFromUrl(currentPath) {
             var builtContext = "";
 
@@ -234,12 +254,12 @@
         }
         
 
-        // Modal dialog - query criteria entry(ies) entered.
+        // Modal dialog for entered query criteria.
         function open() {
             modalCriteriaInstance = $modal.open({
                 templateUrl: vm.templatePath,
-                controller: 'criteriaCtrl',
-                size: 'md',
+                controller: "criteriaCtrl",
+                size: "md",
                 // Members that will be resolved & PASSED to criteriaCtrl
                 // (via injection), as locals (of type object).
                 resolve: {
@@ -254,39 +274,38 @@
                 // Success
                 function (criteriaData) {
                     switch (criteriaData[1].Group) {
-                        case 'R1':
-                        case 'R2':
-                        case 'R3':
-                        case 'R4':
-                        case 'R5':
-                        case 'R6':
-                        case 'RE':
+                        case "R1":
+                        case "R2":
+                        case "R3":
+                        case "R4":
+                        case "R5":
+                        case "R6":
+                        case "RE":
                             criteriaData[0].Value_1 = queriesIncomeSvc.formatUrlDate(criteriaData[0].Value_1);
                             criteriaData[0].Value_2 = queriesIncomeSvc.formatUrlDate(criteriaData[0].Value_2);
                             vm.enteredCriteria = criteriaData;
                             queriesIncomeSvc.getRevenue($location.$$path, vm.enteredCriteria, vm);
                             break;
-                        case 'P':
+                        case "P":
                            positionCreateSvc.getPositionsForTicker(criteriaData[0].Value_3.toUpperCase().trim(), vm);
                            break;
                     }
                 },
                 function (ex) {
-                    if (ex != "cancel")
+                    if (ex !== "cancel")
                         alert("Missing, or error processing query criteria.");
-
                 });
         };
         
         
-        // Post-async getRevenue() queries processing.
+        // Post-async from : getRevenue() query processing.
         vm.initializeGrid = function () {
-            queryResults = queriesIncomeSvc.getQueryResults(); // 11.22.16 - now includes revenuePositionId
+            queryResults = queriesIncomeSvc.getQueryResults(); // includes revenuePositionId
             vm.gridTitle = queriesIncomeSvc.getQuerySelection();
-            //vm.gridOptions.data = data; //Bug ? -  Disables filtering 
-            vm.revenueResults = queryResults;    // added 5.11.2018
-            vm.gridOptions.data = vm.revenueResults;  // added 5.11.2018
-            buildGridColDefs();
+            buildGridColKeys(); 
+            initializedColDefs = pimsGridColumnSvc.initializeRevenueColDefs(queryResultKeys, currentContext);
+            vm.gridOptions.columnDefs = initializedColDefs;
+            vm.gridOptions.data = queryResults;  //Bug ? -  Disables filtering 
         }
 
 
@@ -296,13 +315,21 @@
             // Make all ticker Position(s) available for possible Position (account type) editing.
             positionCreateSvc.setInvestorMatchingAccounts(queryResults);
             vm.gridTitle = vm.criteriaEntries[3].Description2.trim();
-            buildGridColDefs();
+            vm.positionResults = responsePositions;
+            buildGridColKeys();
+        }
+
+
+        vm.postAsyncInitializeProfileProjectionGrid = function(initializedProfiles) {
+            vm.gridOptions.data = initializedProfiles;
+            vm.disableProfilesBtn = true;
+            vm.disableProjectionsBtn = true;
         }
 
 
         vm.postAsyncGetAvailableAssetTypes = function (fetchedAssetTypes) {
             vm.availableAssetTypes = fetchedAssetTypes;
-            buildGridColDefs();
+            buildGridColKeys();
         }
 
 
@@ -312,121 +339,135 @@
 
             vm.showRefreshBtn = true;
             vm.showRefreshGridBtn = false;
+        }
 
+
+        vm.postAsyncAssetTypeUpdates = function(response) {
+            alert("Completed asset type update(s)");
         }
         
 
-        function buildGridColDefs() {
+        function buildGridColKeys() {
             // Template ref for columnDefs: [  { field: 'revenueMonth', headerCellClass: 'myGridHeaders' }, ...]
-            var queryResultKeys = [];
+            //var queryResultKeys = [];
 
-            if (currentContext.indexOf("R") === 0)
-                queryResultKeys = Object.keys(vm.revenueResults[0]).toString().split(",");
-            else {
-                if (currentContext !== "PP" && currentContext !== "AA") {
-                    queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(",");  // column headers
+            if (currentContext.indexOf("R") === 0) {
+                if (vm.revenueResults.length > 0) {
+                    queryResultKeys = Object.keys(vm.revenueResults[0]).toString().split(",");
                 }
             }
+            else
+            {
+                // TODO: test 5.15.18
+                if (currentContext === "P") {
+                    queryResultKeys = Object.keys(vm.positionResults[0]).toString().split(","); // column headers
+                } else {
+                    if (currentContext === "AS") {
+                        queryResultKeys = Object.keys(vm.activitySummaryResults[0]).toString().split(","); 
+                    } else {
+                        if (currentContext !== "PP" && currentContext !== "AA") {
+                            if (vm.investorAssetsSummary.length > 0) {
+                                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(","); 
+                            }
+                        }
+                    }   
+                }
+            } 
+        } 
+           
             
-            var colDefs = [];
+       
             
-            switch(currentContext) {
-                case "AS":
-                    colDefs = pimsGridColumnSvc.initializeActivitySummaryColDefs(queryResultKeys);
-                    break;
-                case "R1":  
-                case "R2":
-                case "R3":
-                case "R4":
-                case "R5":
-                case "R6":
-                case "RE":
-                    // Reorder columns manually, despite attempt via WebApi: GetAssetRevenueHistoryByDatesWithAcctTypes().
-                    if (currentContext === "RE") {
-                        queryResultKeys[0] = "ticker";
-                        queryResultKeys[1] = "accountType";
-                        queryResultKeys[2] = "dateReceived";
-                        queryResultKeys[3] = "amountReceived";
-                        queryResultKeys[4] = "revenuePositionId"; 
-                        queryResultKeys[5] = "revenueId";        
-                    }
-                    colDefs = pimsGridColumnSvc.initializeRevenueColDefs(queryResultKeys, currentContext);
-                    break;
-                case "PP":
-                    if (vm.isUnInitializedProfileProjection) {
-                        queryResultKeys = ["ticker", "capital", "price", "divRate",  "divFreq", "divYield", "divDate", "projectedRevenue"];
-                        colDefs = pimsGridColumnSvc.initializeProfileProjectionColDefs(queryResultKeys);
-                        vm.gridOptions.data = [
-                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
-                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
-                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
-                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
-                            { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" }];
-                    } 
-                    break;
-                case "P":
-                    queryResultKeys[0] = "referencedTickerSymbol";
-                    queryResultKeys[1] = "preEditPositionAccount";
-                    queryResultKeys[2] = "qty";
-                    queryResultKeys[3] = "unitCost";
-                    queryResultKeys[4] = "dateOfPurchase"; 
-                    queryResultKeys[5] = "datePositionAdded";
-                    queryResultKeys[6] = "lastUpdate";
-                    queryResultKeys[7] = "positionId";
+        // TODO: 5.16.18 - consolidate with above switch statement on line 152 ?
+        //switch(currentContext) {
+        //    case "AS":
+        //        initializedColDefs = pimsGridColumnSvc.initializeActivitySummaryColDefs(queryResultKeys);
+        //        break;
+        //    case "R1":  
+        //    case "R2":
+        //    case "R3":
+        //    case "R4":
+        //    case "R5":
+        //    case "R6":
+        //    case "RE":
+        //        // Reorder columns manually, despite attempt via WebApi: GetAssetRevenueHistoryByDatesWithAcctTypes().
+        //        if (currentContext === "RE") {
+        //            queryResultKeys[0] = "ticker";
+        //            queryResultKeys[1] = "accountType";
+        //            queryResultKeys[2] = "dateReceived";
+        //            queryResultKeys[3] = "amountReceived";
+        //            queryResultKeys[4] = "revenuePositionId"; 
+        //            queryResultKeys[5] = "revenueId";        
+        //        }
+        //        initializedColDefs = pimsGridColumnSvc.initializeRevenueColDefs(queryResultKeys, currentContext);
+        //        break;
+        //    case "PP":
+        //        if (vm.isUnInitializedProfileProjection) {
+        //            queryResultKeys = ["ticker", "capital", "price", "divRate",  "divFreq", "divYield", "divDate", "projectedRevenue"];
+        //            initializedColDefs = pimsGridColumnSvc.initializeProfileProjectionColDefs(queryResultKeys);
+        //            vm.gridOptions.data = [
+        //                { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+        //                { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+        //                { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+        //                { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+        //                { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" }];
+        //        } 
+        //        break;
+        //    case "P":
+        //        queryResultKeys[0] = "referencedTickerSymbol";
+        //        queryResultKeys[1] = "preEditPositionAccount";
+        //        queryResultKeys[2] = "qty";
+        //        queryResultKeys[3] = "unitCost";
+        //        queryResultKeys[4] = "dateOfPurchase"; 
+        //        queryResultKeys[5] = "datePositionAdded";
+        //        queryResultKeys[6] = "lastUpdate";
+        //        queryResultKeys[7] = "positionId";
 
-                    colDefs = pimsGridColumnSvc.initializePositionEditColDefs(queryResultKeys);
-                    break;
-                case "PO":  // POsition summary
-                    queryResultKeys[0] = "positionSummaryTickerSymbol";
-                    queryResultKeys[1] = "positionSummaryAccountType";
-                    queryResultKeys[2] = "positionSummaryQty";
-                    queryResultKeys[3] = "positionSummaryValuation";
-                    queryResultKeys[4] = "positionSummaryGainLoss";
+        //        initializedColDefs = pimsGridColumnSvc.initializePositionEditColDefs(queryResultKeys);
+        //        break;
+        //    case "PO":  // POsition summary
+        //        queryResultKeys[0] = "positionSummaryTickerSymbol";
+        //        queryResultKeys[1] = "positionSummaryAccountType";
+        //        queryResultKeys[2] = "positionSummaryQty";
+        //        queryResultKeys[3] = "positionSummaryValuation";
+        //        queryResultKeys[4] = "positionSummaryGainLoss";
 
-                    colDefs = pimsGridColumnSvc.initializePositionSummaryColDefs(queryResultKeys);
-                    break;
-                case "AA":
-                    queryResultKeys[0] = "tickerSymbol";
-                    queryResultKeys[1] = "tickerDescription";
-                    queryResultKeys[2] = "assetClassification";
-                    queryResultKeys[3] = "distFreq";
+        //        initializedColDefs = pimsGridColumnSvc.initializePositionSummaryColDefs(queryResultKeys);
+        //        break;
+        //    case "AA":
+        //        queryResultKeys[0] = "tickerSymbol";
+        //        queryResultKeys[1] = "tickerDescription";
+        //        queryResultKeys[2] = "assetClassification";
+        //        queryResultKeys[3] = "distFreq";
 
-                    colDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys, vm.availableAssetTypes);
-                    break; 
-            }
+        //        initializedColDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys, vm.availableAssetTypes);
+        //        break; 
+        //    }
 
-            vm.gridOptions.columnDefs = colDefs;
+        /* TODO: 5.16.18 - incorporate into refactored code
+            vm.gridOptions.columnDefs = initializedColDefs;
             if (currentContext === "R1") {
                 //vm.revenueResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(vm.revenueResults[0].revenueAmount); // added 5.11.18
                 //queryResults[0].revenueAmount = queriesIncomeSvc.formatCurrency(queryResults[0].revenueAmount);
             }
 
-            if (!vm.isUnInitializedProfileProjection && vm.investorAssetsSummary.length > 0 || currentContext === "AS" )
-                vm.gridOptions.data = vm.investorAssetsSummary; 
-        }
-        
-
-        function getKeyIdForAssetType(assetTypeToSearch) {
-
-            var matchedAssetTypeId = 0;
-            for (var i = 0; i < vm.availableAssetTypes.length; i++) {
-                if (vm.availableAssetTypes[i].description.trim() === assetTypeToSearch.trim()) {
-                    matchedAssetTypeId = vm.availableAssetTypes[i].keyId;
-                    break;
-                }
-            }
-
-            return matchedAssetTypeId;
-        }
-        
-
-        vm.toggleFiltering = function () {
-            vm.gridOptions.enableFiltering = !vm.gridOptions.enableFiltering;
-            vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-        };
+            if (!vm.isUnInitializedProfileProjection && vm.investorAssetsSummary.length > 0 )
+                vm.gridOptions.data = vm.investorAssetsSummary;
 
 
-        // 'Profiles', 'Projections' button event handler.
+            if (currentContext === "AS")
+                vm.gridOptions.data = vm.activitySummaryResults;
+
+
+            vm.toggleFiltering = function () {
+                vm.gridOptions.enableFiltering = !vm.gridOptions.enableFiltering;
+                vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+            };
+    */
+
+
+
+             // 'Profiles', 'Projections' button event handler.
         vm.preAsyncInitializeProfileProjectionGrid = function (includeProjections, gridData) {
 
             var divFreqExpr = new RegExp("[ASQM]", "g");
@@ -447,19 +488,10 @@
 
                     vm.enteredGridTickersCapital.push(tickerAndCapital);
                 } 
-                   
             }
 
            queriesProfileProjectionSvc.getProfiles(vm.enteredGridTickersCapital, vm);
         }
-
-
-        vm.postAsyncInitializeProfileProjectionGrid = function(initializedProfiles) {
-            vm.gridOptions.data = initializedProfiles;
-            vm.disableProfilesBtn = true;
-            vm.disableProjectionsBtn = true;
-        }
-        
 
 
         vm.refreshGrid = function () {
@@ -494,9 +526,6 @@
         }
 
 
-        vm.postAsyncAssetTypeUpdates = function(response) {
-            alert("Completed asset type update(s)");
-        }
 
         // TODO: To be tested, if functionality needed
         function sortByAssetId() {
@@ -526,7 +555,140 @@
         }
 
 
-    }
+
+
+
+
+
+
+
+        } // pimsGridCtrl
+        
+    /* old code to delete
+        //function getKeyIdForAssetType(assetTypeToSearch) {
+
+        //    var matchedAssetTypeId = 0;
+        //    for (var i = 0; i < vm.availableAssetTypes.length; i++) {
+        //        if (vm.availableAssetTypes[i].description.trim() === assetTypeToSearch.trim()) {
+        //            matchedAssetTypeId = vm.availableAssetTypes[i].keyId;
+        //            break;
+        //        }
+        //    }
+
+        //    return matchedAssetTypeId;
+        //}
+        
+
+        //vm.toggleFiltering = function () {
+        //    vm.gridOptions.enableFiltering = !vm.gridOptions.enableFiltering;
+        //    vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+        //};
+
+
+        //// 'Profiles', 'Projections' button event handler.
+        //vm.preAsyncInitializeProfileProjectionGrid = function (includeProjections, gridData) {
+
+        //    var divFreqExpr = new RegExp("[ASQM]", "g");
+        //    for (var row = 0; row < 5; row++) {
+        //        var isValidDivFreq = gridData.grid.rows[row].entity.divFreq.match(divFreqExpr);
+
+        //        if (gridData.grid.rows[row].entity.ticker !== "Enter ticker" && gridData.grid.rows[row].entity.capital > 0 && isValidDivFreq !== null) {
+        //            var tickerAndCapital = {
+        //                tickerSymbol: gridData.grid.rows[row].entity.ticker,
+        //                dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
+        //                    ? gridData.grid.rows[row].entity.divRate
+        //                    : "0",
+        //                capitalToInvest: includeProjections === true
+        //                    ? gridData.grid.rows[row].entity.capital
+        //                    : 0,
+        //                divFreq: gridData.grid.rows[row].entity.divFreq
+        //            };
+
+        //            vm.enteredGridTickersCapital.push(tickerAndCapital);
+        //        } 
+                   
+        //    }
+
+        //   queriesProfileProjectionSvc.getProfiles(vm.enteredGridTickersCapital, vm);
+        //}
+
+
+        //vm.postAsyncInitializeProfileProjectionGrid = function(initializedProfiles) {
+        //    vm.gridOptions.data = initializedProfiles;
+        //    vm.disableProfilesBtn = true;
+        //    vm.disableProjectionsBtn = true;
+        //}
+        
+
+
+        //vm.refreshGrid = function () {
+        //    // Also clears browser cache ?
+        //    location.reload(true);
+        //}
+
+
+        //// TODO: Duplicate found in positionEditDeleteCtrl; consolidate into service?
+        //vm.clearPosition = function () {
+        //    var backlen = history.length;
+        //    history.go(-backlen);
+        //    window.location.href = "http://localhost:5969/App/Layout/Main.html#/grid/P";
+
+        //}
+
+
+        //vm.updateAssetTypes = function() {
+
+        //    // **********
+        //    // CANCELLED functionality - unable to avoid NH deleting ALL associated
+        //    // Position records when editing an Asset records' asset type. Functionality
+        //    // to be re-assesed upon adoption of ASPNET.CORE via VS2017.
+        //    // *********
+
+        //    //if (editedAssetTypes.length > 1) {
+        //    //    sortByAssetId();
+        //    //    editedAssetTypes = removeDuplicateAssetIds(editedAssetTypes);
+        //    //}
+            
+        //    //queriesAssetSvc.updateAssetTypes(editedAssetTypes, vm);
+        //}
+
+
+        //vm.postAsyncAssetTypeUpdates = function(response) {
+        //    alert("Completed asset type update(s)");
+        //}
+
+        //// TODO: To be tested, if functionality needed
+        //function sortByAssetId() {
+        //    editedAssetTypes.sort(function (obj1, obj2) {
+        //            var assetA = obj1.assetId; 
+        //            var assetB = obj2.assetId; 
+        //            if (assetA < assetB) {
+        //                return -1;
+        //            }
+        //            if (assetA > assetB) {
+        //                return 1;
+        //            }
+
+        //            return 0;
+        //        });
+        //        return editedAssetTypes;
+        //}
+
+
+        //// TODO: To be tested, if functionality needed
+        //function removeDuplicateAssetIds(data) {
+        //    for (var i = 0; i < data.length; i++) {
+        //        if (data[i].assetId === data[i - 1].assetId)
+        //            data.splice(i, 1);
+        //    }
+        //    return data;
+        //}
+
+
+    //}
+
+    */ 
+
 
 
 

@@ -81,7 +81,7 @@
 
         $scope.ok = function () {
             // Process promise results.
-            if ($scope.entries[1].Group == "R1" || $scope.entries[1].Group == "R3" || $scope.entries[1].Group == "R4" || $scope.entries[1].Group == "RE") {
+            if ($scope.entries[1].Group === "R1" || $scope.entries[1].Group === "R3" || $scope.entries[1].Group === "R4" || $scope.entries[1].Group === "RE") {
 
                 if (!incomeMgmtSvc.isValidCalendarDate($scope.fromDate, $scope.toDate)) {
                     alert("Invalid date range entered.");
@@ -91,7 +91,7 @@
                 $scope.entries[0].Value_1 = createAssetWizardSvc.formatDate($scope.fromDate);
                 $scope.entries[0].Value_2 = createAssetWizardSvc.formatDate($scope.toDate);
            }
-            if ($scope.entries[1].Group == "R2") {
+            if ($scope.entries[1].Group === "R2") {
 
                 if (!incomeMgmtSvc.isValidCalendarDate($scope.fromDate, $scope.toDate) || !incomeMgmtSvc.isValidTickerSymbolFormat($scope.inputRow2a)) {
                    alert("Invalid entry(ies), check dates and/or ticker symbol.");
@@ -103,7 +103,7 @@
                $scope.entries[0].Value_3 = $scope.inputRow2a;
 
             }
-            if ($scope.entries[1].Group == "R5" || $scope.entries[1].Group == "R6") {
+            if ($scope.entries[1].Group === "R5" || $scope.entries[1].Group === "R6") {
  
                 if (!incomeMgmtSvc.isValidCalendarDate($scope.fromDate, $scope.toDate) || $scope.selectedFrequencyOrPeriod.frequencyCode.trim() == "X") {
                     alert("Invalid or incomplete entry(ies), check dates and/or frequency/period data.");
@@ -115,7 +115,7 @@
                 $scope.entries[0].Value_5 = $scope.selectedFrequencyOrPeriod.frequencyCode.trim();
                 //alert("selected: " + $scope.entries[0].Value_5);
             }
-            if ($scope.entries[1].Group == "P" ) {
+            if ($scope.entries[1].Group === "P" ) {
 
                 if (!incomeMgmtSvc.isValidTickerSymbolFormat($scope.inputRow2a)) {
                     alert("Invalid entry, check ticker symbol.");

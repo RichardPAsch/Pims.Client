@@ -10,7 +10,7 @@
         .module("incomeMgmt.core")
         .factory("queriesIncomeSvc", queriesIncomeSvc);
 
-    queriesIncomeSvc.$inject = ["$resource", "$filter", "appSettings", 'incomeMgmtSvc', '$location', '$window'];
+    queriesIncomeSvc.$inject = ["$resource", "$filter", "appSettings", "incomeMgmtSvc", "$location", "$window"];
 
 
     function queriesIncomeSvc($resource, $filter, appSettings, incomeMgmtSvc, $location, $window) {
@@ -35,82 +35,6 @@
                 this.currentIncomeAdditions.push(revenueToAdd);
             }
         };
-
-
-        function saveRevenue() {
-            
-            var mostRecentRevenue = vm.revenueCache.incomeRecords;
-            if (!incomeMgmtSvc.isValidIncomeDateVsPositionAndTodayDate(mostRecentRevenue[mostRecentRevenue.length - 1].DateReceived,
-                                                                       mostRecentRevenue[mostRecentRevenue.length - 1].PositionAddDate)) {
-                alert("Invalid entry: date may not precede date 'Position' was added, or exceed today's, date.");
-                return;
-            }
-
-            var incomeUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/" + mostRecentRevenue[mostRecentRevenue.length - 1].TickerSymbol + "/Income";
-            $resource(incomeUrl).save(mostRecentRevenue[mostRecentRevenue.length -1], function() {
-                // success
-                alert("Successfully saved $" + mostRecentRevenue[mostRecentRevenue.length - 1].AmountRecvd
-                    + " to "
-                    + mostRecentRevenue[mostRecentRevenue.length - 1].TickerSymbol
-                    + "/" + mostRecentRevenue[mostRecentRevenue.length - 1].AcctType);
-            }, function() {
-                // error
-                alert("Error saving income.");
-            });
-            
-        }
-
-
-        function getRevenue(stateUrl, queryCriteria, ctrl) {
-   
-            vm.queryGroup = getQueryGroup(stateUrl);
-            //var submittedCriteria = queryCriteria;  // never used ?
-            var url = buildUrlByQueryGroup(queryCriteria); 
-
-            $resource(url).query().$promise.then(function (response) {
-                vm.queryResults = response;
-                ctrl.initializeGrid(); 
-            }, function (err) {
-                //  FROM: " + submittedCriteria[0].Value_1 + " TO : " + submittedCriteria[0].Value_2
-                if (err.status == 400 || err.status == 500) {  // Bad Request (no data) || Internal Server Error 
-                    alert("No income found matching submitted criteria");
-                }
-
-                // Redirect Url must contain 'state' reference for proper routing, not a modal dialog reference.
-                $window.location.href = $location.$$protocol + "://" + $location.$$host + ":" + $location.$$port + "/App/Layout/Main.html#/Queries";
-            });
-            
-        }
-
-
-        function getQueryResults() {
-            return vm.queryResults; 
-        }
-
-
-        function getQuerySelection() {
-            return vm.querySelection;
-        }
-
-
-        function getQueryGroup(pathToParse) {
-            // Assumes routing 'state' base of : '/grid/'.
-            if (pathToParse == undefined)
-                return vm.queryGroup;
-
-            return pathToParse.substr(6);
-        }
-
-
-        function formatCurrency(amount) {
-            return "$" + amount.toFixed(2);
-        }
-
-
-        function formatUrlDate(dateToFormat) {
-            // Use regex (g)lobal flag for multiple replacements.
-            return dateToFormat.replace(/\//g, "-");
-        }
 
 
         var buildUrlByQueryGroup = function (enteredCriteria) {
@@ -159,8 +83,85 @@
             }
             return queryFinalUrl;
         }
-  
 
+
+        function saveRevenue() {
+            
+            var mostRecentRevenue = vm.revenueCache.incomeRecords;
+            if (!incomeMgmtSvc.isValidIncomeDateVsPositionAndTodayDate(mostRecentRevenue[mostRecentRevenue.length - 1].DateReceived,
+                                                                       mostRecentRevenue[mostRecentRevenue.length - 1].PositionAddDate)) {
+                alert("Invalid entry: date may not precede date 'Position' was added, or exceed today's, date.");
+                return;
+            }
+
+            var incomeUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset/" + mostRecentRevenue[mostRecentRevenue.length - 1].TickerSymbol + "/Income";
+            $resource(incomeUrl).save(mostRecentRevenue[mostRecentRevenue.length -1], function() {
+                // success
+                alert("Successfully saved $" + mostRecentRevenue[mostRecentRevenue.length - 1].AmountRecvd
+                    + " to "
+                    + mostRecentRevenue[mostRecentRevenue.length - 1].TickerSymbol
+                    + "/" + mostRecentRevenue[mostRecentRevenue.length - 1].AcctType);
+            }, function() {
+                // error
+                alert("Error saving income.");
+            });
+            
+        }
+
+
+        function getRevenue(stateUrl, queryCriteria, ctrl) {
+   
+            vm.queryGroup = getQueryGroup(stateUrl);
+            var url = buildUrlByQueryGroup(queryCriteria); 
+
+            $resource(url).query().$promise.then(function (response) {
+                vm.queryResults = response;
+                ctrl.revenueResults = vm.queryResults; 
+                ctrl.initializeGrid(); 
+            }, function (err) {
+                //  FROM: " + submittedCriteria[0].Value_1 + " TO : " + submittedCriteria[0].Value_2
+                if (err.status === 400 || err.status === 500) {  // Bad Request (no data) || Internal Server Error 
+                    alert("No income found matching submitted criteria");
+                }
+
+                // Redirect Url must contain 'state' reference for proper routing, not a modal dialog reference.
+                $window.location.href = $location.$$protocol + "://" + $location.$$host + ":" + $location.$$port + "/App/Layout/Main.html#/Queries";
+            });
+            
+        }
+
+
+        function getQueryResults() {
+            return vm.queryResults; 
+        }
+
+
+        function getQuerySelection() {
+            return vm.querySelection;
+        }
+
+
+        function getQueryGroup(pathToParse) {
+            // Assumes routing 'state' base of : '/grid/'.
+            if (pathToParse == undefined)
+                return vm.queryGroup;
+
+            return pathToParse.substr(6);
+        }
+
+
+        function formatCurrency(amount) {
+            return "$" + amount.toFixed(2);
+        }
+
+
+        function formatUrlDate(dateToFormat) {
+            // Use regex (g)lobal flag for multiple replacements.
+            return dateToFormat.replace(/\//g, "-");
+        }
+
+
+       
         // Criteria needs to be defined BEFORE modalCriteriaInstance.resolve().
         function buildCriteriaEntries() {
             // TODO: 'Description' exists in TWO places (here & queriesMenuView.html) - refactor!
