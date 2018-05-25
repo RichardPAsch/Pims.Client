@@ -173,17 +173,17 @@
 
 
         vm.toggleAdjInputs = function () {
-            vm.mktPriceDisabled = vm.adjustedOption == 'edit' ? false : true;
-            vm.adjDateDisabled = vm.adjustedOption == 'edit' ? false : true;
+            vm.mktPriceDisabled = vm.adjustedOption === "edit" ? false : true;
+            vm.adjDateDisabled = vm.adjustedOption === "edit" ? false : true;
             vm.updateBtnDisabled = false;
 
             // Enable inline editing of Position transaction(s).
-            if (vm.adjustedOption == 'edit') {
+            if (vm.adjustedOption === 'edit') {
                 var origPosDate = $filter('date')(vm.positionFrom.positionDate, 'M/dd/yyyy');
                 var adjustedPosDate = $filter('date')(vm.positionAdjDate, 'M/dd/yyyy');
                 // Unadjusted Position date indicates process for transaction edit(s).
                 // TODO: 1st 3 params may now not be needed after addition of currentPositionParam?
-                if (origPosDate == adjustedPosDate) {
+                if (origPosDate === adjustedPosDate) {
                         $state.go("position_transactions_edit",
                            {
                                positionIdParam: vm.positionFrom.positionId,
@@ -194,7 +194,7 @@
                 }
             }
 
-            if (vm.adjustedOption == 'rollover') {
+            if (vm.adjustedOption === 'rollover') {
                 // Obtain currently persisted transactions; useful in calculating source & target position 
                 // total values, as necessary via updatePosition().
                 // TODO: check if vm.positionFrom.transactions not already initialized (~line 123)
