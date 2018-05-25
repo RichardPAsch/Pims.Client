@@ -133,7 +133,7 @@
 
                 //};
 
-            } // function(gridApi)
+            } // end function(gridApi)
         };
 
 
@@ -174,7 +174,7 @@
             case "R5":
             case "R6":
             case "RE":
-            //case "P":
+            case "P":  // 5.22.18 - this case needed ?
                 if ($location.$$port === 5969) {
                     // VS IDE runtime
                     vm.templatePath = $location.$$protocol +
@@ -205,7 +205,17 @@
                 vm.showToggle = false;
                 vm.gridTitle = "Asset Profiles - Projections  [ max: 5 ]";
                 vm.isUnInitializedProfileProjection = true;
-                buildGridColKeys();
+                queryResultKeys = ["ticker", "capital", "price", "divRate",  "divFreq", "divYield", "divDate", "projectedRevenue"];
+                initializedColDefs = pimsGridColumnSvc.initializeProfileProjectionColDefs(queryResultKeys);
+                if (initializedColDefs.length > 0) {
+                    vm.gridOptions.columnDefs = initializedColDefs;
+                    vm.gridOptions.data = [
+                        { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                        { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                        { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                        { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" },
+                        { ticker: "Enter ticker", capital: "(optional)", divRate: "0", divFreq: "A,S,Q,M" }];
+                }
                 break;
             case "PO":
             case "AA":
@@ -214,9 +224,11 @@
                 vm.gridMsg = ""; // any message can go here";
                 queriesAssetSvc.getAssetSummaryData($stateParams.status, vm);
                 break;
-            case "P":
+            //case "P":
                 // TODO: to be implemented if necessary
-                break;
+           //     break;
+
+
             // Asset summary results via 'Queries' menu.
            
             // ** 5.10.2018 - Combined above to provide 2 access pts for this functionality. **
@@ -317,6 +329,11 @@
             vm.gridTitle = vm.criteriaEntries[3].Description2.trim();
             vm.positionResults = responsePositions;
             buildGridColKeys();
+            initializedColDefs = pimsGridColumnSvc.initializePositionEditColDefs(queryResultKeys);
+            if (initializedColDefs.length > 0) {
+                vm.gridOptions.columnDefs = initializedColDefs;
+                vm.gridOptions.data = vm.positionResults;
+            }
         }
 
 
@@ -330,13 +347,15 @@
         vm.postAsyncGetAvailableAssetTypes = function (fetchedAssetTypes) {
             vm.availableAssetTypes = fetchedAssetTypes;
             buildGridColKeys();
+            initializedColDefs = pimsGridColumnSvc.initializeAssetSummaryColDefs(queryResultKeys, vm.availableAssetTypes);
+            vm.gridOptions.columnDefs = initializedColDefs;
+            vm.gridOptions.data = vm.investorAssetsSummary;
         }
 
 
         vm.postAsyncGetAssetSummaryData = function (initializedSummary) {
             vm.investorAssetsSummary = initializedSummary;
             queriesAssetSvc.getAvailableAssetTypes(vm);
-
             vm.showRefreshBtn = true;
             vm.showRefreshGridBtn = false;
         }
@@ -349,8 +368,6 @@
 
         function buildGridColKeys() {
             // Template ref for columnDefs: [  { field: 'revenueMonth', headerCellClass: 'myGridHeaders' }, ...]
-            //var queryResultKeys = [];
-
             if (currentContext.indexOf("R") === 0) {
                 if (vm.revenueResults.length > 0) {
                     queryResultKeys = Object.keys(vm.revenueResults[0]).toString().split(",");
@@ -358,7 +375,6 @@
             }
             else
             {
-                // TODO: test 5.15.18
                 if (currentContext === "P") {
                     queryResultKeys = Object.keys(vm.positionResults[0]).toString().split(","); // column headers
                 } else {
@@ -367,8 +383,14 @@
                     } else {
                         if (currentContext !== "PP" && currentContext !== "AA") {
                             if (vm.investorAssetsSummary.length > 0) {
-                                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(","); 
+                                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(",");
                             }
+                         } else {
+                            if (currentContext === "AA")
+                                queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(","); 
+
+                            //if (currentContext === "PP")
+                            //    queryResultKeys = Object.keys(vm.investorAssetsSummary[0]).toString().split(","); 
                         }
                     }   
                 }
@@ -467,30 +489,39 @@
 
 
 
-             // 'Profiles', 'Projections' button event handler.
-        vm.preAsyncInitializeProfileProjectionGrid = function (includeProjections, gridData) {
+        // 'Profiles - Projections' button event handler.
+        vm.InitializeProfileProjectionGrid = function (includeProjections, gridData) {
 
-            var divFreqExpr = new RegExp("[ASQM]", "g");
+            //var divFreqExpr = new RegExp("[ASQM]", "g");
             for (var row = 0; row < 5; row++) {
-                var isValidDivFreq = gridData.grid.rows[row].entity.divFreq.match(divFreqExpr);
+                //var resultDivFreq = gridData.grid.rows[row].entity.divFreq.match(divFreqExpr);
+                var enteredFreq = gridData.grid.rows[row].entity.divFreq.toUpperCase();
+                if (enteredFreq !== "A" && enteredFreq !== "S" && enteredFreq !== "Q" && enteredFreq !== "M" && gridData.grid.rows[row].entity.ticker !== "Enter ticker")
+                    alert("Invalid distribution frequency found for: \n" + gridData.grid.rows[row].entity.ticker);
 
-                if (gridData.grid.rows[row].entity.ticker !== "Enter ticker" && gridData.grid.rows[row].entity.capital > 0 && isValidDivFreq !== null) {
+                if (gridData.grid.rows[row].entity.capital > 0 ) {
                     var tickerAndCapital = {
-                        tickerSymbol: gridData.grid.rows[row].entity.ticker,
-                        dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
-                            ? gridData.grid.rows[row].entity.divRate
-                            : "0",
-                        capitalToInvest: includeProjections === true
-                            ? gridData.grid.rows[row].entity.capital
-                            : 0,
-                        divFreq: gridData.grid.rows[row].entity.divFreq
+                                                tickerSymbol: gridData.grid.rows[row].entity.ticker,
+                                                dividendRateInput: gridData.grid.rows[row].entity.divRate !== "0"
+                                                    ? gridData.grid.rows[row].entity.divRate
+                                                    : "0",
+                                                capitalToInvest: includeProjections === true
+                                                    ? gridData.grid.rows[row].entity.capital
+                                                    : 0,
+                                                divFreq: gridData.grid.rows[row].entity.divFreq
                     };
-
                     vm.enteredGridTickersCapital.push(tickerAndCapital);
                 } 
             }
 
            queriesProfileProjectionSvc.getProfiles(vm.enteredGridTickersCapital, vm);
+        }
+
+
+        vm.postAsyncInitializeProfileProjectionGrid = function(initializedProfiles) {
+            vm.gridOptions.data = initializedProfiles;
+            vm.disableProfilesBtn = true;
+            vm.disableProjectionsBtn = true;
         }
 
 
@@ -555,6 +586,9 @@
         }
 
 
+       
+
+
 
 
 
@@ -586,7 +620,7 @@
 
 
         //// 'Profiles', 'Projections' button event handler.
-        //vm.preAsyncInitializeProfileProjectionGrid = function (includeProjections, gridData) {
+        //vm.InitializeProfileProjectionGrid = function (includeProjections, gridData) {
 
         //    var divFreqExpr = new RegExp("[ASQM]", "g");
         //    for (var row = 0; row < 5; row++) {
