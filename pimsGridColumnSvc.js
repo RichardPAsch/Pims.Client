@@ -357,7 +357,7 @@
                         displayName: "Monthly income (projected)",
                         aggregationType: uiGridConstants.aggregationTypes.sum,
                         footerCellTemplate: vm.totalFooterCellTemplate,
-                        cellClass: "grid-align",
+                        cellClass: "cell-align",
                         headerCellClass: 'myGridHeaders',
                         cellFilter: 'number: 2',
                         headerTooltip: 'Displays approximate projected monthly revenue.',
@@ -601,6 +601,12 @@
                 if (vm.columnObj != null)
                     vm.colDefinitions.push(vm.columnObj);
             }
+
+            // TODO: Fix duplicate 'assetClassification' columns.
+            // Temp fix: Remove duplicate 'assetClassification' columns
+            vm.colDefinitions.splice(3, 1);
+            vm.colDefinitions.splice(3, 1);
+            vm.colDefinitions.splice(3, 1);
 
             return vm.colDefinitions;
         }
