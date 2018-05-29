@@ -311,6 +311,7 @@
 
             // The $resource 'class' object method immediately returns an empty reference (object or array). Once the data 
             // is returned from the server, the existing reference is populated with the actual data.
+            // TODO: 5.30.18 - debug WebApi ctrl
             var assetUrl = appSettings.serverPath + "/Pims.Web.Api/api/Asset";
             $resource(assetUrl).save(newAsset, function () {
                 ctrl.postAsyncSaveAsset(true);  // success
