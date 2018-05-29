@@ -28,7 +28,10 @@
         vm.QuantityRegEx = "^[0-9.]+$";
         vm.inRevisitMode = false;
         vm.transactionFees = 0.00;
-        vm.currentUnitMktPrice = this.currentAsset.ProfileToCreate.Price;
+        
+        if(this.currentAsset.ProfileToCreate !== undefined)
+            vm.currentUnitMktPrice = this.currentAsset.ProfileToCreate.Price;
+
 
         if (vm.currentAsset.PositionsCreated != undefined) {
             // Always the most recently added Position will be available for REVISIT viewing.
@@ -114,15 +117,14 @@
         vm.isValidQuantity = function () {
             return vm.positionQty == undefined || vm.positionQty.match(vm.QuantityRegEx) == null
                                                || vm.positionQty.length > 6
-                                               || vm.positionQty == ""
+                                               || vm.positionQty === ""
                 ? false
                 : true;
         }
-        
+
 
         vm.saveAssetPosition = function () {
 
-           
             if (!vm.isValidAccountType()) {
                 vm.showAAssetAcctTypeValidationMsg = true;
                 $interval(function () {
