@@ -249,6 +249,12 @@
         }
 
 
+        vm.toggleFiltering = function () {
+            vm.gridOptions.enableFiltering = !vm.gridOptions.enableFiltering;
+            vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+        };
+
+
 
        
         function getCurrentContextFromUrl(currentPath) {
