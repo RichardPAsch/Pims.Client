@@ -38,7 +38,6 @@
 
 
         $scope.update = function () {
-            //$state.go("positions_edit");
             // Multiple edits may exist on the same transaction record, so we'll remove duplicate record keys.
             $scope.editedTrxRowKeys = incomeMgmtSvc.removeArrayDuplicates($scope.editedTrxRowKeys);
             $scope.sortTrxCollections();
@@ -89,24 +88,9 @@
                     { field: 'transactionEvent', visible: false, enableCellEdit: false, width: '1%', }
             ];
 
-            //$scope.transactionsGrid.columnDefs = [
-            //        { field: 'dateCreated', displayName: 'Created', enableCellEdit: false, width: '15%', type: 'date', cellFilter: 'date:\'MM-dd-yyyy\'', headerCellClass: 'headerAlignment' },
-            //        { field: 'units', displayName: 'Qty', enableCellEdit: true, width: '10%', headerCellClass: 'headerAlignment' },
-            //        { field: 'mktPrice', displayName: 'Price', enableCellEdit: true, width: '12%', cellFilter: 'number: 3', headerTooltip: 'Current market price', headerCellClass: 'headerAlignment' },
-            //        { field: 'fees', displayName: 'Fees', enableCellEdit: true, width: '12%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
-            //        { field: 'costBasis', displayName: 'Cost Basis', enableCellEdit: false, width: '17%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' },
-            //        { field: 'unitCost', displayName: 'Unit Cost', enableCellEdit: false, width: '16%', cellFilter: 'number: 3', headerCellClass: 'headerAlignment' },
-            //        { field: 'valuation', displayName: 'Value', enableCellEdit: false, width: '18%', cellFilter: 'number: 2', headerCellClass: 'headerAlignment' }
-            //];
-
         };
 
-       
-        //$scope.transactionsGrid = {
-        //    enableRowSelection: true,
-        //    enableRowHeaderSelection: false
-        //};
-
+      
         $scope.msg = {};
 
         $scope.gridTitle = "Position transaction(s) for account:  " + $stateParams.accountParam;
@@ -141,8 +125,7 @@
 
             return null;
         }
-
-
+        
         $scope.postAsyncGetAllTransactionsPostEdit = function (positionTrxs) {
 
             if (positionTrxs.$resolved) {
@@ -166,19 +149,21 @@
 
             return null;
         }
-
-
+        
         $scope.postAsyncTransactionUpdates = function(response) {
             if (!response.$resolved) {
                 alert("Error updating transaction due to: " + response);
                 return false;
+            } else {
+                alert("Transaction(s) updated."); 
             }
 
-            transactionsModalSvc.getAllTransactionsPostEdit(response[0].PositionId, $scope);
+
+            // 5.26.18 - Why needed ?
+            //transactionsModalSvc.getAllTransactionsPostEdit(response[0].PositionId, $scope);
             return true;
         }
-
-
+        
         $scope.postAsyncPositionUpdates = function(results) {
             if (!results.$resolved) {
                 alert("Error updating Position due to: " + results);
