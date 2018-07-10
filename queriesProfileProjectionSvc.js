@@ -83,13 +83,15 @@
        
         function initializeWithProjections() {
 
+            // 7.10.18 - Input order should already match fetched profile order: regarding ticker symbols.
             // Synchronize 'recvdInput' sorting with received Profile(s) data.
-            if (vm.recvdInput.length > 1)
-                vm.recvdInput = vm.recvdInput.sort(sortTickers);
+            //if (vm.recvdInput.length > 1)
+            //    vm.recvdInput = vm.recvdInput.sort(sortTickers); 
 
            for (var row = 0; row < vm.recvdProfilesWithProjections.length; row++) {
                vm.recvdProfilesWithProjections[row].capital = parseFloat(vm.recvdInput[row].capitalToInvest);
                vm.recvdProfilesWithProjections[row].divDate = "";
+
                vm.recvdProfilesWithProjections[row].divRate = vm.recvdProfilesWithProjections[row].divRate > 0
                    ? vm.recvdProfilesWithProjections[row].divRate
                    : 0;
