@@ -314,7 +314,7 @@
                         enableCellEdit: true,
                         cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
-                        headerTooltip: "Enter dividend distribution frequency. ",
+                        headerTooltip: "Enter known dividend distribution frequency. ",
                         width: "9%"
                     };
                 }
@@ -347,7 +347,7 @@
                         displayName: "Div.Rate",
                         cellClass: "grid-align",
                         headerCellClass: 'myGridHeaders',
-                        headerTooltip: "Enter available dividend rate",
+                        headerTooltip: "Enter any value > 0, or enter a dividend rate to override fetched value",
                         width: '11%'
                     };
                 }
