@@ -203,7 +203,7 @@
                 vm.showProfilesBtn = true;
                 vm.showProjectionsBtn = true;
                 vm.showToggle = false;
-                vm.gridTitle = "Asset Profiles - Projections  [ max: 5 ]";
+                vm.gridTitle = "Asset Profiles - Projections  [ max: 5 ];  note tooltips for rate & frequency";
                 vm.isUnInitializedProfileProjection = true;
                 queryResultKeys = ["ticker", "capital", "price", "divRate",  "divFreq", "divYield", "divDate", "projectedRevenue"];
                 initializedColDefs = pimsGridColumnSvc.initializeProfileProjectionColDefs(queryResultKeys);
